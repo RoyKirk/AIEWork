@@ -17,10 +17,6 @@ float Planet1X = 6;
 float Planet2X = 10;
 float Planet3X = 15;
 
-Mat4 PlanetOrbit;
-
-
-
 
 TestApplication::TestApplication()
 	: m_camera(nullptr) {
