@@ -1,2 +1,0 @@
-# AIEWork
-AIE work files
