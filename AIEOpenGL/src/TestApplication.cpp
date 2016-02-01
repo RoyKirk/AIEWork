@@ -12,6 +12,16 @@ using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 
+float SunX = 0;
+float Planet1X = 6;
+float Planet2X = 10;
+float Planet3X = 15;
+
+Mat4 PlanetOrbit;
+
+
+
+
 TestApplication::TestApplication()
 	: m_camera(nullptr) {
 
@@ -84,15 +94,18 @@ bool TestApplication::update(float deltaTime) {
 	Gizmos::addTransform(glm::translate(m_pickPosition));
 
 	// ...for now let's add a grid to the gizmos
-	for (int i = 0; i < 21; ++i) {
-		Gizmos::addLine(vec3(-10 + i, 0, 10), vec3(-10 + i, 0, -10),
-			i == 10 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
+	for (int i = 0; i < 51; ++i) {
+		Gizmos::addLine(vec3(-25 + i, 0, 25), vec3(-25 + i, 0, -25),
+			i == 25 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
 
-		Gizmos::addLine(vec3(10, 0, -10 + i), vec3(-10, 0, -10 + i),
-			i == 10 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
+		Gizmos::addLine(vec3(25, 0, -25 + i), vec3(-25, 0, -25 + i),
+			i == 25 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
 	}
-	Gizmos::addSphere(vec3(0, 0, 0), 2, 10, 10, vec4(1, 0, 1, 1));
-	Gizmos::addDisk(vec3(0, 0, 0), 3, 10, vec4(1,1, 0, 1));
+	
+	Gizmos::addSphere(vec3(SunX, 0, 0), 3, 10, 10, vec4(1, 0, 1, 1));
+	Gizmos::addSphere(vec3(Planet1X, 0, 0), 1, 10, 10, vec4(1, 0, 0, 1));
+	Gizmos::addSphere(vec3(Planet2X, 0, 0), 1.2, 10, 10, vec4(0, 1, 0, 1));
+	Gizmos::addSphere(vec3(Planet3X, 0, 0), 0.8, 10, 10, vec4(0, 0, 1, 1));
 
 	// return true, else the application closes
 	return true;
