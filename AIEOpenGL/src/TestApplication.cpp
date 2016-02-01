@@ -91,6 +91,8 @@ bool TestApplication::update(float deltaTime) {
 		Gizmos::addLine(vec3(10, 0, -10 + i), vec3(-10, 0, -10 + i),
 			i == 10 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
 	}
+	Gizmos::addSphere(vec3(0, 0, 0), 2, 10, 10, vec4(1, 0, 1, 1));
+	Gizmos::addDisk(vec3(0, 0, 0), 3, 10, vec4(1,1, 0, 1));
 
 	// return true, else the application closes
 	return true;

@@ -93,8 +93,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\dep\glfw-3.1.2\src;$(SolutionDir)\dep\glm\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\dep\glfw-3.1.2\src\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)dep\glfw-3.1.2\src;$(SolutionDir)dep\glm\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)dep\glfw-3.1.2\src\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
