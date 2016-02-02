@@ -130,7 +130,7 @@ bool TestApplication::update(float deltaTime) {
 	Planet1OrbitRot += deltaTime * Planet1RotSpeed;
 
 	Planet1Rot = glm::rotate(Planet1OrbitRot, vec3(0, 1, 0));
-	Planet1Rot = glm::translate(Planet1Rot, vec3(6, 0, 0));
+	//Planet1Rot = glm::translate(Planet1Rot, vec3(1, 0, 0));
 	
 
 
