@@ -31,7 +31,7 @@ float Planet1RotSpeed = 0.02;
 float Planet2RotSpeed = 0.01;
 float Planet3RotSpeed = 0.005;
 
-mat4 Planet1Rot = mat4(0, 0, 0, 0,
+mat4 Planet1Rot = mat4(1, 0, 0, 0,
 						0, 1, 0, 0,
 						0, 0, 0, 0,
 						0, 0, 0, 1);
@@ -130,6 +130,8 @@ bool TestApplication::update(float deltaTime) {
 	Planet1OrbitRot += deltaTime * Planet1RotSpeed;
 
 	Planet1Rot = glm::rotate(Planet1OrbitRot, vec3(0, 1, 0));
+	Planet1Rot = glm::translate(Planet1Rot, vec3(6, 0, 0));
+	
 
 
 
