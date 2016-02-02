@@ -7,15 +7,44 @@
 
 #include "Camera.h"
 #include "Gizmos.h"
+#include <math.h>
 
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 
-float SunX = 0;
-float Planet1X = 6;
-float Planet2X = 10;
-float Planet3X = 15;
+vec3 SunPos = vec3(0, 0, 0);
+vec3 Planet1Pos = vec3(6, 0, 6);
+vec3 Planet2Pos = vec3(10, 0, 10);
+vec3 Planet3Pos = vec3(15, 0, 15);
+
+vec4 SunPos4 = vec4(SunPos.x, SunPos.y, SunPos.z, 1);
+vec4 Planet1Pos4 = vec4(Planet1Pos.x, Planet1Pos.y, Planet1Pos.z, 1);
+vec4 Planet2Pos4 = vec4(Planet2Pos.x, Planet2Pos.y, Planet2Pos.z, 1);
+vec4 Planet3Pos4 = vec4(Planet3Pos.x, Planet3Pos.y, Planet3Pos.z, 1);
+
+float Planet1OrbitRot = 0;
+float Planet2OrbitRot = 0;
+float Planet3OrbitRot = 0;
+
+float Planet1RotSpeed = 0.02;
+float Planet2RotSpeed = 0.01;
+float Planet3RotSpeed = 0.005;
+
+mat4 Planet1Rot = mat4(1, 0, 0, 0,
+						0, 1, 0, 0,
+						0, 0, 0, 0,
+						0, 0, 0, 1);
+
+mat4 Planet2Rot = mat4(cos(Planet2RotSpeed), 0, sin(Planet2RotSpeed), 0,
+	0, 1, 0, 0,
+	-(sin(Planet2RotSpeed)), 0, cos(Planet2RotSpeed), 0,
+	0, 0, 0, 1);
+
+mat4 Planet3Rot = mat4(cos(Planet3RotSpeed), 0, sin(Planet3RotSpeed), 0,
+	0, 1, 0, 0,
+	-(sin(Planet3RotSpeed)), 0, cos(Planet3RotSpeed), 0,
+	0, 0, 0, 1);
 
 
 TestApplication::TestApplication()
@@ -36,7 +65,7 @@ bool TestApplication::startup() {
 	Gizmos::create();
 
 	// create a camera
-	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
+	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.01f, 1000.f);
 	m_camera->setLookAtFrom(vec3(10, 10, 10), vec3(0));
 	
 	//////////////////////////////////////////////////////////////////////////
@@ -98,10 +127,28 @@ bool TestApplication::update(float deltaTime) {
 			i == 25 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
 	}
 	
-	Gizmos::addSphere(vec3(SunX, 0, 0), 3, 10, 10, vec4(1, 0, 1, 1));
-	Gizmos::addSphere(vec3(Planet1X, 0, 0), 1, 10, 10, vec4(1, 0, 0, 1));
-	Gizmos::addSphere(vec3(Planet2X, 0, 0), 1.2, 10, 10, vec4(0, 1, 0, 1));
-	Gizmos::addSphere(vec3(Planet3X, 0, 0), 0.8, 10, 10, vec4(0, 0, 1, 1));
+	Planet1OrbitRot += deltaTime * Planet1RotSpeed;
+
+	Planet1Rot = glm::rotate(Planet1OrbitRot, vec3(0, 1, 0));
+	//Planet1Rot = glm::translate(Planet1Rot, vec3(1, 0, 0));
+	
+
+
+
+	Planet1Pos4 = Planet1Rot * Planet1Pos4;
+	//Planet2Pos4 = (Planet2Rot * Planet1Rot) * Planet2Pos4;
+	//Planet2Pos4 = Planet1Rot * Planet2Pos4;
+	//Planet3Pos4 = Planet3Rot * Planet3Pos4;
+	
+	SunPos = vec3(SunPos4.x, SunPos4.y, SunPos4.z);
+	Planet1Pos = vec3(Planet1Pos4.x, Planet1Pos4.y, Planet1Pos4.z);
+	Planet2Pos = vec3(Planet2Pos4.x, Planet2Pos4.y, Planet2Pos4.z);
+	Planet3Pos = vec3(Planet3Pos4.x, Planet3Pos4.y, Planet3Pos4.z);	
+
+	Gizmos::addSphere(SunPos, 3, 10, 10, vec4(1, 0, 1, 1));
+	Gizmos::addSphere(Planet1Pos, 0.5, 10, 10, vec4(1, 0, 0, 1));
+	Gizmos::addSphere(Planet2Pos, 1, 10, 10, vec4(0, 1, 0, 1));
+	Gizmos::addSphere(Planet3Pos, 1.5, 10, 10, vec4(0, 0, 1, 1));
 
 	// return true, else the application closes
 	return true;
