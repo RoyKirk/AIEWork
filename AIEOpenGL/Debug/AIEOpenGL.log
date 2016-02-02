@@ -1,4 +1,0 @@
-﻿  TestApplication.cpp
-c:\users\roy.kirk\documents\aiework\aieopengl\src\testapplication.cpp(106): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\roy.kirk\documents\aiework\aieopengl\src\testapplication.cpp(107): warning C4305: 'argument': truncation from 'double' to 'float'
-  AIEOpenGL.vcxproj -> C:\Users\roy.kirk\Documents\AIEWork\AIEOpenGL\bin\AIEOpenGL_d.exe
