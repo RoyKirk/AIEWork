@@ -1,6 +1,8 @@
 #include "TestApplication.h"
 #include "gl_core_4_4.h"
 
+#define GLM_SWIZZLE
+
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -15,44 +17,10 @@ using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 
-float Planet1Dis = 15;
-float Planet2Dis = 2;
-float Planet3Dis = 1;
-
-vec3 SunPos = vec3(0);
-vec3 Planet1Pos = vec3(0);
-vec3 Planet2Pos = vec3(0);
-vec3 Planet3Pos = vec3(0);
-
-Planet* Sun = new Planet()
-
-float Planet1OrbitRot = 0;
-float Planet2OrbitRot = 0;
-float Planet3OrbitRot = 0;
-
-float Planet1RotSpeed = 0.5;
-float Planet2RotSpeed = 1;
-float Planet3RotSpeed = 2;
-
-mat4 SunLocal = mat4(1, 0, 0, 0,
-					0, 1, 0, 0,
-					0, 0, 1, 0,
-					SunPos.x, SunPos.y, SunPos.z, 1);
-
-mat4 Planet1Local = mat4(1, 0, 0, 0,
-						0, 1, 0, 0,
-						0, 0, 1, 0,
-						Planet1Pos.x, Planet1Pos.y, Planet1Pos.z, 1);
-
-mat4 Planet2Local = mat4(1, 0, 0, 0,
-						0, 1, 0, 0,
-						0, 0, 1, 0,
-						Planet2Pos.x, Planet2Pos.y, Planet2Pos.z, 1);
-mat4 Planet3Local = mat4(1, 0, 0, 0,
-						0, 1, 0, 0,
-						0, 0, 1, 0,
-						Planet3Pos.x, Planet3Pos.y, Planet3Pos.z, 1);
-
+Planet* Sun = new Planet(nullptr, 0, 0);
+Planet* Planet1 = new Planet(Sun, 15, 0.5);
+Planet* Planet2 = new Planet(Planet1, 2, 1);
+Planet* Planet3 = new Planet(Planet2, 1, 2);
 
 TestApplication::TestApplication()
 	: m_camera(nullptr) {
@@ -134,26 +102,26 @@ bool TestApplication::update(float deltaTime) {
 			i == 25 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
 	}
 	
-	Planet1OrbitRot += deltaTime * Planet1RotSpeed;
-	Planet2OrbitRot += deltaTime * Planet2RotSpeed;
-	Planet3OrbitRot += deltaTime * Planet3RotSpeed;
+	Planet1->m_rotation += deltaTime * Planet1->m_orbitSpeed;
+	Planet2->m_rotation += deltaTime * Planet2->m_orbitSpeed;
+	Planet3->m_rotation += deltaTime * Planet3->m_orbitSpeed;
 
-	Planet1Local = glm::rotate(Planet1OrbitRot, vec3(0, 1, 0));
-	Planet1Local = glm::translate(Planet1Local, vec3(Planet1Dis, 0, 0));
-	Planet2Local = glm::rotate(Planet1Local, Planet2OrbitRot, vec3(0, 1, 0));
-	Planet2Local = glm::translate(Planet2Local, vec3(Planet2Dis, 0, 0));
-	Planet3Local = glm::rotate(Planet2Local, Planet3OrbitRot, vec3(0, 1, 0));
-	Planet3Local = glm::translate(Planet3Local, vec3(Planet3Dis, 0, 0));
-	
-	SunPos = vec3(SunLocal[3].x, SunLocal[3].y, SunLocal[3].z);
-	Planet1Pos = vec3(Planet1Local[3].x, Planet1Local[3].y, Planet1Local[3].z);
-	Planet2Pos = vec3(Planet2Local[3].x, Planet2Local[3].y, Planet2Local[3].z);
-	Planet3Pos = vec3(Planet3Local[3].x, Planet3Local[3].y, Planet3Local[3].z);	
+	Sun->m_local = glm::rotate(Sun->m_rotation, vec3(0, 1, 0));
+	Sun->m_local = glm::translate(Sun->m_local, vec3(Sun->m_distance, 0, 0));
 
-	Gizmos::addSphere(SunPos, 3, 10, 10, vec4(1, 0, 1, 1));
-	Gizmos::addSphere(Planet1Pos, 0.5, 10, 10, vec4(1, 0, 0, 1));
-	Gizmos::addSphere(Planet2Pos, 0.2, 10, 10, vec4(0, 1, 0, 1));
-	Gizmos::addSphere(Planet3Pos, 0.1, 10, 10, vec4(0, 0, 1, 1));
+	Planet1->m_local = glm::rotate(Sun->m_local, Planet1->m_rotation, vec3(0, 1, 0));
+	Planet1->m_local = glm::translate(Planet1->m_local, vec3(Planet1->m_distance, 0, 0));
+
+	Planet2->m_local = glm::rotate(Planet1->m_local, Planet2->m_rotation, vec3(0, 1, 0));
+	Planet2->m_local = glm::translate(Planet2->m_local, vec3(Planet2->m_distance, 0, 0));
+
+	Planet3->m_local = glm::rotate(Planet2->m_local, Planet3->m_rotation, vec3(0, 1, 0));
+	Planet3->m_local = glm::translate(Planet3->m_local, vec3(Planet3->m_distance, 0, 0));
+
+	Gizmos::addSphere(Sun->m_local[3].xyz(), 3, 10, 10, vec4(1, 0, 1, 1));
+	Gizmos::addSphere(Planet1->m_local[3].xyz(), 0.5, 10, 10, vec4(1, 0, 0, 1));
+	Gizmos::addSphere(Planet2->m_local[3].xyz(), 0.2, 10, 10, vec4(0, 1, 0, 1));
+	Gizmos::addSphere(Planet3->m_local[3].xyz(), 0.1, 10, 10, vec4(0, 0, 1, 1));
 
 	// return true, else the application closes
 	return true;
