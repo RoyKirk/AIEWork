@@ -109,7 +109,7 @@ bool TestApplication::update(float deltaTime) {
 	Sun->m_local = glm::rotate(Sun->m_rotation, vec3(0, 1, 0));
 	Sun->m_local = glm::translate(Sun->m_local, vec3(Sun->m_distance, 0, 0));
 
-	Planet1->m_local = glm::rotate(Sun->m_local, Planet1->m_rotation, vec3(0, 1, 0));
+	Planet1->m_local = glm::rotate(Planet1->m_parent->m_local, Planet1->m_rotation, vec3(0, 1, 0));
 	Planet1->m_local = glm::translate(Planet1->m_local, vec3(Planet1->m_distance, 0, 0));
 
 	Planet2->m_local = glm::rotate(Planet1->m_local, Planet2->m_rotation, vec3(0, 1, 0));
