@@ -10,7 +10,7 @@ class Planet
 {
 public:
 	Planet();
-	Planet(Planet* parentIn, float distanceIn, float orbitSpeedIn);
+	Planet(Planet* parentIn, float distanceIn, float orbitSpeedIn, float sizeIn);
 	~Planet();
 
 	public:
@@ -22,6 +22,7 @@ public:
 						m_distance, 0, m_distance, 1);;
 	float m_rotation = 0;
 	float m_orbitSpeed;
+	float m_size;
 };
 
 #endif
