@@ -52,7 +52,7 @@ bool TestApplication::startup() {
 		}
 		else
 		{
-			celestBod[i] = new Planet(celestBod[i - 1], celestBodDist / i, celestBodSpeed * i, celestBodSize / i);
+			celestBod[i] = new Planet(celestBod[i - 1], celestBodDist / (2*i), celestBodSpeed * i, celestBodSize / i);
 		}
 	}
 
