@@ -34,9 +34,9 @@ void generateGrid(unsigned int rows, unsigned int cols)
 	{
 		for (unsigned int c = 0; c < cols; ++c)
 		{
-			aoVertices[r * cols + c].position = vec4((float)c, sin((float)r)*sin((float)c), (float)r, 1);
+			aoVertices[r * cols + c].position = vec4((float)c, sin((float)r)*cos((float)c), (float)r, 1);
 			//vec3 colour = vec3(sinf((c / (float)(cols - 1))*(r / (float)(rows - 1))));
-			vec3 colour = vec3();
+			vec3 colour = vec3(sin((float)r)*cos((float)c));
 			aoVertices[r*cols + c].colour = vec4(colour, 1);
 			//aoVertices[r * cols + c].position = vec4((float)c, 0, (float)r, 1);
 			//vec3 colour = vec3(sinf((c / (float)(cols - 1))*(r / (float)(rows - 1))));
