@@ -19,6 +19,7 @@ public:
 	virtual bool update(float deltaTime);
 	virtual void draw();
 
+
 private:
 
 	Camera*		m_camera;
