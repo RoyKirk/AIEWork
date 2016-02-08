@@ -32,33 +32,35 @@ struct Vertex
 
 void generateGrid(unsigned int rows, unsigned int cols, float deltaTime)
 {
-	if (waveDirection)
-	{
-		waveTimer += deltaTime;
-		if (waveTimer >= waveTimerLimit)
-		{
-			waveDirection = false;
-		}
-	}
-	else if (!waveDirection)
-	{
-		waveTimer -= deltaTime;
-		if (waveTimer <= -waveTimerLimit)
-		{
-			waveDirection = true;
-		}
-	}
+	//if (waveDirection)
+	//{
+	//	waveTimer += deltaTime;
+	//	if (waveTimer >= waveTimerLimit)
+	//	{
+	//		waveDirection = false;
+	//	}
+	//}
+	//else if (!waveDirection)
+	//{
+	//	waveTimer -= deltaTime;
+	//	if (waveTimer <= -waveTimerLimit)
+	//	{
+	//		waveDirection = true;
+	//	}
+	//}
+
+	waveTimer += deltaTime;
 
 	Vertex* aoVertices = new Vertex[rows*cols];
 	for (unsigned int r = 0; r < rows; ++r)
 	{
 		for (unsigned int c = 0; c < cols; ++c)
 		{
-			float y = sin((float)r / 10)*cos((float)c / 10)*waveTimer;
-			if (y < 0)
-			{
-				y = 0;
-			}
+			//float y = sin((float)r / 10)*cos((float)c / 10)*waveTimer;
+			float y = sin((float)r/10+waveTimer) * sin((float)c / 10 + waveTimer);
+			
+			//if (y < 0){y = 0;}
+			
 			aoVertices[r * cols + c].position = vec4((float)c/10, y, (float)r/10, 1);
 			//vec3 colour = vec3(sinf((c / (float)(cols - 1))*(r / (float)(rows - 1))));
 			vec3 colour = vec3(y);
