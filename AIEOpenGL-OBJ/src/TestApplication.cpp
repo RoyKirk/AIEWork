@@ -4,120 +4,92 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <vector>
 
 #include "Camera.h"
 #include "Gizmos.h"
+#include "tiny_obj_loader.h"
+
 
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 
-int rowsSet = 100;
-int colsSet = 100;
-float waveTimer = 0;
-float waveTimerLimit = 1;
-bool waveDirection = true;
+typedef struct
+{
+	std::vector<float>positions;
+	std::vector<float>normals;
+	std::vector<float>texcoords;
+	std::vector<unsigned int>indices;
+	std::vector<int>material_ids;
+} mesh_t;
 
-unsigned int m_VAO;
-unsigned int m_VBO;
-unsigned int m_IBO;
+typedef struct
+{
+	std::string name;
+	mesh_t mesh;
+} shape_t;
+
+struct OpenGLInfo
+{
+	unsigned int m_VAO;
+	unsigned int m_VBO;
+	unsigned int m_IBO;
+	unsigned int m_index_count;
+};
+
+std::vector<OpenGLInfo>m_gl_info;
 
 unsigned int m_programID;
 
-struct Vertex
+std::vector<tinyobj::shape_t> shapeList;
+std::vector<tinyobj::material_t> materials;
+std::string err = "bunny";
+bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
+
+
+void createOpenGLBuffers(std::vector<tinyobj::shape_t> &shapes)
 {
-	vec4 position;
-	vec4 colour;
-};
+	m_gl_info.resize(shapes.size());
+	for (unsigned int mesh_index = 0; mesh_index < shapes.size(); ++mesh_index)
+	{
+		glGenVertexArrays(1, &m_gl_info[mesh_index].m_VAO);
+		glGenBuffers(1, &m_gl_info[mesh_index].m_VBO);
+		glGenBuffers(1, &m_gl_info[mesh_index].m_IBO);
+		glBindVertexArray(m_gl_info[mesh_index].m_VAO);
 
-void generateGrid(unsigned int rows, unsigned int cols, float deltaTime)
-{
-	if (waveDirection)
-	{
-		waveTimer += deltaTime;
-		if (waveTimer >= waveTimerLimit)
-		{
-			waveDirection = false;
-		}
-	}
-	else if (!waveDirection)
-	{
-		waveTimer -= deltaTime;
-		if (waveTimer <= -waveTimerLimit)
-		{
-			waveDirection = true;
-		}
-	}
+		unsigned int float_count = shapes[mesh_index].mesh.positions.size();
+		float_count += shapes[mesh_index].mesh.normals.size();
+		float_count += shapes[mesh_index].mesh.texcoords.size();
 
-	Vertex* aoVertices = new Vertex[rows*cols];
-	for (unsigned int r = 0; r < rows; ++r)
-	{
-		for (unsigned int c = 0; c < cols; ++c)
-		{
-			float y = sin((float)r / 10)*cos((float)c / 10)*waveTimer;
-			if (y < 0)
-			{
-				y = 0;
-			}
-			aoVertices[r * cols + c].position = vec4((float)c/10, y, (float)r/10, 1);
-			//vec3 colour = vec3(sinf((c / (float)(cols - 1))*(r / (float)(rows - 1))));
-			vec3 colour = vec3(y);
-			aoVertices[r*cols + c].colour = vec4(colour, 1);
-			//aoVertices[r * cols + c].position = vec4((float)c, 0, (float)r, 1);
-			//vec3 colour = vec3(sinf((c / (float)(cols - 1))*(r / (float)(rows - 1))));
-			//aoVertices[r*cols + c].colour = vec4(colour, 1);
-		}
+		std::vector<float> vertex_data;
+		vertex_data.reserve(float_count);
+
+		vertex_data.insert(vertex_data.end(), shapes[mesh_index].mesh.positions.begin(), shapes[mesh_index].mesh.positions.end());
+		vertex_data.insert(vertex_data.end(), shapes[mesh_index].mesh.normals.begin(), shapes[mesh_index].mesh.normals.end());
+
+		m_gl_info[mesh_index].m_index_count = shapes[mesh_index].mesh.indices.size();
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_gl_info[mesh_index].m_VBO);
+		glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(float), vertex_data.data(), GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_gl_info[mesh_index].m_IBO);
+		glBufferData(GL_ARRAY_BUFFER, shapes[mesh_index].mesh.indices.size() * sizeof(unsigned int), shapes[mesh_index].mesh.indices.data(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, 0, (void*)(sizeof(float)*shapes[mesh_index].mesh.positions.size()));
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 	}
 
-	unsigned int* auiIndices = new unsigned int[(rows - 1)*(cols - 1) * 6];
-	unsigned int index = 0;
-	for (unsigned int r = 0; r < (rows - 1); ++r)
-	{
-		for (unsigned int c = 0; c < (cols - 1); ++c)
-		{
-			//Tirangle 1
-			auiIndices[index++] = r*cols + c;
-			auiIndices[index++] = (r + 1)*cols + c;
-			auiIndices[index++] = (r + 1)*cols + (c + 1);
-			//Triangle 2
-			auiIndices[index++] = r*cols + c;
-			auiIndices[index++] = (r + 1)*cols + (c + 1);
-			auiIndices[index++] = r*cols + (c + 1);
-		}
-	}
-
-	glGenBuffers(1, &m_VBO);
-	glGenBuffers(1, &m_IBO);
-
-	glGenVertexArrays(1, &m_VAO);
-	glBindVertexArray(m_VAO);
-	//Vertex Buffer
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, (rows*cols)*sizeof(Vertex), aoVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec4)));
-
-
-	//Index Buffer
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (rows - 1) * (cols - 1) * 6 * sizeof(unsigned int), auiIndices, GL_STATIC_DRAW);
-
-
-	//Vertex Array Object
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-
-	delete[] aoVertices;
-	delete[] auiIndices;
 }
+
+
 
 
 TestApplication::TestApplication()
@@ -145,6 +117,8 @@ bool TestApplication::startup() {
 	// YOUR STARTUP CODE HERE
 	//////////////////////////////////////////////////////////////////////////
 	m_pickPosition = glm::vec3(0);
+
+
 
 	//create shaders
 
@@ -190,6 +164,8 @@ bool TestApplication::startup() {
 	glDeleteShader(fragmentShader);
 	glDeleteShader(vertexShader);
 
+
+
 	return true;
 }
 
@@ -234,8 +210,8 @@ bool TestApplication::update(float deltaTime) {
 		m_pickPosition = m_camera->pickAgainstPlane((float)x, (float)y, plane);
 	}
 	Gizmos::addTransform(glm::translate(m_pickPosition));
-
-	generateGrid(rowsSet, colsSet,deltaTime);
+	
+	createOpenGLBuffers(shapeList);
 
 	// return true, else the application closes
 	return true;
@@ -264,9 +240,11 @@ void TestApplication::draw() {
 
 	glUseProgram(m_programID);
 	unsigned int projectionViewUniform = glGetUniformLocation(m_programID, "ProjectionView");
-	glUniformMatrix4fv(projectionViewUniform, 1, false, glm::value_ptr(m_camera->getProjectionView()));
+	glUniformMatrix4fv(projectionViewUniform, 1, GL_FALSE, glm::value_ptr(m_camera->getProjectionView()));
 
-	glBindVertexArray(m_VAO);
-	unsigned int indexCount = (rowsSet - 1)*(colsSet - 1) * 6;
-	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+	for (unsigned int i = 0; i < m_gl_info.size(); ++i)
+	{
+		glBindVertexArray(m_gl_info[i].m_VAO);
+		glDrawElements(GL_TRIANGLES, m_gl_info[i].m_index_count, GL_UNSIGNED_INT, 0);
+	}
 }
