@@ -44,7 +44,7 @@ unsigned int m_programID;
 
 std::vector<tinyobj::shape_t> shapeList;
 std::vector<tinyobj::material_t> materials;
-std::string err = "bunny";
+std::string err;
 bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
 
 
@@ -74,7 +74,7 @@ void createOpenGLBuffers(std::vector<tinyobj::shape_t> &shapes)
 		glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(float), vertex_data.data(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_gl_info[mesh_index].m_IBO);
-		glBufferData(GL_ARRAY_BUFFER, shapes[mesh_index].mesh.indices.size() * sizeof(unsigned int), shapes[mesh_index].mesh.indices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, shapes[mesh_index].mesh.indices.size() * sizeof(unsigned int), shapes[mesh_index].mesh.indices.data(), GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -122,7 +122,7 @@ bool TestApplication::startup() {
 
 	//create shaders
 
-	const char* vsSource = "#version 410\n \
+	const char* vsSource = "#version 410 \n \
 							layout(location=0) in vec4 Position; \
 							layout(location=1) in vec4 Colour; \
 							out vec4 vColour; \
@@ -236,10 +236,10 @@ void TestApplication::draw() {
 
 	Gizmos::draw2D(m_camera->getProjectionView());
 
-	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glUseProgram(m_programID);
-	unsigned int projectionViewUniform = glGetUniformLocation(m_programID, "ProjectionView");
+	int projectionViewUniform = glGetUniformLocation(m_programID, "ProjectionView");
 	glUniformMatrix4fv(projectionViewUniform, 1, GL_FALSE, glm::value_ptr(m_camera->getProjectionView()));
 
 	for (unsigned int i = 0; i < m_gl_info.size(); ++i)
