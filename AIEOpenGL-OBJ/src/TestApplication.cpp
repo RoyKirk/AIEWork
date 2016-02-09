@@ -48,10 +48,10 @@ std::vector<tinyobj::material_t> materials;
 std::string err;
 //bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
 //bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Buddha.obj");
-bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Dragon.obj");
+//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Dragon.obj");
 bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Lucy.obj");
 
-
+float waveTimer = 0;
 
 void createOpenGLBuffers(std::vector<tinyobj::shape_t> &shapes)
 {
@@ -134,12 +134,25 @@ bool TestApplication::startup() {
 
 	//create shaders
 
-	const char* vsSource = "#version 410 \n \
-							layout(location=0) in vec4 Position; \
-							layout(location=1) in vec4 Colour; \
+	//const char* vsSource = "#version 410\n \
+		//						layout(location=0) in vec4 Position; \
+	//						layout(location=1) in vec4 Colour; \
+	//						out vec4 vColour; \
+	//						uniform mat4 ProjectionView; \
+	//						void main() { vColour = Colour; gl_Position = ProjectionView * Position;}";
+	const char* vsSource = "#version 410\n \
+							in vec4 Position; \
+							in vec4 Colour; \
 							out vec4 vColour; \
 							uniform mat4 ProjectionView; \
-							void main() { vColour = Colour; gl_Position = ProjectionView * Position;}";
+							uniform float time; \
+							uniform float heightScale; \
+							void main() {vColour = Colour; \
+							vec4 P = Position; \
+							P.x += sin(time + Position.y) * sin(time + Position.z) * heightScale; \
+							P.y += sin(time + Position.x) * sin(time + Position.z) * heightScale; \
+							P.z += sin(time + Position.x) * sin(time + Position.y) * heightScale; \
+							gl_Position = ProjectionView * P;}";
 
 	const char* fsSource = "#version 410 \n \
 							in vec4 vColour; \
@@ -223,6 +236,13 @@ bool TestApplication::update(float deltaTime) {
 	}
 	Gizmos::addTransform(glm::translate(m_pickPosition));
 	
+
+	unsigned int timeUniform = glGetUniformLocation(m_programID, "time");
+	waveTimer += deltaTime;
+	glUniform1f(timeUniform, waveTimer);
+
+	unsigned int heightScaleUniform = glGetUniformLocation(m_programID, "heightScale");
+	glUniform1f(heightScaleUniform, 0.5);
 	// return true, else the application closes
 	return true;
 }
