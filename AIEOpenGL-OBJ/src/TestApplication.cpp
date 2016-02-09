@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <vector>
+#include <iostream>
 
 #include "Camera.h"
 #include "Gizmos.h"
@@ -45,7 +46,11 @@ unsigned int m_programID;
 std::vector<tinyobj::shape_t> shapeList;
 std::vector<tinyobj::material_t> materials;
 std::string err;
-bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
+//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
+//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Buddha.obj");
+bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Dragon.obj");
+bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Lucy.obj");
+
 
 
 void createOpenGLBuffers(std::vector<tinyobj::shape_t> &shapes)
@@ -102,6 +107,13 @@ TestApplication::~TestApplication() {
 }
 
 bool TestApplication::startup() {
+
+	if (!successful)
+	{
+		std::cout << "tiny obi error" << err << std::endl;
+	}
+
+	assert(successful);
 
 	// create a basic window
 	createWindow("AIE OpenGL Application", 1280, 720);
@@ -164,7 +176,7 @@ bool TestApplication::startup() {
 	glDeleteShader(fragmentShader);
 	glDeleteShader(vertexShader);
 
-
+	createOpenGLBuffers(shapeList);
 
 	return true;
 }
@@ -211,8 +223,6 @@ bool TestApplication::update(float deltaTime) {
 	}
 	Gizmos::addTransform(glm::translate(m_pickPosition));
 	
-	createOpenGLBuffers(shapeList);
-
 	// return true, else the application closes
 	return true;
 }

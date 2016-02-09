@@ -57,7 +57,7 @@ void generateGrid(unsigned int rows, unsigned int cols, float deltaTime)
 		for (unsigned int c = 0; c < cols; ++c)
 		{
 			//float y = sin((float)r / 10)*cos((float)c / 10)*waveTimer;
-			float y = sin((float)r/10+waveTimer) * sin((float)c / 10 + waveTimer);
+			float y = sin((((float)r/10+waveTimer)+3.14)* sin((float)c / 10 + waveTimer)+ 3.14);
 			
 			//if (y < 0){y = 0;}
 			
