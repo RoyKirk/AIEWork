@@ -30,7 +30,7 @@ struct Vertex
 	vec4 colour;
 };
 
-void generateGrid(unsigned int rows, unsigned int cols, float deltaTime)
+void generateGrid(unsigned int rows, unsigned int cols)
 {
 	//if (waveDirection)
 	//{
@@ -49,22 +49,22 @@ void generateGrid(unsigned int rows, unsigned int cols, float deltaTime)
 	//	}
 	//}
 
-	waveTimer += deltaTime;
+	//waveTimer += deltaTime;
 
 	Vertex* aoVertices = new Vertex[rows*cols];
 	for (unsigned int r = 0; r < rows; ++r)
 	{
 		for (unsigned int c = 0; c < cols; ++c)
 		{
-			//float y = sin((float)r / 10)*cos((float)c / 10)*waveTimer;
-			float y = sin((((float)r/10+waveTimer)+3.14)* sin((float)c / 10 + waveTimer)+ 3.14);
+			float y = sin((float)r / 10)*cos((float)c / 10)*waveTimer;
+			//float y = sin((((float)r/10+waveTimer)+3.14)* sin((float)c / 10 + waveTimer)+ 3.14);
 			
 			//if (y < 0){y = 0;}
 			
 			aoVertices[r * cols + c].position = vec4((float)c/10, y, (float)r/10, 1);
 			//vec3 colour = vec3(sinf((c / (float)(cols - 1))*(r / (float)(rows - 1))));
-			vec3 colour = vec3(y);
-			aoVertices[r*cols + c].colour = vec4(colour, 1);
+			vec3 colour = vec3(0.5);
+			aoVertices[r*cols + c].colour = vec4(colour,1);
 			//aoVertices[r * cols + c].position = vec4((float)c, 0, (float)r, 1);
 			//vec3 colour = vec3(sinf((c / (float)(cols - 1))*(r / (float)(rows - 1))));
 			//aoVertices[r*cols + c].colour = vec4(colour, 1);
@@ -150,12 +150,24 @@ bool TestApplication::startup() {
 
 	//create shaders
 
+	//const char* vsSource = "#version 410\n \
+	//						layout(location=0) in vec4 Position; \
+	//						layout(location=1) in vec4 Colour; \
+	//						out vec4 vColour; \
+	//						uniform mat4 ProjectionView; \
+	//						void main() { vColour = Colour; gl_Position = ProjectionView * Position;}";
 	const char* vsSource = "#version 410\n \
-							layout(location=0) in vec4 Position; \
-							layout(location=1) in vec4 Colour; \
+							in vec4 Position; \
+							in vec4 Colour; \
 							out vec4 vColour; \
 							uniform mat4 ProjectionView; \
-							void main() { vColour = Colour; gl_Position = ProjectionView * Position;}";
+							uniform float time; \
+							uniform float heightScale; \
+							void main() { vec4 C = Colour; \
+							C.x += sin(time + Position.x) * sin(time + Position.z); \
+							C.y += sin(time + Position.x) * sin(time + Position.z); \
+							C.z += sin(time + Position.x) * sin(time + Position.z); \
+							vColour = C; vec4 P = Position; P.y += sin(time + Position.x) * sin(time + Position.z) * heightScale; gl_Position = ProjectionView * P;}";
 
 	const char* fsSource = "#version 410 \n \
 							in vec4 vColour; \
@@ -191,6 +203,8 @@ bool TestApplication::startup() {
 
 	glDeleteShader(fragmentShader);
 	glDeleteShader(vertexShader);
+
+	generateGrid(rowsSet, colsSet);
 
 	return true;
 }
@@ -237,7 +251,12 @@ bool TestApplication::update(float deltaTime) {
 	}
 	Gizmos::addTransform(glm::translate(m_pickPosition));
 
-	generateGrid(rowsSet, colsSet,deltaTime);
+	unsigned int timeUniform = glGetUniformLocation(m_programID, "time");
+	waveTimer += deltaTime;
+	glUniform1f(timeUniform, waveTimer);
+
+	unsigned int heightScaleUniform = glGetUniformLocation(m_programID, "heightScale");
+	glUniform1f(heightScaleUniform,1);
 
 	// return true, else the application closes
 	return true;
@@ -262,11 +281,14 @@ void TestApplication::draw() {
 
 	Gizmos::draw2D(m_camera->getProjectionView());
 
-	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 	glUseProgram(m_programID);
 	unsigned int projectionViewUniform = glGetUniformLocation(m_programID, "ProjectionView");
 	glUniformMatrix4fv(projectionViewUniform, 1, false, glm::value_ptr(m_camera->getProjectionView()));
+
+	
+
 
 	glBindVertexArray(m_VAO);
 	unsigned int indexCount = (rowsSet - 1)*(colsSet - 1) * 6;
