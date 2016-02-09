@@ -46,10 +46,10 @@ unsigned int m_programID;
 std::vector<tinyobj::shape_t> shapeList;
 std::vector<tinyobj::material_t> materials;
 std::string err;
-//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
+bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
 //bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Buddha.obj");
 //bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Dragon.obj");
-bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Lucy.obj");
+//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Lucy.obj");
 
 float waveTimer = 0;
 
@@ -134,25 +134,25 @@ bool TestApplication::startup() {
 
 	//create shaders
 
-	//const char* vsSource = "#version 410\n \
-	//						layout(location=0) in vec4 Position; \
-	//						layout(location=1) in vec4 Colour; \
-	//						out vec4 vColour; \
-	//						uniform mat4 ProjectionView; \
-	//						void main() { vColour = Colour; gl_Position = ProjectionView * Position;}";
 	const char* vsSource = "#version 410\n \
-							in vec4 Position; \
-							in vec4 Colour; \
+							layout(location=0) in vec4 Position; \
+							layout(location=1) in vec4 Colour; \
 							out vec4 vColour; \
 							uniform mat4 ProjectionView; \
-							uniform float time; \
-							uniform float heightScale; \
-							void main() {vColour = Colour; \
-							vec4 P = Position; \
-							P.x += sin(time + Position.y) * sin(time + Position.z) * heightScale; \
-							P.y += sin(time + Position.x) * sin(time + Position.z) * heightScale; \
-							P.z += sin(time + Position.x) * sin(time + Position.y) * heightScale; \
-							gl_Position = ProjectionView * P;}";
+							void main() { vColour = Colour; gl_Position = ProjectionView * Position;}";
+	//const char* vsSource = "#version 410\n \
+	//						in vec4 Position; \
+	//						in vec4 Colour; \
+	//						out vec4 vColour; \
+	//						uniform mat4 ProjectionView; \
+	//						uniform float time; \
+	//						uniform float heightScale; \
+	//						void main() {vColour = Colour; \
+	//						vec4 P = Position; \
+	//						P.x += sin(time + Position.y) * sin(time + Position.z) * heightScale; \
+	//						P.y += sin(time + Position.x) * sin(time + Position.z) * heightScale; \
+	//						P.z += sin(time + Position.x) * sin(time + Position.y) * heightScale; \
+	//						gl_Position = ProjectionView * P;}";
 
 	const char* fsSource = "#version 410 \n \
 							in vec4 vColour; \

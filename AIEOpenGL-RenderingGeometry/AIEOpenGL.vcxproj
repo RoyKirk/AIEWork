@@ -94,6 +94,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\Rico\Documents\AIEWork\AIEOpenGL-RenderingGeometry\dep\glm;C:\Users\Rico\Documents\AIEWork\AIEOpenGL-RenderingGeometry\dep\glfw-3.1.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Rico\Documents\AIEWork\AIEOpenGL-RenderingGeometry\dep\glfw-3.1.2\src;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
