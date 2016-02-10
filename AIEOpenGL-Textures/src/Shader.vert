@@ -12,10 +12,11 @@ uniform float heightScale;
 void main()
 { 
 	vec4 C = Colour; 
-	C.x += sin(time + Position.x) * sin(time + Position.z); 
-	C.y += sin(time + Position.x) * sin(time + Position.z); 
-	C.z += sin(time + Position.x) * sin(time + Position.z); 
-	vColour = C; vec4 P = Position; P.y += sin(time + Position.x) * sin(time + Position.z) * heightScale; 
+	C.x += sin(time + Position.x) * sin(time + Position.z)*0.6; 
+	C.y += sin(time + Position.x) * sin(time + Position.z)*0.7; 
+	C.z += sin(time + Position.x) * sin(time + Position.z)*0.8; 
+	vColour = C; 
+	vec4 P = Position; P.y += sin(time + Position.x) * sin(time + Position.z) * heightScale; 
 	gl_Position = ProjectionView * P;
 	//vColour = Colour; 
 	//gl_Position = ProjectionView * Position;
