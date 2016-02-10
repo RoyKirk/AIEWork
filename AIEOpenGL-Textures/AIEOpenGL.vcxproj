@@ -33,6 +33,10 @@
     <ClInclude Include="src\gl_core_4_4.h" />
     <ClInclude Include="src\TestApplication.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Shader.frag" />
+    <None Include="src\Shader.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{63494F4E-79FA-48AD-AA6C-BDF1FF1619FD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

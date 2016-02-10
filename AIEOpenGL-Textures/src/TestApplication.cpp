@@ -8,12 +8,15 @@
 #include "Camera.h"
 #include "Gizmos.h"
 
+#include <iostream>
+#include <fstream>
+
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 
-int rowsSet = 100;
-int colsSet = 100;
+int rowsSet = 1000;
+int colsSet = 1000;
 float waveTimer = 0;
 float waveTimerLimit = 1;
 bool waveDirection = true;
@@ -121,59 +124,46 @@ void generateGrid(unsigned int rows, unsigned int cols)
 	delete[] auiIndices;
 }
 
-
-TestApplication::TestApplication()
-	: m_camera(nullptr) {
-
-}
-
-TestApplication::~TestApplication() {
-
-}
-
-bool TestApplication::startup() {
-
-	// create a basic window
-	createWindow("AIE OpenGL Application", 1280, 720);
-
-	// start the gizmo system that can draw basic shapes
-	Gizmos::create();
-
-	// create a camera
-	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
-	m_camera->setLookAtFrom(vec3(20, 20, 20), vec3(0));
+char* loadShader(char* filename)
+{
+	std::ifstream file;
+	file.open(filename, std::ios::in); // opens as ASCII!
+	assert(file);
 	
-	//////////////////////////////////////////////////////////////////////////
-	// YOUR STARTUP CODE HERE
-	//////////////////////////////////////////////////////////////////////////
-	m_pickPosition = glm::vec3(0);
 
-	//create shaders
+	unsigned long pos = file.tellg();
+	file.seekg(0, std::ios::end);
+	unsigned long len = file.tellg();
+	file.seekg(std::ios::beg);
 
-	//const char* vsSource = "#version 410\n \
-	//						layout(location=0) in vec4 Position; \
-	//						layout(location=1) in vec4 Colour; \
-	//						out vec4 vColour; \
-	//						uniform mat4 ProjectionView; \
-	//						void main() { vColour = Colour; gl_Position = ProjectionView * Position;}";
-	const char* vsSource = "#version 410\n \
-							in vec4 Position; \
-							in vec4 Colour; \
-							out vec4 vColour; \
-							uniform mat4 ProjectionView; \
-							uniform float time; \
-							uniform float heightScale; \
-							void main() { vec4 C = Colour; \
-							C.x += sin(time + Position.x) * sin(time + Position.z); \
-							C.y += sin(time + Position.x) * sin(time + Position.z); \
-							C.z += sin(time + Position.x) * sin(time + Position.z); \
-							vColour = C; vec4 P = Position; P.y += sin(time + Position.x) * sin(time + Position.z) * heightScale; gl_Position = ProjectionView * P;}";
+	assert(len != 0);
 
-	const char* fsSource = "#version 410 \n \
-							in vec4 vColour; \
-							out vec4 FragColor; \
-							void main()	{FragColor = vColour;}";
+	char* shaderSource = new char[len + 1];
 
+	assert(shaderSource != 0);
+
+	shaderSource[len] = 0;
+
+	unsigned int i = 0;
+	while (file.good())
+	{
+		shaderSource[i] = file.get();
+		if (!file.eof())
+			i++;
+	}
+
+	shaderSource[i] = 0;  // 0-terminate it at the correct position
+
+	file.close();
+
+	return shaderSource;
+}
+
+void linkShader()
+{
+	const char* vsSource = loadShader("./src/Shader.vert");
+	const char* fsSource = loadShader("./src/Shader.frag");
+	
 	int success = GL_FALSE;
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -203,6 +193,35 @@ bool TestApplication::startup() {
 
 	glDeleteShader(fragmentShader);
 	glDeleteShader(vertexShader);
+}
+
+TestApplication::TestApplication()
+	: m_camera(nullptr) {
+
+}
+
+TestApplication::~TestApplication() {
+
+}
+
+bool TestApplication::startup() {
+
+	// create a basic window
+	createWindow("AIE OpenGL Application", 1280, 720);
+
+	// start the gizmo system that can draw basic shapes
+	Gizmos::create();
+
+	// create a camera
+	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
+	m_camera->setLookAtFrom(vec3(0, 20, 0), vec3(25, 0, 25));
+	
+	//////////////////////////////////////////////////////////////////////////
+	// YOUR STARTUP CODE HERE
+	//////////////////////////////////////////////////////////////////////////
+	m_pickPosition = glm::vec3(0);
+
+	linkShader();
 
 	generateGrid(rowsSet, colsSet);
 
