@@ -273,13 +273,6 @@ bool TestApplication::update(float deltaTime) {
 	}
 	Gizmos::addTransform(glm::translate(m_pickPosition));
 
-	unsigned int timeUniform = glGetUniformLocation(m_programID, "time");
-	waveTimer += deltaTime;
-	glUniform1f(timeUniform, waveTimer);
-
-	unsigned int heightScaleUniform = glGetUniformLocation(m_programID, "heightScale");
-	glUniform1f(heightScaleUniform,1);
-
 	// return true, else the application closes
 	return true;
 }
@@ -303,7 +296,8 @@ void TestApplication::draw() {
 
 	Gizmos::draw2D(m_camera->getProjectionView());
 
-	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glUseProgram(m_programID);
 	unsigned int projectionViewUniform = glGetUniformLocation(m_programID, "ProjectionView");
