@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include "Camera.h"
 #include "Gizmos.h"
 
@@ -15,11 +18,6 @@ using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 
-int rowsSet = 1000;
-int colsSet = 1000;
-float waveTimer = 0;
-float waveTimerLimit = 1;
-bool waveDirection = true;
 
 unsigned int m_VAO;
 unsigned int m_VBO;
@@ -27,69 +25,31 @@ unsigned int m_IBO;
 
 unsigned int m_programID;
 
+int imageWidth = 0, imageHeight = 0, imageFormat = 0;
+
+unsigned char* data = stbi_load("./textures/crate.png", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+
+unsigned int m_texture;
+
 struct Vertex
 {
 	vec4 position;
 	vec4 colour;
 };
 
-void generateGrid(unsigned int rows, unsigned int cols)
+void generateGrid()
 {
-	//if (waveDirection)
-	//{
-	//	waveTimer += deltaTime;
-	//	if (waveTimer >= waveTimerLimit)
-	//	{
-	//		waveDirection = false;
-	//	}
-	//}
-	//else if (!waveDirection)
-	//{
-	//	waveTimer -= deltaTime;
-	//	if (waveTimer <= -waveTimerLimit)
-	//	{
-	//		waveDirection = true;
-	//	}
-	//}
+	float vertexData[] = {
+		-5,0,5,1,0,1,
+		5,0,5,1,1,1,
+		5,0,-5,1,1,0,
+		-5,0,-5,1,0,0
+	};
 
-	//waveTimer += deltaTime;
-
-	Vertex* aoVertices = new Vertex[rows*cols];
-	for (unsigned int r = 0; r < rows; ++r)
-	{
-		for (unsigned int c = 0; c < cols; ++c)
-		{
-			float y = sin((float)r / 10)*cos((float)c / 10)*waveTimer;
-			//float y = sin((((float)r/10+waveTimer)+3.14)* sin((float)c / 10 + waveTimer)+ 3.14);
-			
-			//if (y < 0){y = 0;}
-			
-			aoVertices[r * cols + c].position = vec4((float)c/10, y, (float)r/10, 1);
-			//vec3 colour = vec3(sinf((c / (float)(cols - 1))*(r / (float)(rows - 1))));
-			vec3 colour = vec3(0.5);
-			aoVertices[r*cols + c].colour = vec4(colour,1);
-			//aoVertices[r * cols + c].position = vec4((float)c, 0, (float)r, 1);
-			//vec3 colour = vec3(sinf((c / (float)(cols - 1))*(r / (float)(rows - 1))));
-			//aoVertices[r*cols + c].colour = vec4(colour, 1);
-		}
-	}
-
-	unsigned int* auiIndices = new unsigned int[(rows - 1)*(cols - 1) * 6];
-	unsigned int index = 0;
-	for (unsigned int r = 0; r < (rows - 1); ++r)
-	{
-		for (unsigned int c = 0; c < (cols - 1); ++c)
-		{
-			//Tirangle 1
-			auiIndices[index++] = r*cols + c;
-			auiIndices[index++] = (r + 1)*cols + c;
-			auiIndices[index++] = (r + 1)*cols + (c + 1);
-			//Triangle 2
-			auiIndices[index++] = r*cols + c;
-			auiIndices[index++] = (r + 1)*cols + (c + 1);
-			auiIndices[index++] = r*cols + (c + 1);
-		}
-	}
+	unsigned int indexData[] = {
+		0,1,2,
+		0,2,3
+	};
 
 	glGenBuffers(1, &m_VBO);
 	glGenBuffers(1, &m_IBO);
@@ -99,17 +59,17 @@ void generateGrid(unsigned int rows, unsigned int cols)
 	//Vertex Buffer
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, (rows*cols)*sizeof(Vertex), aoVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 *4, vertexData, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec4)));
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 6, ((char*)0)+16);
 
 
 	//Index Buffer
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (rows - 1) * (cols - 1) * 6 * sizeof(unsigned int), auiIndices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indexData, GL_STATIC_DRAW);
 
 
 	//Vertex Array Object
@@ -118,10 +78,6 @@ void generateGrid(unsigned int rows, unsigned int cols)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-
-
-	delete[] aoVertices;
-	delete[] auiIndices;
 }
 
 
@@ -198,6 +154,16 @@ void linkShader()
 	glDeleteShader(vertexShader);
 }
 
+void textureLoad()
+{
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	stbi_image_free(data);
+}
+
 TestApplication::TestApplication()
 	: m_camera(nullptr) {
 
@@ -217,7 +183,7 @@ bool TestApplication::startup() {
 
 	// create a camera
 	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
-	m_camera->setLookAtFrom(vec3(0, 20, 0), vec3(25, 0, 25));
+	m_camera->setLookAtFrom(vec3(0, 2, 0), vec3(1, 1, 1));
 	
 	//////////////////////////////////////////////////////////////////////////
 	// YOUR STARTUP CODE HERE
@@ -226,7 +192,9 @@ bool TestApplication::startup() {
 
 	linkShader();
 
-	generateGrid(rowsSet, colsSet);
+	generateGrid();
+
+	textureLoad();
 
 	return true;
 }
@@ -297,16 +265,19 @@ void TestApplication::draw() {
 	Gizmos::draw2D(m_camera->getProjectionView());
 
 	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+	
 	glUseProgram(m_programID);
 	unsigned int projectionViewUniform = glGetUniformLocation(m_programID, "ProjectionView");
-	glUniformMatrix4fv(projectionViewUniform, 1, false, glm::value_ptr(m_camera->getProjectionView()));
+	glUniformMatrix4fv(projectionViewUniform, 1, GL_FALSE, &(m_camera->getProjectionView()[0][0]));
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+
+	projectionViewUniform = glGetUniformLocation(m_programID, "diffuse");
+	glUniform1i(projectionViewUniform, 0);
 	
 
 
 	glBindVertexArray(m_VAO);
-	unsigned int indexCount = (rowsSet - 1)*(colsSet - 1) * 6;
-	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
