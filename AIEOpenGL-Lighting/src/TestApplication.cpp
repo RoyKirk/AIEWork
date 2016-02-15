@@ -78,6 +78,7 @@ void createOpenGLBuffers(std::vector<tinyobj::shape_t> &shapes)
 
 		vertex_data.insert(vertex_data.end(), shapes[mesh_index].mesh.positions.begin(), shapes[mesh_index].mesh.positions.end());
 		vertex_data.insert(vertex_data.end(), shapes[mesh_index].mesh.normals.begin(), shapes[mesh_index].mesh.normals.end());
+		vertex_data.insert(vertex_data.end(), shapes[mesh_index].mesh.texcoords.begin(), shapes[mesh_index].mesh.texcoords.end());
 
 		m_gl_info[mesh_index].m_index_count = shapes[mesh_index].mesh.indices.size();
 
@@ -91,8 +92,8 @@ void createOpenGLBuffers(std::vector<tinyobj::shape_t> &shapes)
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, 0, 0);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, 0, (void*)(sizeof(float)*shapes[mesh_index].mesh.positions.size()));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, 0, (void*)(sizeof(float)*shapes[mesh_index].mesh.positions.size()));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, 0, (void*)(sizeof(float)*shapes[mesh_index].mesh.normals.size()));
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
