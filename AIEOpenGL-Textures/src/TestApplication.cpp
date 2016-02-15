@@ -18,6 +18,7 @@ using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 
+float waveTimer = 0;
 
 unsigned int m_VAO;
 unsigned int m_VBO;
@@ -183,7 +184,7 @@ bool TestApplication::startup() {
 
 	// create a camera
 	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
-	m_camera->setLookAtFrom(vec3(0, 2, 0), vec3(1, 1, 1));
+	m_camera->setLookAtFrom(vec3(10, 10, 10), vec3(0, 0, 0));
 	
 	//////////////////////////////////////////////////////////////////////////
 	// YOUR STARTUP CODE HERE
@@ -241,6 +242,13 @@ bool TestApplication::update(float deltaTime) {
 	}
 	Gizmos::addTransform(glm::translate(m_pickPosition));
 
+	unsigned int timeUniform = glGetUniformLocation(m_programID, "time");
+	waveTimer += deltaTime;
+	glUniform1f(timeUniform, waveTimer);
+
+	unsigned int heightScaleUniform = glGetUniformLocation(m_programID, "heightScale");
+	glUniform1f(heightScaleUniform, 1);
+
 	// return true, else the application closes
 	return true;
 }
@@ -268,7 +276,7 @@ void TestApplication::draw() {
 	
 	glUseProgram(m_programID);
 	unsigned int projectionViewUniform = glGetUniformLocation(m_programID, "ProjectionView");
-	glUniformMatrix4fv(projectionViewUniform, 1, GL_FALSE, &(m_camera->getProjectionView()[0][0]));
+	glUniformMatrix4fv(projectionViewUniform, 1, GL_FALSE, glm::value_ptr(m_camera->getProjectionView()));
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
