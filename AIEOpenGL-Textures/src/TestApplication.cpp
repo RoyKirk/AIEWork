@@ -19,8 +19,8 @@ using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 
-const unsigned int rows = 100;
-const unsigned int cols = 100;
+const unsigned int rows = 1000;
+const unsigned int cols = 1000;
 
 float waveTimer = 0;
 
@@ -50,12 +50,12 @@ void generateGrid()
 	{
 		for (unsigned int c = 0; c < cols; ++c)
 		{
-			vertexData[r * cols + c].position = vec4((float)c, 0, (float)r, 1);
-			vertexData[r*cols + c].colour = vec2((float)c / 100, (float)r / 100);
+			vertexData[r * cols + c].position = vec4((float)c/100, 0, (float)r/100, 1);
+			vertexData[r*cols + c].colour = vec2((float)c / rows, (float)r / cols);
 		}
 	}
 
-	unsigned int indexData[(rows - 1)*(cols - 1) * 6];
+	unsigned int* indexData = new unsigned int[(rows - 1)*(cols - 1) * 6];
 	unsigned int index = 0;
 	for (unsigned int r = 0; r < (rows - 1); ++r)
 	{
@@ -101,6 +101,7 @@ void generateGrid()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	delete[] vertexData;
+	delete[] indexData;
 
 }
 
