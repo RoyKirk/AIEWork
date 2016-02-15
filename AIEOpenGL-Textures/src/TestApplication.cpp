@@ -14,9 +14,13 @@
 #include <iostream>
 #include <fstream>
 
+using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
+
+const unsigned int rows = 100;
+const unsigned int cols = 100;
 
 float waveTimer = 0;
 
@@ -35,22 +39,39 @@ unsigned int m_texture;
 struct Vertex
 {
 	vec4 position;
-	vec4 colour;
+	vec2 colour;
 };
+
 
 void generateGrid()
 {
-	float vertexData[] = {
-		-5,0,5,1,0,1,
-		5,0,5,1,1,1,
-		5,0,-5,1,1,0,
-		-5,0,-5,1,0,0
-	};
+	Vertex* vertexData = new Vertex[rows*cols];
+	for (unsigned int r = 0; r < rows; ++r)
+	{
+		for (unsigned int c = 0; c < cols; ++c)
+		{
+			vertexData[r * cols + c].position = vec4((float)c, 0, (float)r, 1);
+			vertexData[r*cols + c].colour = vec2((float)c / 100, (float)r / 100);
+		}
+	}
 
-	unsigned int indexData[] = {
-		0,1,2,
-		0,2,3
-	};
+	unsigned int indexData[(rows - 1)*(cols - 1) * 6];
+	unsigned int index = 0;
+	for (unsigned int r = 0; r < (rows - 1); ++r)
+	{
+		for (unsigned int c = 0; c < (cols - 1); ++c)
+		{
+
+			//Tirangle 1
+			indexData[index++] = r*cols + c;
+			indexData[index++] = (r + 1)*cols + c;
+			indexData[index++] = (r + 1)*cols + (c + 1);
+			//Triangle 2
+			indexData[index++] = r*cols + c;
+			indexData[index++] = (r + 1)*cols + (c + 1);
+			indexData[index++] = r*cols + (c + 1);
+		}
+	}
 
 	glGenBuffers(1, &m_VBO);
 	glGenBuffers(1, &m_IBO);
@@ -60,17 +81,17 @@ void generateGrid()
 	//Vertex Buffer
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 *4, vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (rows*cols)*sizeof(Vertex), vertexData, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 6, ((char*)0)+16);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec4)));
 
 
 	//Index Buffer
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indexData, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (rows - 1) * (cols - 1) * 6 * sizeof(unsigned int), indexData, GL_STATIC_DRAW);
 
 
 	//Vertex Array Object
@@ -78,6 +99,8 @@ void generateGrid()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	delete[] vertexData;
 
 }
 
@@ -287,5 +310,6 @@ void TestApplication::draw() {
 
 
 	glBindVertexArray(m_VAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+	unsigned int indexCount = (rows - 1)*(cols - 1) * 6;
+	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 }
