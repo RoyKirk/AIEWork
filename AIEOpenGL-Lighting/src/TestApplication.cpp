@@ -55,8 +55,8 @@ unsigned char* data = stbi_load("./textures/crate.png", &imageWidth, &imageHeigh
 std::vector<tinyobj::shape_t> shapeList;
 std::vector<tinyobj::material_t> materials;
 std::string err;
-//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
-bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Buddha.obj");
+bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
+//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Buddha.obj");
 //bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Dragon.obj");
 //bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Lucy.obj");
 
@@ -281,6 +281,8 @@ bool TestApplication::update(float deltaTime) {
 	unsigned int heightScaleUniform = glGetUniformLocation(m_programID, "heightScale");
 	glUniform1f(heightScaleUniform, 1);
 
+
+
 	// return true, else the application closes
 	return true;
 }
@@ -312,6 +314,19 @@ void TestApplication::draw() {
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+
+	unsigned int CameraPosUniform = glGetUniformLocation(m_programID, "CameraPos");
+	glUniform3f(CameraPosUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
+
+	unsigned int LightDirUniform = glGetUniformLocation(m_programID, "LightDir");
+	glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
+	//glUniform3f(LightDirUniform, 0, 1,0);
+	
+	unsigned int LightColourUniform = glGetUniformLocation(m_programID, "LightColour");
+	glUniform3f(LightColourUniform, 0.2, 0.3, 0.2);
+
+	unsigned int SpecPowUniform = glGetUniformLocation(m_programID, "SpecPow");
+	glUniform1f(SpecPowUniform, 50);
 
 	projectionViewUniform = glGetUniformLocation(m_programID, "diffuse");
 	glUniform1i(projectionViewUniform, 0);

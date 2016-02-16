@@ -6,6 +6,7 @@ layout(location=2) in vec2 TexCoord;
 
 out vec4 vNormal;
 out vec2 vTexCoord;
+out vec4 vPosition;
 
 
 uniform mat4 ProjectionView;
@@ -16,6 +17,7 @@ void main()
 { 
 	vNormal = Normal;
 	vTexCoord = TexCoord; 
+	vPosition = Position;
 	//vec4 P = Position; P.y += sin(time + Position.x) * sin(time + Position.z) * heightScale; 
 	//gl_Position = ProjectionView * P;
 	gl_Position = ProjectionView * Position;
