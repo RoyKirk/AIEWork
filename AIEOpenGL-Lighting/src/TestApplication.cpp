@@ -55,7 +55,10 @@ unsigned char* data = stbi_load("./textures/crate.png", &imageWidth, &imageHeigh
 std::vector<tinyobj::shape_t> shapeList;
 std::vector<tinyobj::material_t> materials;
 std::string err;
-bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
+//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
+bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Buddha.obj");
+//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Dragon.obj");
+//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Lucy.obj");
 
 unsigned int m_texture;
 
