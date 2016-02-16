@@ -55,7 +55,8 @@ unsigned char* data = stbi_load("./textures/crate.png", &imageWidth, &imageHeigh
 std::vector<tinyobj::shape_t> shapeList;
 std::vector<tinyobj::material_t> materials;
 std::string err;
-bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
+bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/ruinedtank/tank.obj");
+//bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Bunny.obj");
 //bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Buddha.obj");
 //bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Dragon.obj");
 //bool successful = tinyobj::LoadObj(shapeList, materials, err, "./models/Lucy.obj");
@@ -96,7 +97,7 @@ void createOpenGLBuffers(std::vector<tinyobj::shape_t> &shapes)
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, 0, (void*)(sizeof(float)*shapes[mesh_index].mesh.positions.size()));
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, 0, (void*)(sizeof(float)*shapes[mesh_index].mesh.normals.size()));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(float)*shapes[mesh_index].mesh.normals.size()));
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -319,17 +320,17 @@ void TestApplication::draw() {
 	glUniform3f(CameraPosUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
 
 	unsigned int LightDirUniform = glGetUniformLocation(m_programID, "LightDir");
-	glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
-	//glUniform3f(LightDirUniform, 0, 1,0);
+	//glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
+	glUniform3f(LightDirUniform, 1, 1,1);
 	
 	unsigned int LightColourUniform = glGetUniformLocation(m_programID, "LightColour");
-	glUniform3f(LightColourUniform, 0.2, 0.3, 0.2);
+	glUniform3f(LightColourUniform, 0.3, 0.2, 0.2);
 
 	unsigned int SpecPowUniform = glGetUniformLocation(m_programID, "SpecPow");
-	glUniform1f(SpecPowUniform, 50);
+	glUniform1f(SpecPowUniform, 120);
 
-	projectionViewUniform = glGetUniformLocation(m_programID, "diffuse");
-	glUniform1i(projectionViewUniform, 0);
+	unsigned int diffuseUniform = glGetUniformLocation(m_programID, "diffuse");
+	glUniform1i(diffuseUniform, 0);
 	
 	for (unsigned int i = 0; i < m_gl_info.size(); ++i)
 	{
