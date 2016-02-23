@@ -345,7 +345,7 @@ void TestApplication::draw() {
 	unsigned int LightDirUniform = glGetUniformLocation(m_program, "LightDir");
 	//glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
 	glUniform3f(LightDirUniform, light.x, light.y, light.z);
-	//glUniform3f(LightDirUniform, 0, 1, 0);
+	//glUniform3f(LightDirUniform, 1, 1, 1);
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
