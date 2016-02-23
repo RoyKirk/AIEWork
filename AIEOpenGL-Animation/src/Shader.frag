@@ -1,10 +1,10 @@
 #version 410
 
-
-in vec4 vNormal;
+in vec3 vPosition;
+in vec3 vNormal;
+in vec3 vTangent;
+in vec3 vBiTangent;
 in vec2 vTexCoord;
-in vec4 vPosition;
-
 
 out vec4 FragColor;
 
@@ -22,7 +22,7 @@ void main()
 	R = normalize(R);
 	float s = max(0,dot(E,R));
 	s = pow(s, SpecPow);
-	FragColor = vec4(LightColour * d + LightColour * s,1);
+	FragColor = vec4(LightColour * d + LightColour * s,1) + texture(diffuse,vTexCoord);
 	//FragColor = texture(diffuse,vTexCoord);
 	//float n = max(0, dot(normalize(vNormal.xyz), normalize(vec3(0,1,0))));
 	//FragColor = vec4(n,n,n,1) + vec4(LightColour * d + LightColour * s,1);

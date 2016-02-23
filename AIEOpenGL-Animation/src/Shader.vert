@@ -2,23 +2,38 @@
 
 layout(location=0) in vec4 Position;
 layout(location=1) in vec4 Normal;
-//layout(location=2) in vec2 TexCoord;
+layout(location=2) in vec4 Tangent;
+layout(location=3) in vec2 TexCoord;
+layout(location=4) in vec4 Weights;
+layout(location=5) in vec4 Indices;
 
-out vec4 vNormal;
-//out vec2 vTexCoord;
-out vec4 vPosition;
-
+out vec3 vPosition;
+out vec3 vNormal;
+out vec3 vTangent;
+out vec3 vBiTangent;
+out vec2 vTexCoord;
 
 uniform mat4 ProjectionView;
-//uniform float time;
-//uniform float heightScale;
+//uniform mat4 global;
+
+const int MAX_BONES = 128;
+uniform mat4 bones[MAX_BONES];
 
 void main()
 { 
-	vNormal = Normal;
-	//vTexCoord = TexCoord; 
-	vPosition = Position;
-	//vec4 P = Position; P.y += sin(time + Position.x) * sin(time + Position.z) * heightScale; 
-	//gl_Position = ProjectionView * P;
-	gl_Position = ProjectionView * Position;
+	vPosition = Position.xyz;
+	vNormal = Normal.xyz;
+	vTangent = Tangent.xyz;
+	vBiTangent = cross(Normal.xyz, Tangent.xyz);
+	vTexCoord = TexCoord; 
+
+	ivec4 index = ivec4(Indices);
+
+	vec4 P = bones[index.x] * Position * Weights.x;
+	P += bones[index.y] * Position * Weights.y;
+	P += bones[index.z] * Position * Weights.z;
+	P += bones[index.w] * Position * Weights.w;
+
+	//gl_Position = ProjectionView * global * P;
+	gl_Position = ProjectionView * P;
 }
