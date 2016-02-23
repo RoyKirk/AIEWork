@@ -24,7 +24,7 @@ unsigned int m_program;
 
 int imageWidth = 0, imageHeight = 0, imageFormat = 0;
 
-unsigned int m_texture, m_normalmap;
+unsigned int m_texture, m_normalmap, m_specularmap;
 unsigned char* data;
 
 unsigned int m_vertexAttributes;
@@ -179,6 +179,14 @@ void textureLoad()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	stbi_image_free(data);
+
+	data = stbi_load("./models/Demolition/demolition_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	glGenTextures(1, &m_specularmap);
+	glBindTexture(GL_TEXTURE_2D, m_specularmap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	stbi_image_free(data);
 }
 
 TestApplication::TestApplication()
@@ -314,6 +322,9 @@ void TestApplication::draw() {
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_normalmap);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, m_specularmap);
+
 
 	FBXSkeleton* skeleton = m_fbx->getSkeletonByIndex(0);
 	skeleton->updateBones();
@@ -325,7 +336,8 @@ void TestApplication::draw() {
 
 	unsigned int LightDirUniform = glGetUniformLocation(m_program, "LightDir");
 	//glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
-	glUniform3f(LightDirUniform, light.x, light.y, light.z);
+	//glUniform3f(LightDirUniform, light.x, light.y, light.z);
+	glUniform3f(LightDirUniform, 0, 1, 0);
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
@@ -333,6 +345,14 @@ void TestApplication::draw() {
 	unsigned int normalUniform = glGetUniformLocation(m_program, "normal");
 	glUniform1i(normalUniform, 1);
 
+	unsigned int specularUniform = glGetUniformLocation(m_program, "specular");
+	glUniform1i(specularUniform, 2);
+
+	unsigned int CameraPosUniform = glGetUniformLocation(m_program, "CameraPos");
+	glUniform3f(CameraPosUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
+
+	unsigned int SpecPowUniform = glGetUniformLocation(m_program, "SpecPow");
+	glUniform1f(SpecPowUniform, 10);
 
 	for (unsigned int i = 0; i < m_fbx->getMeshCount(); ++i)
 	{
