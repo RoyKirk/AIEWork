@@ -165,6 +165,7 @@ void textureLoad()
 	//data = stbi_load("./models/Enemytank/Enemytank_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
 	//data = stbi_load("./models/Medic/Medic_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
 	data = stbi_load("./models/Demolition/demolition_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/enemynormal/EnemyNormal1_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -173,6 +174,9 @@ void textureLoad()
 	stbi_image_free(data);
 
 	data = stbi_load("./models/Demolition/demolition_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Enemytank/Enemytank_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Marksman/Marksman_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/enemynormal/EnemyNormal_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
 	glGenTextures(1, &m_normalmap);
 	glBindTexture(GL_TEXTURE_2D, m_normalmap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -181,6 +185,9 @@ void textureLoad()
 	stbi_image_free(data);
 
 	data = stbi_load("./models/Demolition/demolition_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Enemytank/Enemytank_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Marksman/Marksman_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/enemynormal/EnemyNormal_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
 	glGenTextures(1, &m_specularmap);
 	glBindTexture(GL_TEXTURE_2D, m_specularmap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -219,6 +226,7 @@ bool TestApplication::startup() {
 
 	textureLoad();
 	m_fbx = new FBXFile();
+	//m_fbx->load("./models/enemynormal/EnemyNormal.fbx");
 	//m_fbx->load("./models/Medic/medic.fbx");
 	//m_fbx->load("./models/Marksman/Marksman.fbx");
 	//m_fbx->load("./models/Enemytank/Enemytank.fbx");
@@ -336,8 +344,8 @@ void TestApplication::draw() {
 
 	unsigned int LightDirUniform = glGetUniformLocation(m_program, "LightDir");
 	//glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
-	//glUniform3f(LightDirUniform, light.x, light.y, light.z);
-	glUniform3f(LightDirUniform, 0, 1, 0);
+	glUniform3f(LightDirUniform, light.x, light.y, light.z);
+	//glUniform3f(LightDirUniform, 0, 1, 0);
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
