@@ -27,11 +27,6 @@ int imageWidth = 0, imageHeight = 0, imageFormat = 0;
 unsigned int m_texture, m_normalmap;
 unsigned char* data;
 
-//data = stbi_load("./models/Marksman/Marksman_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-//data = stbi_load("./models/Enemytank/Enemytank_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-//data = stbi_load("./models/Medic/Medic_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-data = stbi_load("./models/Demolition/demolition_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-
 unsigned int m_vertexAttributes;
 FBXMaterial* m_material;
 std::vector<FBXVertex> m_vertices;
@@ -42,8 +37,6 @@ void* m_userData;
 FBXFile* m_fbx;
 
 float m_timer;
-
-unsigned int m_texture;
 
 void cleanupOpenGLBuffers(FBXFile* fbx)
 {
@@ -168,8 +161,20 @@ void linkShader()
 
 void textureLoad()
 {
+	//data = stbi_load("./models/Marksman/Marksman_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Enemytank/Enemytank_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Medic/Medic_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	data = stbi_load("./models/Demolition/demolition_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	stbi_image_free(data);
+
+	data = stbi_load("./models/Demolition/demolition_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	glGenTextures(1, &m_normalmap);
+	glBindTexture(GL_TEXTURE_2D, m_normalmap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -276,8 +281,6 @@ bool TestApplication::update(float deltaTime) {
 	}
 
 
-
-
 	// return true, else the application closes
 	return true;
 }
@@ -309,6 +312,8 @@ void TestApplication::draw() {
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_normalmap);
 
 	FBXSkeleton* skeleton = m_fbx->getSkeletonByIndex(0);
 	skeleton->updateBones();
@@ -316,21 +321,17 @@ void TestApplication::draw() {
 	int bones_location = glGetUniformLocation(m_program, "bones");
 	glUniformMatrix4fv(bones_location, skeleton->m_boneCount, GL_FALSE, (float*)skeleton->m_bones);
 
-	unsigned int CameraPosUniform = glGetUniformLocation(m_program, "CameraPos");
-	glUniform3f(CameraPosUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
+	vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
 
 	unsigned int LightDirUniform = glGetUniformLocation(m_program, "LightDir");
 	//glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
-	glUniform3f(LightDirUniform, 1, 1, 1);
-
-	unsigned int LightColourUniform = glGetUniformLocation(m_program, "LightColour");
-	glUniform3f(LightColourUniform, 0.3, 0.2, 0.2);
-
-	unsigned int SpecPowUniform = glGetUniformLocation(m_program, "SpecPow");
-	glUniform1f(SpecPowUniform, 120);
+	glUniform3f(LightDirUniform, light.x, light.y, light.z);
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
+
+	unsigned int normalUniform = glGetUniformLocation(m_program, "normal");
+	glUniform1i(normalUniform, 1);
 
 
 	for (unsigned int i = 0; i < m_fbx->getMeshCount(); ++i)
