@@ -24,7 +24,8 @@ unsigned int m_program;
 
 int imageWidth = 0, imageHeight = 0, imageFormat = 0;
 
-unsigned char* data = stbi_load("./textures/crate.png", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+unsigned int m_texture, m_normalmap, m_specularmap;
+unsigned char* data;
 
 unsigned int m_vertexAttributes;
 FBXMaterial* m_material;
@@ -35,8 +36,7 @@ glm::mat4 m_globalTransform;
 void* m_userData;
 FBXFile* m_fbx;
 
-
-unsigned int m_texture;
+float m_timer;
 
 void cleanupOpenGLBuffers(FBXFile* fbx)
 {
@@ -67,9 +67,17 @@ void createOpenGLBuffers(FBXFile* fbx)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glData[2]);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->m_indices.size() * sizeof(unsigned int), mesh->m_indices.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0); // position
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), 0);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*) + FBXVertex::PositionOffset);
 		glEnableVertexAttribArray(1); // normal
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, sizeof(FBXVertex), ((char*)0) + FBXVertex::NormalOffset);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, sizeof(FBXVertex), (void*) + FBXVertex::NormalOffset);
+		glEnableVertexAttribArray(2); // tangents
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*) + FBXVertex::TangentOffset);
+		glEnableVertexAttribArray(3); // texcoords
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_TRUE, sizeof(FBXVertex), (void*) + FBXVertex::TexCoord1Offset);
+		glEnableVertexAttribArray(4); // weights
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*) + FBXVertex::WeightsOffset);
+		glEnableVertexAttribArray(5); // indices
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*) + FBXVertex::IndicesOffset);
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -153,8 +161,35 @@ void linkShader()
 
 void textureLoad()
 {
+	//data = stbi_load("./models/Marksman/Marksman_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Enemytank/Enemytank_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Medic/Medic_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	data = stbi_load("./models/Demolition/demolition_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/enemynormal/EnemyNormal1_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	stbi_image_free(data);
+
+	data = stbi_load("./models/Demolition/demolition_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Enemytank/Enemytank_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Marksman/Marksman_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/enemynormal/EnemyNormal_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	glGenTextures(1, &m_normalmap);
+	glBindTexture(GL_TEXTURE_2D, m_normalmap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	stbi_image_free(data);
+
+	data = stbi_load("./models/Demolition/demolition_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Enemytank/Enemytank_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/Marksman/Marksman_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	//data = stbi_load("./models/enemynormal/EnemyNormal_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	glGenTextures(1, &m_specularmap);
+	glBindTexture(GL_TEXTURE_2D, m_specularmap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -179,8 +214,8 @@ bool TestApplication::startup() {
 	Gizmos::create();
 
 	// create a camera
-	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
-	m_camera->setLookAtFrom(vec3(20, 20, 20), vec3(0, 0, 0));
+	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 10000.f);
+	m_camera->setLookAtFrom(vec3(1500, 2000, 1500), vec3(0, 1000, 0));
 
 	//////////////////////////////////////////////////////////////////////////
 	// YOUR STARTUP CODE HERE
@@ -191,7 +226,15 @@ bool TestApplication::startup() {
 
 	textureLoad();
 	m_fbx = new FBXFile();
-	m_fbx->load("./models/Dragon.fbx");
+	//m_fbx->load("./models/enemynormal/EnemyNormal.fbx");
+	//m_fbx->load("./models/Medic/medic.fbx");
+	//m_fbx->load("./models/Marksman/Marksman.fbx");
+	//m_fbx->load("./models/Enemytank/Enemytank.fbx");
+	m_fbx->load("./models/Demolition/demolition.fbx");
+	//m_fbx->load("./models/Dragon.fbx");
+	//m_fbx->load("./models/Lucy.fbx");
+	//m_fbx->load("./models/Bunny.fbx");
+	//m_fbx->load("./models/Buddha.fbx");
 	createOpenGLBuffers(m_fbx);
 
 	return true;
@@ -241,6 +284,19 @@ bool TestApplication::update(float deltaTime) {
 	}
 	Gizmos::addTransform(glm::translate(m_pickPosition));
 
+	m_timer += deltaTime;
+
+	FBXSkeleton* skeleton = m_fbx->getSkeletonByIndex(0);
+	FBXAnimation* animation = m_fbx->getAnimationByIndex(0);
+
+	skeleton->evaluate(animation, m_timer);
+
+	for (unsigned int bone_index = 0; bone_index < skeleton->m_boneCount; ++bone_index)
+	{
+		skeleton->m_nodes[bone_index]->updateGlobalTransform();
+	}
+
+
 	// return true, else the application closes
 	return true;
 }
@@ -272,23 +328,39 @@ void TestApplication::draw() {
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_normalmap);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, m_specularmap);
 
-	unsigned int CameraPosUniform = glGetUniformLocation(m_program, "CameraPos");
-	glUniform3f(CameraPosUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
+
+	FBXSkeleton* skeleton = m_fbx->getSkeletonByIndex(0);
+	skeleton->updateBones();
+
+	int bones_location = glGetUniformLocation(m_program, "bones");
+	glUniformMatrix4fv(bones_location, skeleton->m_boneCount, GL_FALSE, (float*)skeleton->m_bones);
+
+	vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
 
 	unsigned int LightDirUniform = glGetUniformLocation(m_program, "LightDir");
 	//glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
-	glUniform3f(LightDirUniform, 1, 1, 1);
-
-	unsigned int LightColourUniform = glGetUniformLocation(m_program, "LightColour");
-	glUniform3f(LightColourUniform, 0.3, 0.2, 0.2);
-
-	unsigned int SpecPowUniform = glGetUniformLocation(m_program, "SpecPow");
-	glUniform1f(SpecPowUniform, 120);
+	glUniform3f(LightDirUniform, light.x, light.y, light.z);
+	//glUniform3f(LightDirUniform, 0, 1, 0);
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
 
+	unsigned int normalUniform = glGetUniformLocation(m_program, "normal");
+	glUniform1i(normalUniform, 1);
+
+	unsigned int specularUniform = glGetUniformLocation(m_program, "specular");
+	glUniform1i(specularUniform, 2);
+
+	unsigned int CameraPosUniform = glGetUniformLocation(m_program, "CameraPos");
+	glUniform3f(CameraPosUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
+
+	unsigned int SpecPowUniform = glGetUniformLocation(m_program, "SpecPow");
+	glUniform1f(SpecPowUniform, 10);
 
 	for (unsigned int i = 0; i < m_fbx->getMeshCount(); ++i)
 	{
