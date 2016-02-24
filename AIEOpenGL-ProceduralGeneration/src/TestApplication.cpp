@@ -1,6 +1,8 @@
 #include "TestApplication.h"
 #include "gl_core_4_4.h"
 
+#define GLM_SWIZZLE
+
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -14,7 +16,6 @@
 #include <fstream>
 #include <vector>
 
-
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
@@ -27,20 +28,15 @@ int imageWidth = 0, imageHeight = 0, imageFormat = 0;
 unsigned int m_texture, m_normalmap, m_specularmap;
 unsigned char* data;
 
-unsigned int dimension = 1024;
+unsigned int dimension = 64;
 
 unsigned int m_VAO;
 unsigned int m_VBO;
 unsigned int m_IBO;
 
-unsigned int m_vertexAttributes;
-FBXMaterial* m_material;
-std::vector<FBXVertex> m_vertices;
-std::vector<unsigned int> m_indices;
-glm::mat4 m_localTransform;
-glm::mat4 m_globalTransform;
-void* m_userData;
-FBXFile* m_fbx;
+float* perlin_data = new float[dimension * dimension];
+
+float height = 50;
 
 float m_timer;
 
@@ -48,6 +44,7 @@ struct Vertex
 {
 	vec4 position;
 	vec2 texCoord;
+	vec4 normal;
 };
 
 
@@ -58,8 +55,23 @@ void createOpenGLBuffers(unsigned int dimension)
 		{
 			for (unsigned int c = 0; c < dimension; ++c)
 			{
-				aoVertices[r * dimension + c].position = vec4((float)c , 0, (float)r, 1);
-				aoVertices[r*dimension + c].texCoord = vec2((float)r/dimension, (float)c/dimension);
+				//float hp = perlin_data[r*dimension + c] * height;
+				aoVertices[r * dimension + c].position = vec4((float)c, 0, (float)r, 1);
+				aoVertices[r*dimension + c].texCoord = vec2((float)r / dimension, (float)c / dimension);
+				aoVertices[r * dimension + c].normal = vec4(normalize(vec3(1)), 0);
+				//	aoVertices[r * dimension + c].normal.w = 1;
+				//if (c == 0 || r == 0 || c == dimension || r == dimension)
+				//{
+				//	aoVertices[r * dimension + c].normal = vec4(0, 0, 0, 0);
+				//}
+				//else
+				//{
+				//	vec3 c1 = aoVertices[r* dimension + c].position.xyz - aoVertices[(r - 1)* dimension + c].position.xyz;
+				//	vec3 c2 = aoVertices[r* dimension + c].position.xyz - aoVertices[r * dimension + c - 1].position.xyz;
+				//	vec3 d1 = glm::cross(c1, c2);
+				//	aoVertices[r * dimension + c].normal.xyz = normalize(d1);
+				//	aoVertices[r * dimension + c].normal.w = 1;
+				//}
 			}
 		}
 
@@ -91,18 +103,18 @@ void createOpenGLBuffers(unsigned int dimension)
 		glBufferData(GL_ARRAY_BUFFER, (dimension*dimension)*sizeof(Vertex), aoVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec4)));
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(vec4)+sizeof(vec2)));
 
 
 		//Index Buffer
-
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (dimension - 1) * (dimension - 1) * 6 * sizeof(unsigned int), auiIndices, GL_STATIC_DRAW);
 
 
 		//Vertex Array Object
-
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -115,8 +127,6 @@ void createOpenGLBuffers(unsigned int dimension)
 
 char* loadShader(char* filename)
 {
-
-
 	std::ifstream file;
 	file.open(filename, std::ios::in); // opens as ASCII!
 	assert(file);
@@ -197,9 +207,8 @@ TestApplication::~TestApplication() {
 }
 void textureLoad()
 {
-	float* perlin_data = new float[dimension * dimension];
 	float scale = (1.0f / dimension) * 3;
-	int octaves = 6;
+	int octaves = 8;
 	for (int x = 0; x < dimension; ++x)
 	{
 		for (int y = 0; y < dimension; ++y)
@@ -223,7 +232,7 @@ void textureLoad()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	stbi_image_free(perlin_data);
+	//stbi_image_free(perlin_data);
 }
 bool TestApplication::startup() {
 
@@ -235,15 +244,16 @@ bool TestApplication::startup() {
 
 	// create a camera
 	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
-	m_camera->setLookAtFrom(vec3(0, 20, 0), vec3(25, 0, 25));
+	m_camera->setLookAtFrom(vec3(-10, 100, -10), vec3(50, 0, 50));
 
 	//////////////////////////////////////////////////////////////////////////
 	// YOUR STARTUP CODE HERE
 	//////////////////////////////////////////////////////////////////////////
 	m_pickPosition = glm::vec3(0);
-
+	
 	linkShader();
 	textureLoad();
+
 	createOpenGLBuffers(dimension);
 
 	return true;
@@ -332,18 +342,18 @@ void TestApplication::draw() {
 	vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
 
 	unsigned int LightDirUniform = glGetUniformLocation(m_program, "LightDir");
-	//glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
-	glUniform3f(LightDirUniform, light.x, light.y, light.z);
+	glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
+	//glUniform3f(LightDirUniform, light.x, light.y, light.z);
 	//glUniform3f(LightDirUniform, 0, 1, 0);
+
+	unsigned int LightColourUniform = glGetUniformLocation(m_program, "LightColour");
+	glUniform3f(LightColourUniform, 0.8, 0.8, 0.8);
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
 	
-	unsigned int CameraPosUniform = glGetUniformLocation(m_program, "CameraPos");
-	glUniform3f(CameraPosUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
-
-	unsigned int SpecPowUniform = glGetUniformLocation(m_program, "SpecPow");
-	glUniform1f(SpecPowUniform, 10);
+	unsigned int dimensionUniform = glGetUniformLocation(m_program, "dimension");
+	glUniform1ui(dimensionUniform, dimension);
 
 	glBindVertexArray(m_VAO);
 	unsigned int indexCount = (dimension - 1)*(dimension - 1) * 6;
