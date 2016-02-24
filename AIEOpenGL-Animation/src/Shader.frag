@@ -27,6 +27,7 @@ void main()
 	mat3 TBN = mat3(normalize(vTangent), normalize(vBiTangent), normalize(vNormal));
 	vec3 N = texture(normal, vTexCoord).xyz * 2 - 1;
 	float d = max(0,dot(normalize(TBN*N),normalize(LightDir)));
+	//FragColor = vec4(0.8,0.8,1,1);
 	FragColor = texture(diffuse,vTexCoord);
 	FragColor.rgb = FragColor.rgb * d + FragColor.rgb * s;
 }
