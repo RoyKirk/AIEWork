@@ -27,6 +27,12 @@ int imageWidth = 0, imageHeight = 0, imageFormat = 0;
 unsigned int m_texture, m_normalmap, m_specularmap;
 unsigned char* data;
 
+unsigned int dimension = 1024;
+
+unsigned int m_VAO;
+unsigned int m_VBO;
+unsigned int m_IBO;
+
 unsigned int m_vertexAttributes;
 FBXMaterial* m_material;
 std::vector<FBXVertex> m_vertices;
@@ -38,52 +44,73 @@ FBXFile* m_fbx;
 
 float m_timer;
 
-void cleanupOpenGLBuffers(FBXFile* fbx)
+struct Vertex
 {
-	for (unsigned int i = 0; i < fbx->getMeshCount(); ++i)
-	{
-		FBXMeshNode* mesh = fbx->getMeshByIndex(i);
-		unsigned int* glData = (unsigned int*)mesh->m_userData;
-		glDeleteVertexArrays(1, &glData[0]);
-		glDeleteVertexArrays(1, &glData[1]);
-		glDeleteVertexArrays(1, &glData[2]);
+	vec4 position;
+	vec2 texCoord;
+};
 
-		delete[] glData;
-	}
-}
 
-void createOpenGLBuffers(FBXFile* fbx)
+void createOpenGLBuffers(unsigned int dimension)
 {
-	for (unsigned int i = 0; i < fbx->getMeshCount(); ++i)
-	{
-		FBXMeshNode* mesh = fbx->getMeshByIndex(i);
-		unsigned int* glData = new unsigned int[3];
-		glGenVertexArrays(1, &glData[0]);
-		glBindVertexArray(glData[0]);
-		glGenBuffers(1, &glData[1]);
-		glGenBuffers(1, &glData[2]);
-		glBindBuffer(GL_ARRAY_BUFFER, glData[1]);
-		glBufferData(GL_ARRAY_BUFFER, mesh->m_vertices.size() * sizeof(FBXVertex), mesh->m_vertices.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glData[2]);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->m_indices.size() * sizeof(unsigned int), mesh->m_indices.data(), GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0); // position
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*) + FBXVertex::PositionOffset);
-		glEnableVertexAttribArray(1); // normal
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, sizeof(FBXVertex), (void*) + FBXVertex::NormalOffset);
-		glEnableVertexAttribArray(2); // tangents
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*) + FBXVertex::TangentOffset);
-		glEnableVertexAttribArray(3); // texcoords
-		glVertexAttribPointer(3, 2, GL_FLOAT, GL_TRUE, sizeof(FBXVertex), (void*) + FBXVertex::TexCoord1Offset);
-		glEnableVertexAttribArray(4); // weights
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*) + FBXVertex::WeightsOffset);
-		glEnableVertexAttribArray(5); // indices
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*) + FBXVertex::IndicesOffset);
+		Vertex* aoVertices = new Vertex[dimension*dimension];
+		for (unsigned int r = 0; r < dimension; ++r)
+		{
+			for (unsigned int c = 0; c < dimension; ++c)
+			{
+				aoVertices[r * dimension + c].position = vec4((float)c , 0, (float)r, 1);
+				aoVertices[r*dimension + c].texCoord = vec2((float)r/dimension, (float)c/dimension);
+			}
+		}
+
+		unsigned int* auiIndices = new unsigned int[(dimension - 1)*(dimension - 1) * 6];
+		unsigned int index = 0;
+		for (unsigned int r = 0; r < (dimension - 1); ++r)
+		{
+			for (unsigned int c = 0; c < (dimension - 1); ++c)
+			{
+				//Tirangle 1
+				auiIndices[index++] = r*dimension + c;
+				auiIndices[index++] = (r + 1)*dimension + c;
+				auiIndices[index++] = (r + 1)*dimension + (c + 1);
+				//Triangle 2
+				auiIndices[index++] = r*dimension + c;
+				auiIndices[index++] = (r + 1)*dimension + (c + 1);
+				auiIndices[index++] = r*dimension + (c + 1);
+			}
+		}
+
+		glGenBuffers(1, &m_VBO);
+		glGenBuffers(1, &m_IBO);
+
+		glGenVertexArrays(1, &m_VAO);
+		glBindVertexArray(m_VAO);
+		//Vertex Buffer
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		glBufferData(GL_ARRAY_BUFFER, (dimension*dimension)*sizeof(Vertex), aoVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec4)));
+
+
+		//Index Buffer
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (dimension - 1) * (dimension - 1) * 6 * sizeof(unsigned int), auiIndices, GL_STATIC_DRAW);
+
+
+		//Vertex Array Object
+
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		mesh->m_userData = glData;
-	}
+
+
+		delete[] aoVertices;
+		delete[] auiIndices;
 }
 
 char* loadShader(char* filename)
@@ -159,42 +186,6 @@ void linkShader()
 	glDeleteShader(vertexShader);
 }
 
-void textureLoad()
-{
-	//data = stbi_load("./models/Marksman/Marksman_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	//data = stbi_load("./models/Enemytank/Enemytank_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	//data = stbi_load("./models/Medic/Medic_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	data = stbi_load("./models/Demolition/demolition_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	//data = stbi_load("./models/enemynormal/EnemyNormal1_D.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	stbi_image_free(data);
-
-	data = stbi_load("./models/Demolition/demolition_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	//data = stbi_load("./models/Enemytank/Enemytank_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	//data = stbi_load("./models/Marksman/Marksman_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	//data = stbi_load("./models/enemynormal/EnemyNormal_N.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	glGenTextures(1, &m_normalmap);
-	glBindTexture(GL_TEXTURE_2D, m_normalmap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	stbi_image_free(data);
-
-	data = stbi_load("./models/Demolition/demolition_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	//data = stbi_load("./models/Enemytank/Enemytank_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	//data = stbi_load("./models/Marksman/Marksman_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	//data = stbi_load("./models/enemynormal/EnemyNormal_S.tga", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	glGenTextures(1, &m_specularmap);
-	glBindTexture(GL_TEXTURE_2D, m_specularmap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	stbi_image_free(data);
-}
 
 TestApplication::TestApplication()
 	: m_camera(nullptr) {
@@ -204,7 +195,36 @@ TestApplication::TestApplication()
 TestApplication::~TestApplication() {
 
 }
-
+void textureLoad()
+{
+	float* perlin_data = new float[dimension * dimension];
+	float scale = (1.0f / dimension) * 3;
+	int octaves = 6;
+	for (int x = 0; x < dimension; ++x)
+	{
+		for (int y = 0; y < dimension; ++y)
+		{
+			float amplitude = 1.0f;
+			float persistence = 0.3f;
+			perlin_data[y*dimension + x] = 0;
+			for (int o = 0; o < octaves; ++o)
+			{
+				float freq = powf(2, (float)o);
+				float perlin_sample = glm::perlin(vec2((float)x, (float)y) * scale * freq) * 0.5f + 0.5f;
+				perlin_data[y*dimension + x] += perlin_sample*amplitude;
+				amplitude *= persistence;
+			}
+		}
+	}
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, dimension, dimension, 0, GL_RED, GL_FLOAT, perlin_data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	stbi_image_free(perlin_data);
+}
 bool TestApplication::startup() {
 
 	// create a basic window
@@ -214,8 +234,8 @@ bool TestApplication::startup() {
 	Gizmos::create();
 
 	// create a camera
-	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 10000.f);
-	m_camera->setLookAtFrom(vec3(1500, 2000, 1500), vec3(0, 1000, 0));
+	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
+	m_camera->setLookAtFrom(vec3(0, 20, 0), vec3(25, 0, 25));
 
 	//////////////////////////////////////////////////////////////////////////
 	// YOUR STARTUP CODE HERE
@@ -223,19 +243,8 @@ bool TestApplication::startup() {
 	m_pickPosition = glm::vec3(0);
 
 	linkShader();
-
 	textureLoad();
-	m_fbx = new FBXFile();
-	//m_fbx->load("./models/enemynormal/EnemyNormal.fbx");
-	//m_fbx->load("./models/Medic/medic.fbx");
-	//m_fbx->load("./models/Marksman/Marksman.fbx");
-	//m_fbx->load("./models/Enemytank/Enemytank.fbx");
-	m_fbx->load("./models/Demolition/demolition.fbx");
-	//m_fbx->load("./models/Dragon.fbx");
-	//m_fbx->load("./models/Lucy.fbx");
-	//m_fbx->load("./models/Bunny.fbx");
-	//m_fbx->load("./models/Buddha.fbx");
-	createOpenGLBuffers(m_fbx);
+	createOpenGLBuffers(dimension);
 
 	return true;
 }
@@ -250,7 +259,6 @@ void TestApplication::shutdown() {
 	delete m_camera;
 	Gizmos::destroy();
 
-	cleanupOpenGLBuffers(m_fbx);
 	glDeleteProgram(m_program);
 	// destroy our window properly
 	destroyWindow();
@@ -282,20 +290,12 @@ bool TestApplication::update(float deltaTime) {
 		glm::vec4 plane(0, 1, 0, 0);
 		m_pickPosition = m_camera->pickAgainstPlane((float)x, (float)y, plane);
 	}
-	Gizmos::addTransform(glm::translate(m_pickPosition));
 
-	m_timer += deltaTime;
-
-	FBXSkeleton* skeleton = m_fbx->getSkeletonByIndex(0);
-	FBXAnimation* animation = m_fbx->getAnimationByIndex(0);
-
-	skeleton->evaluate(animation, m_timer);
-
-	for (unsigned int bone_index = 0; bone_index < skeleton->m_boneCount; ++bone_index)
+	if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
 	{
-		skeleton->m_nodes[bone_index]->updateGlobalTransform();
+		linkShader();
 	}
-
+	Gizmos::addTransform(glm::translate(m_pickPosition));
 
 	// return true, else the application closes
 	return true;
@@ -328,17 +328,6 @@ void TestApplication::draw() {
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, m_normalmap);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, m_specularmap);
-
-
-	FBXSkeleton* skeleton = m_fbx->getSkeletonByIndex(0);
-	skeleton->updateBones();
-
-	int bones_location = glGetUniformLocation(m_program, "bones");
-	glUniformMatrix4fv(bones_location, skeleton->m_boneCount, GL_FALSE, (float*)skeleton->m_bones);
 
 	vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
 
@@ -349,24 +338,14 @@ void TestApplication::draw() {
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
-
-	unsigned int normalUniform = glGetUniformLocation(m_program, "normal");
-	glUniform1i(normalUniform, 1);
-
-	unsigned int specularUniform = glGetUniformLocation(m_program, "specular");
-	glUniform1i(specularUniform, 2);
-
+	
 	unsigned int CameraPosUniform = glGetUniformLocation(m_program, "CameraPos");
 	glUniform3f(CameraPosUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
 
 	unsigned int SpecPowUniform = glGetUniformLocation(m_program, "SpecPow");
 	glUniform1f(SpecPowUniform, 10);
 
-	for (unsigned int i = 0; i < m_fbx->getMeshCount(); ++i)
-	{
-		FBXMeshNode* mesh = m_fbx->getMeshByIndex(i);
-		unsigned int* glData = (unsigned int*)mesh->m_userData;
-		glBindVertexArray(glData[0]);
-		glDrawElements(GL_TRIANGLES, (unsigned int)mesh->m_indices.size(), GL_UNSIGNED_INT, 0);
-	}
+	glBindVertexArray(m_VAO);
+	unsigned int indexCount = (dimension - 1)*(dimension - 1) * 6;
+	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 }
