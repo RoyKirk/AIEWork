@@ -16,7 +16,7 @@ uniform vec3 LightColour;
 
 void main()	
 {
-	if(vPosition.y < 49.9)
+	if(vPosition.y < 49.99)
 	{
 		vec3 N = texture(ground_textureN, vTexCoord).xyz * 2 - 1;
 		float d1 = max(0, dot(normalize(vNormal.xyz), normalize(LightDir)));
@@ -24,7 +24,7 @@ void main()
 		FragColor = texture(ground_textureD,vTexCoord)*0.5;
 		FragColor += vec4(LightColour * d1 * d2,1);
 	}
-	else if(vPosition.y > 50.1)
+	else if(vPosition.y > 50.01)
 	{
 		vec3 N = texture(snow_textureN, vTexCoord).xyz * 2 - 1;
 		float d1 = max(0, dot(normalize(vNormal.xyz), normalize(LightDir)));
@@ -41,11 +41,11 @@ void main()
 		vec3 N2 = texture(ground_textureN, vTexCoord).xyz * 2 - 1;
 		float d3 = max(0, dot(normalize(vNormal.xyz), normalize(LightDir)));
 		float d4 = max(0, dot(normalize(N2), normalize(LightDir)));
-		FragColor = texture(ground_textureD,vTexCoord)*0.6 + texture(snow_textureD,vTexCoord/5)*0.15;
+		FragColor = texture(ground_textureD,vTexCoord)*0.6 + texture(snow_textureD,vTexCoord/5)*0.6;
 		FragColor += vec4(LightColour * (d1 * d2 * 0.5) * (d3 * d4 * 0.5),1);
 	}
 
-	
-	FragColor = texture(diffuse,vTexCoord).rrrr;
-	FragColor.a = 1;
+	//FragColor += 0.3*(texture(ground_textureD,vTexCoord)*(1-texture(diffuse,vTexCoord).rrrr+0.3) + texture(snow_textureD,vTexCoord)*(texture(diffuse,vTexCoord).rrrr-0.3));
+	//FragColor = texture(diffuse,vTexCoord).rrrr;
+	//FragColor.a = 1;
 }

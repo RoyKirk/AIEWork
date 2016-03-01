@@ -209,8 +209,8 @@ TestApplication::~TestApplication() {
 }
 void textureLoad()
 {
-	float scale = (1.0f / dimension);
-	int octaves = 1;
+	float scale = (1.0f / dimension)*3;
+	int octaves = 6;
 	for (int x = 0; x < dimension; ++x)
 	{
 		for (int y = 0; y < dimension; ++y)

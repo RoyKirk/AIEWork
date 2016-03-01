@@ -19,7 +19,7 @@ void main()
 	//const vec2 size = vec2(2.0,0.0);
 	//const ivec3 off = ivec3(-1,0,1);
 	vec4 pos = Position;
-	pos.y = texture(m_texture,TexCoord).r * 50;
+	//pos.y = texture(m_texture,TexCoord).r * 50;
 	vTexCoord = TexCoord; 
 	vNormal = Normal;
 	vPosition = Position;
