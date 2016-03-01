@@ -25,12 +25,12 @@ unsigned int m_program;
 
 int imageWidth = 0, imageHeight = 0, imageFormat = 0;
 
-unsigned int m_texture, m_normalmap, m_specularmap, m_sandstoneD, m_sandstoneN;
+unsigned int m_texture, m_normalmap, m_specularmap, m_rockD, m_rockN, m_snowD, m_snowN;
 unsigned char* data;
 
 
 
-unsigned int dimension = 64;
+unsigned int dimension = 256;
 
 unsigned int m_VAO;
 unsigned int m_VBO;
@@ -122,7 +122,7 @@ void createOpenGLBuffers(unsigned int dimension)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
-
+		stbi_image_free(perlin_data);
 		delete[] aoVertices;
 		delete[] auiIndices;
 }
@@ -209,20 +209,20 @@ TestApplication::~TestApplication() {
 }
 void textureLoad()
 {
-	float scale = (1.0f / dimension) * 3;
-	int octaves = 8;
+	float scale = (1.0f / dimension);
+	int octaves = 1;
 	for (int x = 0; x < dimension; ++x)
 	{
 		for (int y = 0; y < dimension; ++y)
 		{
 			float amplitude = 1.0f;
-			float persistence = 0.3f;
-			perlin_data[y*dimension + x] = 0;
+			float persistence = 0.4f;
+			perlin_data[x*dimension + y] = 0;
 			for (int o = 0; o < octaves; ++o)
 			{
 				float freq = powf(2, (float)o);
 				float perlin_sample = glm::perlin(vec2((float)x, (float)y) * scale * freq) * 0.5f + 0.5f;
-				perlin_data[y*dimension + x] += perlin_sample*amplitude;
+				perlin_data[x*dimension + y] += perlin_sample*amplitude;
 				amplitude *= persistence;
 			}
 		}
@@ -236,21 +236,35 @@ void textureLoad()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
-	data = stbi_load("./textures/sandstone_d.png", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	glGenTextures(1, &m_sandstoneD);
-	glBindTexture(GL_TEXTURE_2D, m_sandstoneD);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	data = stbi_load("./textures/rock_d.jpg", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	glGenTextures(1, &m_rockD);
+	glBindTexture(GL_TEXTURE_2D, m_rockD);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	stbi_image_free(data);
-	data = stbi_load("./textures/sandstone_n.png", &imageWidth, &imageHeight, &imageFormat, STBI_default);
-	glGenTextures(1, &m_sandstoneN);
-	glBindTexture(GL_TEXTURE_2D, m_sandstoneN);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	data = stbi_load("./textures/rock_n.jpg", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	glGenTextures(1, &m_rockN);
+	glBindTexture(GL_TEXTURE_2D, m_rockN);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	stbi_image_free(data);
-	//stbi_image_free(perlin_data);
+	data = stbi_load("./textures/snow_d.jpg", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	glGenTextures(1, &m_snowD);
+	glBindTexture(GL_TEXTURE_2D, m_snowD);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	stbi_image_free(data);
+	data = stbi_load("./textures/snow_n.jpg", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	glGenTextures(1, &m_snowN);
+	glBindTexture(GL_TEXTURE_2D, m_snowN);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	stbi_image_free(data);
+	
 }
 bool TestApplication::startup() {
 
@@ -262,7 +276,7 @@ bool TestApplication::startup() {
 
 	// create a camera
 	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
-	m_camera->setLookAtFrom(vec3(-10, 100, -10), vec3(50, 0, 50));
+	m_camera->setLookAtFrom(vec3(-10, 100, -10), vec3(100, 0, 100));
 
 	//////////////////////////////////////////////////////////////////////////
 	// YOUR STARTUP CODE HERE
@@ -356,11 +370,18 @@ void TestApplication::draw() {
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+	
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, m_sandstoneD);
+	glBindTexture(GL_TEXTURE_2D, m_rockD);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, m_sandstoneN);
+	glBindTexture(GL_TEXTURE_2D, m_rockN);
+
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, m_snowD);
+
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, m_snowN);
 
 	vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
 
@@ -375,11 +396,17 @@ void TestApplication::draw() {
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
 
-	unsigned int diffuse2Uniform = glGetUniformLocation(m_program, "ground_textureD");
-	glUniform1i(diffuse2Uniform, 1);
+	diffuseUniform = glGetUniformLocation(m_program, "ground_textureD");
+	glUniform1i(diffuseUniform, 1);
 
 	unsigned int normalUniform = glGetUniformLocation(m_program, "ground_textureN");
 	glUniform1i(normalUniform, 2);
+
+	diffuseUniform = glGetUniformLocation(m_program, "snow_textureD");
+	glUniform1i(diffuseUniform, 3);
+
+	normalUniform = glGetUniformLocation(m_program, "snow_textureN");
+	glUniform1i(normalUniform, 4);
 	
 	unsigned int dimensionUniform = glGetUniformLocation(m_program, "dimension");
 	glUniform1ui(dimensionUniform, dimension);
