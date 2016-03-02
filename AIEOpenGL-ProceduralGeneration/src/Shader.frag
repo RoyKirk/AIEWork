@@ -20,7 +20,7 @@ void main()
 	float d1 = max(0, dot(normalize(vNormal.xyz), normalize(LightDir)));
 	float d2 = max(0, dot(normalize(N), normalize(LightDir)));	
 	FragColor = 0.4*(texture(ground_textureD,vTexCoord)*(1-texture(diffuse,vTexCoord).rrrr+0.3) + texture(snow_textureD,vTexCoord)*(texture(diffuse,vTexCoord).rrrr-0.3));
-	FragColor += 0.6*vec4(LightColour * d1,1);
+	FragColor += 0.4*vec4(LightColour * d1,1);
 	FragColor += 0.2*vec4(LightColour * d2,1);
 	//FragColor = texture(diffuse,vTexCoord).rrrr;
 	FragColor.a = 1;

@@ -30,7 +30,7 @@ unsigned char* data;
 
 
 
-unsigned int dimension = 256;
+unsigned int dimension = 64;
 
 unsigned int m_VAO;
 unsigned int m_VBO;
@@ -134,9 +134,9 @@ char* loadShader(char* filename)
 	assert(file);
 
 
-	unsigned long pos = file.tellg();
+	unsigned long pos = (unsigned long)file.tellg();
 	file.seekg(0, std::ios::end);
-	unsigned long len = file.tellg();
+	unsigned long len = (unsigned long)file.tellg();
 	file.seekg(std::ios::beg);
 
 	assert(len != 0);
@@ -211,9 +211,9 @@ void textureLoad()
 {
 	float scale = (1.0f / dimension)*3;
 	int octaves = 6;
-	for (int x = 0; x < dimension; ++x)
+	for (unsigned int x = 0; x < dimension; ++x)
 	{
-		for (int y = 0; y < dimension; ++y)
+		for (unsigned int y = 0; y < dimension; ++y)
 		{
 			float amplitude = 1.0f;
 			float persistence = 0.4f;
@@ -391,7 +391,7 @@ void TestApplication::draw() {
 	glUniform3f(LightDirUniform, 1, 1, 1);
 
 	unsigned int LightColourUniform = glGetUniformLocation(m_program, "LightColour");
-	glUniform3f(LightColourUniform, 0.8, 0.8, 0.8);
+	glUniform3f(LightColourUniform, 0.8f, 0.8f, 0.8f);
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
