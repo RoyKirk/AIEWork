@@ -236,14 +236,14 @@ void textureLoad()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
-	data = stbi_load("./textures/rock_d.jpg", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	data = stbi_load("./textures/grass_d.jpg", &imageWidth, &imageHeight, &imageFormat, STBI_default);
 	glGenTextures(1, &m_rockD);
 	glBindTexture(GL_TEXTURE_2D, m_rockD);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	stbi_image_free(data);
-	data = stbi_load("./textures/rock_n.jpg", &imageWidth, &imageHeight, &imageFormat, STBI_default);
+	data = stbi_load("./textures/grass_n.jpg", &imageWidth, &imageHeight, &imageFormat, STBI_default);
 	glGenTextures(1, &m_rockN);
 	glBindTexture(GL_TEXTURE_2D, m_rockN);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

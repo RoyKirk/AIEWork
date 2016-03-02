@@ -19,10 +19,11 @@ void main()
 	//const vec2 size = vec2(2.0,0.0);
 	//const ivec3 off = ivec3(-1,0,1);
 	vec4 pos = Position;
-	//pos.y = texture(m_texture,TexCoord).r * 50;
-	vTexCoord = TexCoord; 
+	vTexCoord = vec2(TexCoord.y,TexCoord.x); 
+	pos.y = texture(m_texture,vTexCoord).r * 50;
 	vNormal = Normal;
 	vPosition = Position;
+	//pos.y = 0;
 	gl_Position = ProjectionView * pos;
 }
 
