@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <vector>
 
 #include "Camera.h"
 #include "Gizmos.h"
@@ -29,6 +30,72 @@ float celestBodSpeed = 0.5;
 
 Planet** celestBod = new Planet*[celestBodNum];
 
+class BoundingSphere
+{
+public:
+	BoundingSphere() : centre(0), radius(0) {}
+	~BoundingSphere() {}
+
+	void fit(const std::vector<glm::vec3>& points) {
+
+		glm::vec3 min(1e37f), max(-1e37f);
+
+		for (auto& p : points)
+		{
+			if (p.x < min.x) { min.x = p.x; }
+			if (p.y < min.y) { min.y = p.y; }
+			if (p.z < min.z) { min.z = p.z; }
+			if (p.x > max.x) { max.x = p.x; }
+			if (p.y > max.y) { max.y = p.y; }
+			if (p.z > max.z) { max.z = p.z; }
+		}
+
+		centre = (min + max)*0.5f;
+		radius = glm::distance(min, centre);
+	}
+	glm::vec3 centre;
+	float radius;
+};
+
+void getFrustumPlanes(const glm::mat4& transform, glm::vec4* planes)
+{
+	//right side
+	planes[0] = vec4(transform[0][3] - transform[0][0],
+		transform[1][3] - transform[1][0],
+		transform[2][3] - transform[2][0],
+		transform[3][3] - transform[3][0]);
+	//left side
+	planes[1] = vec4(transform[0][3] + transform[0][0],
+		transform[1][3] + transform[1][0],
+		transform[2][3] + transform[2][0],
+		transform[3][3] + transform[3][0]);
+
+	//top
+	planes[2] = vec4(transform[0][3] - transform[0][1],
+		transform[1][3] - transform[1][1],
+		transform[2][3] - transform[2][1],
+		transform[3][3] - transform[3][1]);
+	//bottom
+	planes[3] = vec4(transform[0][3] + transform[0][1],
+		transform[1][3] + transform[1][1],
+		transform[2][3] + transform[2][1],
+		transform[3][3] + transform[3][1]);
+	//far
+	planes[4] = vec4(transform[0][3] - transform[0][2],
+		transform[1][3] - transform[1][2],
+		transform[2][3] - transform[2][2],
+		transform[3][3] - transform[3][2]);
+	//near
+	planes[5] = vec4(transform[0][3] + transform[0][2],
+		transform[1][3] + transform[1][2],
+		transform[2][3] + transform[2][2],
+		transform[3][3] + transform[3][2]);
+
+	for (int i = 0; i < 6; i++)
+	{
+		planes[i] = glm::normalize(planes[i]);
+	}
+}
 
 
 TestApplication::TestApplication()
@@ -132,17 +199,50 @@ bool TestApplication::update(float deltaTime) {
 		{
 			celestBod[i]->m_local = glm::rotate(celestBod[i]->m_rotation, vec3(0, 1, 0));
 			celestBod[i]->m_local = glm::translate(celestBod[i]->m_local, vec3(celestBod[i]->m_distance, 0, 0));
-			Gizmos::addSphere(celestBod[i]->m_local[3].xyz(), celestBod[i]->m_size, 10, 10, vec4(1, 0, 1, 1));
+			
 		}
 		else
 		{
 			celestBod[i]->m_rotation += deltaTime * celestBod[i]->m_orbitSpeed;
 			celestBod[i]->m_local = glm::rotate(celestBod[i]->m_parent->m_local, celestBod[i]->m_rotation, vec3(0, 1, 0));
 			celestBod[i]->m_local = glm::translate(celestBod[i]->m_local, vec3(celestBod[i]->m_distance, 0, 0));
-			Gizmos::addSphere(celestBod[i]->m_local[3].xyz(), celestBod[i]->m_size, 10, 10, vec4(1, 0, 1, 1));
+		}
+		BoundingSphere sphere;
+		sphere.centre = celestBod[i]->m_local[3].xyz();
+		sphere.radius = celestBod[i]->m_size;
+
+		vec4 planes[6];
+		getFrustumPlanes(m_camera->getProjectionView(), planes);
+
+		for (int i = 0; i < 6; i++)
+		{
+			float d = glm::dot(vec3(planes[i]), sphere.centre) + planes[i].w;
 		}
 
+		for (int i = 0; i < 6; i++)
+		{
+			float d = glm::dot(vec3(planes[i]), sphere.centre) + planes[i].w;
+			if (d < -sphere.radius)
+			{
+				printf("Behind, don't render it!\n");
+				break;
+			}
+			else if (d < sphere.radius)
+			{
+				printf("Touching, we still need to render it!\n");
+				Gizmos::addSphere(sphere.centre, sphere.radius, 10, 10, vec4(1, 0, 1, 1));
+				continue;
+			}
+			else
+			{
+				printf("Front, fully visible so render it!\n");
+				Gizmos::addSphere(sphere.centre, sphere.radius, 10, 10, vec4(1, 0, 1, 1));
+				continue;
+			}
+		}
 	}
+
+
 
 	//Planet1->m_rotation += deltaTime * Planet1->m_orbitSpeed;
 	//Planet2->m_rotation += deltaTime * Planet2->m_orbitSpeed;
