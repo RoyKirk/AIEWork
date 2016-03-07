@@ -93,7 +93,7 @@ void getFrustumPlanes(const glm::mat4& transform, glm::vec4* planes)
 
 	for (int i = 0; i < 6; i++)
 	{
-		planes[i] = glm::normalize(planes[i]);
+		planes[i] /= glm::length(glm::vec3(planes[i].xyz));
 	}
 }
 
@@ -193,6 +193,9 @@ bool TestApplication::update(float deltaTime) {
 			i == 25 ? vec4(1, 1, 1, 1) : vec4(0, 0, 0, 1));
 	}
 	
+	vec4 planes[6];
+	getFrustumPlanes(m_camera->getProjectionView(), planes);
+
 	for (int i = 0; i <= celestBodNum; i++)
 	{
 		if (celestBod[i]->m_parent == nullptr)
@@ -211,8 +214,6 @@ bool TestApplication::update(float deltaTime) {
 		sphere.centre = celestBod[i]->m_local[3].xyz();
 		sphere.radius = celestBod[i]->m_size;
 
-		vec4 planes[6];
-		getFrustumPlanes(m_camera->getProjectionView(), planes);
 
 		for (int i = 0; i < 6; i++)
 		{

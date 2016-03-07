@@ -1,6 +1,8 @@
 #include "TestApplication.h"
 #include "gl_core_4_4.h"
 
+#define GLM_SWIZZLE
+
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -13,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include "BoundingSphere.h"
 
 
 using glm::vec2;
@@ -38,7 +41,53 @@ void* m_userData;
 FBXFile* m_fbx1;
 FBXFile* m_fbx2;
 
+bool fbx1Cull = false;
+bool fbx2Cull = false;
+
+std::vector<vec3> posData1;
+std::vector<vec3> posData2;
 float m_timer;
+void getFrustumPlanes(const glm::mat4& transform, glm::vec4* planes)
+{
+	//right side
+	planes[0] = vec4(transform[0][3] - transform[0][0],
+		transform[1][3] - transform[1][0],
+		transform[2][3] - transform[2][0],
+		transform[3][3] - transform[3][0]);
+	//left side
+	planes[1] = vec4(transform[0][3] + transform[0][0],
+		transform[1][3] + transform[1][0],
+		transform[2][3] + transform[2][0],
+		transform[3][3] + transform[3][0]);
+
+	//top
+	planes[2] = vec4(transform[0][3] - transform[0][1],
+		transform[1][3] - transform[1][1],
+		transform[2][3] - transform[2][1],
+		transform[3][3] - transform[3][1]);
+	//bottom
+	planes[3] = vec4(transform[0][3] + transform[0][1],
+		transform[1][3] + transform[1][1],
+		transform[2][3] + transform[2][1],
+		transform[3][3] + transform[3][1]);
+	//far
+	planes[4] = vec4(transform[0][3] - transform[0][2],
+		transform[1][3] - transform[1][2],
+		transform[2][3] - transform[2][2],
+		transform[3][3] - transform[3][2]);
+	//near
+	planes[5] = vec4(transform[0][3] + transform[0][2],
+		transform[1][3] + transform[1][2],
+		transform[2][3] + transform[2][2],
+		transform[3][3] + transform[3][2]);
+
+	for (int i = 0; i < 6; i++)
+	{
+		planes[i].x /= glm::length(glm::vec3(planes[i].xyz));
+		planes[i].y /= glm::length(glm::vec3(planes[i].xyz));
+		planes[i].z /= glm::length(glm::vec3(planes[i].xyz));
+	}
+}
 
 void cleanupOpenGLBuffers(FBXFile* fbx)
 {
@@ -54,12 +103,16 @@ void cleanupOpenGLBuffers(FBXFile* fbx)
 	}
 }
 
-void createOpenGLBuffers(FBXFile* fbx)
+void createOpenGLBuffers(FBXFile* fbx, std::vector<vec3> &posData)
 {
 for (unsigned int i = 0; i < fbx->getMeshCount(); ++i)
 	{
 		FBXMeshNode* mesh = fbx->getMeshByIndex(i);
-		unsigned int* glData = new unsigned int[3];
+		unsigned int* glData = new unsigned int [3];
+		for (int i = 0; i < mesh->m_vertices.size(); i++)
+		{
+			posData.push_back(vec3(mesh->m_vertices.data()[i].position.x, mesh->m_vertices.data()[i].position.y, mesh->m_vertices.data()[i].position.z));
+		}
 		glGenVertexArrays(1, &glData[0]);
 		glBindVertexArray(glData[0]);
 		glGenBuffers(1, &glData[1]);
@@ -125,10 +178,10 @@ char* loadShader(char* filename)
 	return shaderSource;
 }
 
-void linkShader()
+void linkShader(char* vertfilename, char* fragfilename)
 {
-	const char* vsSource = loadShader("./src/Shader.vert");
-	const char* fsSource = loadShader("./src/Shader.frag");
+	const char* vsSource = loadShader(vertfilename);
+	const char* fsSource = loadShader(fragfilename);
 
 	int success = GL_FALSE;
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -238,7 +291,7 @@ bool TestApplication::startup() {
 	//////////////////////////////////////////////////////////////////////////
 	m_pickPosition = glm::vec3(0);
 
-	linkShader();
+	linkShader("./src/Shader.vert", "./src/Shader.frag");
 
 	textureLoad();
 	m_fbx1 = new FBXFile();
@@ -253,8 +306,8 @@ bool TestApplication::startup() {
 	//m_fbx->load("./models/Lucy.fbx");
 	//m_fbx->load("./models/Bunny.fbx");
 	//m_fbx->load("./models/Buddha.fbx");
-	createOpenGLBuffers(m_fbx1);
-	createOpenGLBuffers(m_fbx2);
+	createOpenGLBuffers(m_fbx1,posData1);
+	createOpenGLBuffers(m_fbx2,posData2);
 
 	return true;
 }
@@ -326,6 +379,93 @@ bool TestApplication::update(float deltaTime) {
 		skeleton2->m_nodes[bone_index]->updateGlobalTransform();
 	}
 
+	vec4 planes[6];
+	getFrustumPlanes(m_camera->getProjectionView(), planes);
+
+	BoundingSphere sphere1;
+	sphere1.fit(posData1);
+
+	for (int i = 0; i < 6; i++)
+	{
+		float d = glm::dot(vec3(planes[i]), sphere1.centre) + planes[i].w;
+	}
+
+	for (int i = 0; i < 6; i++)
+	{
+		
+		float d = glm::dot(vec3(planes[i]), sphere1.centre) + planes[i].w;
+		if (d < -sphere1.radius)
+		{
+			if (fbx1Cull)
+			{
+				printf("1Behind, don't render it!\n");
+			}
+			fbx1Cull = false;
+			break;
+		}
+		else if (d < sphere1.radius)
+		{
+			if (!fbx1Cull)
+			{
+				printf("1Touching, we still need to render it!\n");
+			}
+			Gizmos::addSphere(sphere1.centre, sphere1.radius, 10, 10, vec4(1, 0, 1, 1));
+			fbx1Cull = true;
+		}
+		else
+		{
+			if (!fbx1Cull)
+			{
+				printf("1Front, fully visible so render it!\n");
+			}
+			Gizmos::addSphere(sphere1.centre, sphere1.radius, 10, 10, vec4(1, 0, 1, 1));
+			fbx1Cull = true;
+		}
+	}
+
+
+	BoundingSphere sphere2;
+	sphere2.fit(posData2);
+	sphere2.centre.z -= 1000;
+
+	for (int i = 0; i < 6; i++)
+	{
+		float d = glm::dot(vec3(planes[i]), sphere2.centre) + planes[i].w;
+	}
+
+	for (int i = 0; i < 6; i++)
+	{
+
+		float d = glm::dot(vec3(planes[i]), sphere2.centre) + planes[i].w;
+		if (d < -sphere2.radius)
+		{
+			if (fbx2Cull)
+			{
+				printf("2Behind, don't render it!\n");
+			}
+			fbx2Cull = false;
+			break;
+		}
+		else if (d < sphere2.radius)
+		{
+			if (!fbx2Cull)
+			{
+				printf("2Touching, we still need to render it!\n");
+			}
+			Gizmos::addSphere(sphere2.centre, sphere2.radius, 10, 10, vec4(1, 0, 1, 1));
+			fbx2Cull = true;
+		}
+		else
+		{
+			if (!fbx2Cull)
+			{
+				printf("2Front, fully visible so render it!\n");
+			}
+			Gizmos::addSphere(sphere2.centre, sphere2.radius, 10, 10, vec4(1, 0, 1, 1));
+			fbx2Cull = true;
+		}
+	}
+
 
 	// return true, else the application closes
 	return true;
@@ -341,7 +481,7 @@ void TestApplication::draw() {
 	//////////////////////////////////////////////////////////////////////////
 
 	// display the 3D gizmos
-	Gizmos::draw(m_camera->getProjectionView());
+	
 
 	// get a orthographic projection matrix and draw 2D gizmos
 	int width = 0, height = 0;
@@ -350,7 +490,6 @@ void TestApplication::draw() {
 
 	Gizmos::draw2D(m_camera->getProjectionView());
 
-	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 	glUseProgram(m_program);
 	unsigned int projectionViewUniform = glGetUniformLocation(m_program, "ProjectionView");
@@ -369,14 +508,12 @@ void TestApplication::draw() {
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, m_specularmap2);
 
-
-
 	vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
 
 	unsigned int LightDirUniform = glGetUniformLocation(m_program, "LightDir");
 	//glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
-	glUniform3f(LightDirUniform, light.x, light.y, light.z);
-	//glUniform3f(LightDirUniform, 1, 1, 1);
+	//glUniform3f(LightDirUniform, light.x, light.y, light.z);
+	glUniform3f(LightDirUniform, 0, 1, 0);
 
 	unsigned int CameraPosUniform = glGetUniformLocation(m_program, "CameraPos");
 	glUniform3f(CameraPosUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
@@ -384,49 +521,57 @@ void TestApplication::draw() {
 	unsigned int SpecPowUniform = glGetUniformLocation(m_program, "SpecPow");
 	glUniform1f(SpecPowUniform, 10);
 
-	for (unsigned int i = 0; i < m_fbx1->getMeshCount(); ++i)
+	if (fbx1Cull)
 	{
-		unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
-		glUniform1i(diffuseUniform, 0);
-		unsigned int normalUniform = glGetUniformLocation(m_program, "normal");
-		glUniform1i(normalUniform, 1);
-		unsigned int specularUniform = glGetUniformLocation(m_program, "specular");
-		glUniform1i(specularUniform, 2);
+		for (unsigned int i = 0; i < m_fbx1->getMeshCount(); ++i)
+		{
+			unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
+			glUniform1i(diffuseUniform, 0);
+			unsigned int normalUniform = glGetUniformLocation(m_program, "normal");
+			glUniform1i(normalUniform, 1);
+			unsigned int specularUniform = glGetUniformLocation(m_program, "specular");
+			glUniform1i(specularUniform, 2);
 
-		unsigned int offsetUniform = glGetUniformLocation(m_program, "offset");
-		glUniform1f(offsetUniform, 0);
+			unsigned int offsetUniform = glGetUniformLocation(m_program, "offset");
+			glUniform1f(offsetUniform, 0);
 
-		FBXSkeleton* skeleton = m_fbx1->getSkeletonByIndex(0);
-		skeleton->updateBones();
-		int bones_location = glGetUniformLocation(m_program, "bones");
-		glUniformMatrix4fv(bones_location, skeleton->m_boneCount, GL_FALSE, (float*)skeleton->m_bones);
-		
-		FBXMeshNode* mesh = m_fbx1->getMeshByIndex(i);
-		unsigned int* glData = (unsigned int*)mesh->m_userData;
-		glBindVertexArray(glData[0]);
-		glDrawElements(GL_TRIANGLES, (unsigned int)mesh->m_indices.size(), GL_UNSIGNED_INT, 0);
+			FBXSkeleton* skeleton = m_fbx1->getSkeletonByIndex(0);
+			skeleton->updateBones();
+			int bones_location = glGetUniformLocation(m_program, "bones");
+			glUniformMatrix4fv(bones_location, skeleton->m_boneCount, GL_FALSE, (float*)skeleton->m_bones);
+
+			FBXMeshNode* mesh = m_fbx1->getMeshByIndex(i);
+			unsigned int* glData = (unsigned int*)mesh->m_userData;
+			glBindVertexArray(glData[0]);
+			glDrawElements(GL_TRIANGLES, (unsigned int)mesh->m_indices.size(), GL_UNSIGNED_INT, 0);
+		}
+	}
+	if (fbx2Cull)
+	{
+		for (unsigned int i = 0; i < m_fbx2->getMeshCount(); ++i)
+		{
+			unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
+			glUniform1i(diffuseUniform, 3);
+			unsigned int normalUniform = glGetUniformLocation(m_program, "normal");
+			glUniform1i(normalUniform, 4);
+			unsigned int specularUniform = glGetUniformLocation(m_program, "specular");
+			glUniform1i(specularUniform, 5);
+
+			unsigned int offsetUniform = glGetUniformLocation(m_program, "offset");
+			glUniform1f(offsetUniform, -1000);
+
+			FBXSkeleton* skeleton = m_fbx2->getSkeletonByIndex(0);
+			skeleton->updateBones();
+			int bones_location = glGetUniformLocation(m_program, "bones");
+			glUniformMatrix4fv(bones_location, skeleton->m_boneCount, GL_FALSE, (float*)skeleton->m_bones);
+
+			FBXMeshNode* mesh = m_fbx2->getMeshByIndex(i);
+			unsigned int* glData = (unsigned int*)mesh->m_userData;
+			glBindVertexArray(glData[0]);
+			glDrawElements(GL_TRIANGLES, (unsigned int)mesh->m_indices.size(), GL_UNSIGNED_INT, 0);
+		}
 	}
 
-	for (unsigned int i = 0; i < m_fbx2->getMeshCount(); ++i)
-	{
-		unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
-		glUniform1i(diffuseUniform, 3);
-		unsigned int normalUniform = glGetUniformLocation(m_program, "normal");
-		glUniform1i(normalUniform, 4);
-		unsigned int specularUniform = glGetUniformLocation(m_program, "specular");
-		glUniform1i(specularUniform, 5);
-
-		unsigned int offsetUniform = glGetUniformLocation(m_program, "offset");
-		glUniform1f(offsetUniform, -1000);
-
-		FBXSkeleton* skeleton = m_fbx2->getSkeletonByIndex(0);
-		skeleton->updateBones();
-		int bones_location = glGetUniformLocation(m_program, "bones");
-		glUniformMatrix4fv(bones_location, skeleton->m_boneCount, GL_FALSE, (float*)skeleton->m_bones);
-		
-		FBXMeshNode* mesh = m_fbx2->getMeshByIndex(i);
-		unsigned int* glData = (unsigned int*)mesh->m_userData;
-		glBindVertexArray(glData[0]);
-		glDrawElements(GL_TRIANGLES, (unsigned int)mesh->m_indices.size(), GL_UNSIGNED_INT, 0);
-	}
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	Gizmos::draw(m_camera->getProjectionView());
 }
