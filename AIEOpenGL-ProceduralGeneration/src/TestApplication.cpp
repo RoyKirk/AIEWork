@@ -35,6 +35,8 @@ vec3 light(1.0f, 1.0f, 1.0f);
 vec3 lightColour(0.8f, 0.8f, 0.8f);
 vec4 m_clearColour(0.5f, 0.5f, 0.5f,0.0f);
 
+float textureBlend = 0.3f;
+
 unsigned int dimension = 64;
 
 unsigned int m_VAO;
@@ -207,7 +209,7 @@ void OnMouseButton(GLFWwindow*, int b, int a, int m) {
 	TwEventMouseButtonGLFW(b, a);
 }
 void OnMousePosition(GLFWwindow*, double x, double y) {
-	TwEventMousePosGLFW(x,y);
+	TwEventMousePosGLFW((int)x, (int)y);
 }
 void OnMouseScroll(GLFWwindow*, double x, double y) {
 	TwEventMouseWheelGLFW((int)y);
@@ -329,6 +331,7 @@ bool TestApplication::startup() {
 	m_bar = TwNewBar("my bar");
 
 	TwAddVarRW(m_bar, "clear colour", TW_TYPE_COLOR4F, &m_clearColour, "");
+	TwAddVarRW(m_bar, "snow height", TW_TYPE_FLOAT, &textureBlend, "group=terrain");
 	TwAddVarRW(m_bar, "light direction", TW_TYPE_DIR3F, &light, "group=light");
 	TwAddVarRW(m_bar, "light colour", TW_TYPE_DIR3F, &lightColour, "group=light");
 
@@ -444,6 +447,9 @@ void TestApplication::draw() {
 
 	unsigned int LightColourUniform = glGetUniformLocation(m_program, "LightColour");
 	glUniform3f(LightColourUniform, lightColour.x, lightColour.y, lightColour.z);
+
+	unsigned int textureBlendUniform = glGetUniformLocation(m_program, "textureBlend");
+	glUniform1f(textureBlendUniform, textureBlend);
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
