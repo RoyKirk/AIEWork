@@ -10,6 +10,7 @@
 
 #include <stb_image.h>
 
+#include "AntTweakBar.h"
 #include "Camera.h"
 #include "Gizmos.h"
 #include <iostream>
@@ -28,7 +29,11 @@ int imageWidth = 0, imageHeight = 0, imageFormat = 0;
 unsigned int m_texture, m_normalmap, m_specularmap, m_rockD, m_rockN, m_snowD, m_snowN;
 unsigned char* data;
 
+TwBar* m_bar;
 
+vec3 light(1.0f, 1.0f, 1.0f);
+vec3 lightColour(0.8f, 0.8f, 0.8f);
+vec4 m_clearColour(0.5f, 0.5f, 0.5f,0.0f);
 
 unsigned int dimension = 64;
 
@@ -70,7 +75,7 @@ void createOpenGLBuffers(unsigned int dimension)
 				{
 					vec3 c1 = aoVertices[r* dimension + c].position.xyz - aoVertices[(r - 1)* dimension + c].position.xyz;
 					vec3 c2 = aoVertices[r* dimension + c].position.xyz - aoVertices[r * dimension + c - 1].position.xyz;
-					vec3 d1 = glm::cross(c1, c2);
+					vec3 d1 = glm::cross(c2, c1);
 					aoVertices[r * dimension + c].normal.xyz = normalize(d1);
 					aoVertices[r * dimension + c].normal.w = 1;
 				}
@@ -198,6 +203,27 @@ void linkShader()
 	glDeleteShader(vertexShader);
 }
 
+void OnMouseButton(GLFWwindow*, int b, int a, int m) {
+	TwEventMouseButtonGLFW(b, a);
+}
+void OnMousePosition(GLFWwindow*, double x, double y) {
+	TwEventMousePosGLFW(x,y);
+}
+void OnMouseScroll(GLFWwindow*, double x, double y) {
+	TwEventMouseWheelGLFW((int)y);
+}
+void OnKey(GLFWwindow*, int k, int s, int a, int m) {
+	TwEventKeyGLFW(k, a);
+}
+void OnChar(GLFWwindow*, unsigned int c) {
+	TwEventCharGLFW(c, GLFW_PRESS);
+}
+void OnWindowResize(GLFWwindow*, int w, int h)
+{
+	TwWindowSize(w, h);
+	glViewport(0, 0, w, h);
+}
+
 
 TestApplication::TestApplication()
 	: m_camera(nullptr) {
@@ -288,6 +314,24 @@ bool TestApplication::startup() {
 
 	createOpenGLBuffers(dimension);
 
+	glfwSetMouseButtonCallback(m_window, OnMouseButton);
+	glfwSetCursorPosCallback(m_window, OnMousePosition);
+	glfwSetScrollCallback(m_window, OnMouseScroll);
+	glfwSetKeyCallback(m_window, OnKey);
+	glfwSetCharCallback(m_window, OnChar);
+	glfwSetWindowSizeCallback(m_window, OnWindowResize);
+
+
+
+	TwInit(TW_OPENGL_CORE, nullptr);
+	TwWindowSize(1280, 720);
+
+	m_bar = TwNewBar("my bar");
+
+	TwAddVarRW(m_bar, "clear colour", TW_TYPE_COLOR4F, &m_clearColour, "");
+	TwAddVarRW(m_bar, "light direction", TW_TYPE_DIR3F, &light, "group=light");
+	TwAddVarRW(m_bar, "light colour", TW_TYPE_DIR3F, &lightColour, "group=light");
+
 	return true;
 }
 
@@ -302,6 +346,9 @@ void TestApplication::shutdown() {
 	Gizmos::destroy();
 
 	glDeleteProgram(m_program);
+
+	TwDeleteAllBars();
+	TwTerminate();
 	// destroy our window properly
 	destroyWindow();
 }
@@ -362,6 +409,8 @@ void TestApplication::draw() {
 
 	Gizmos::draw2D(m_camera->getProjectionView());
 
+	glClearColor(m_clearColour.r, m_clearColour.g, m_clearColour.b, m_clearColour.a);
+
 	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 	glUseProgram(m_program);
@@ -383,15 +432,18 @@ void TestApplication::draw() {
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, m_snowN);
 
-	vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
+	//vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
+
+		
+
 
 	unsigned int LightDirUniform = glGetUniformLocation(m_program, "LightDir");
 	//glUniform3f(LightDirUniform, m_camera->getTransform()[3][0], m_camera->getTransform()[3][1], m_camera->getTransform()[3][2]);
-	//glUniform3f(LightDirUniform, light.x, light.y, light.z);
-	glUniform3f(LightDirUniform, 1, 1, 1);
+	glUniform3f(LightDirUniform, light.x, light.y, light.z);
+	//glUniform3f(LightDirUniform, 1, 1, 1);
 
 	unsigned int LightColourUniform = glGetUniformLocation(m_program, "LightColour");
-	glUniform3f(LightColourUniform, 0.8f, 0.8f, 0.8f);
+	glUniform3f(LightColourUniform, lightColour.x, lightColour.y, lightColour.z);
 
 	unsigned int diffuseUniform = glGetUniformLocation(m_program, "diffuse");
 	glUniform1i(diffuseUniform, 0);
@@ -414,4 +466,6 @@ void TestApplication::draw() {
 	glBindVertexArray(m_VAO);
 	unsigned int indexCount = (dimension - 1)*(dimension - 1) * 6;
 	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+
+	TwDraw();
 }
