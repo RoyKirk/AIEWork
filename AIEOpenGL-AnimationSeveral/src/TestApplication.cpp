@@ -283,8 +283,8 @@ bool TestApplication::startup() {
 	Gizmos::create();
 
 	// create a camera
-	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 10000.f);
-	m_camera->setLookAtFrom(vec3(1500, 2000, 1500), vec3(0, 1000, 0));
+	m_camera = new Camera(glm::pi<float>() * 0.15f, 16 / 9.f, 0.1f, 5000.f);
+	m_camera->setLookAtFrom(vec3(0, 0, 0), vec3(1, 0, 1));
 
 	//////////////////////////////////////////////////////////////////////////
 	// YOUR STARTUP CODE HERE
@@ -387,11 +387,6 @@ bool TestApplication::update(float deltaTime) {
 
 	for (int i = 0; i < 6; i++)
 	{
-		float d = glm::dot(vec3(planes[i]), sphere1.centre) + planes[i].w;
-	}
-
-	for (int i = 0; i < 6; i++)
-	{
 		
 		float d = glm::dot(vec3(planes[i]), sphere1.centre) + planes[i].w;
 		if (d < -sphere1.radius)
@@ -405,20 +400,12 @@ bool TestApplication::update(float deltaTime) {
 		}
 		else if (d < sphere1.radius)
 		{
-			if (!fbx1Cull)
-			{
-				printf("1Touching, we still need to render it!\n");
-			}
-			Gizmos::addSphere(sphere1.centre, sphere1.radius, 10, 10, vec4(1, 0, 1, 1));
+			printf("1Touching, we still need to render it!\n");
 			fbx1Cull = true;
 		}
 		else
-		{
-			if (!fbx1Cull)
-			{
-				printf("1Front, fully visible so render it!\n");
-			}
-			Gizmos::addSphere(sphere1.centre, sphere1.radius, 10, 10, vec4(1, 0, 1, 1));
+		{	
+			printf("1Front, fully visible so render it!\n");
 			fbx1Cull = true;
 		}
 	}
@@ -427,11 +414,6 @@ bool TestApplication::update(float deltaTime) {
 	BoundingSphere sphere2;
 	sphere2.fit(posData2);
 	sphere2.centre.z -= 1000;
-
-	for (int i = 0; i < 6; i++)
-	{
-		float d = glm::dot(vec3(planes[i]), sphere2.centre) + planes[i].w;
-	}
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -448,22 +430,24 @@ bool TestApplication::update(float deltaTime) {
 		}
 		else if (d < sphere2.radius)
 		{
-			if (!fbx2Cull)
-			{
-				printf("2Touching, we still need to render it!\n");
-			}
-			Gizmos::addSphere(sphere2.centre, sphere2.radius, 10, 10, vec4(1, 0, 1, 1));
+			printf("2Touching, we still need to render it!\n");
+			
 			fbx2Cull = true;
 		}
 		else
 		{
-			if (!fbx2Cull)
-			{
-				printf("2Front, fully visible so render it!\n");
-			}
-			Gizmos::addSphere(sphere2.centre, sphere2.radius, 10, 10, vec4(1, 0, 1, 1));
+			printf("2Front, fully visible so render it!\n");
 			fbx2Cull = true;
 		}
+	}
+
+	if (fbx1Cull)
+	{
+		Gizmos::addSphere(sphere1.centre, sphere1.radius, 10, 10, vec4(1, 0, 1, 1));
+	}
+	if (fbx2Cull)
+	{
+		Gizmos::addSphere(sphere2.centre, sphere2.radius, 10, 10, vec4(1, 0, 1, 1));
 	}
 
 
