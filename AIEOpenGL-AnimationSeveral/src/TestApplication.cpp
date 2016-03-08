@@ -528,6 +528,7 @@ void TestApplication::draw() {
 
 	Gizmos::draw2D(m_camera->getProjectionView());
 
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glUseProgram(m_program);
 	unsigned int projectionViewUniform = glGetUniformLocation(m_program, "ProjectionView");
@@ -612,7 +613,7 @@ void TestApplication::draw() {
 		}
 	}
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
 	if (drawBounds)
 	{
 		Gizmos::draw(m_camera->getProjectionView());
