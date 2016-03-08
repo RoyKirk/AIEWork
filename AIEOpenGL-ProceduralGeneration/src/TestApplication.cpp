@@ -169,10 +169,10 @@ char* loadShader(char* filename)
 	return shaderSource;
 }
 
-void linkShader()
+void linkShader(char* vertShader, char* fragShader)
 {
-	const char* vsSource = loadShader("./src/Shader.vert");
-	const char* fsSource = loadShader("./src/Shader.frag");
+	const char* vsSource = loadShader(vertShader);
+	const char* fsSource = loadShader(fragShader);
 
 	int success = GL_FALSE;
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -205,26 +205,7 @@ void linkShader()
 	glDeleteShader(vertexShader);
 }
 
-void OnMouseButton(GLFWwindow*, int b, int a, int m) {
-	TwEventMouseButtonGLFW(b, a);
-}
-void OnMousePosition(GLFWwindow*, double x, double y) {
-	TwEventMousePosGLFW((int)x, (int)y);
-}
-void OnMouseScroll(GLFWwindow*, double x, double y) {
-	TwEventMouseWheelGLFW((int)y);
-}
-void OnKey(GLFWwindow*, int k, int s, int a, int m) {
-	TwEventKeyGLFW(k, a);
-}
-void OnChar(GLFWwindow*, unsigned int c) {
-	TwEventCharGLFW(c, GLFW_PRESS);
-}
-void OnWindowResize(GLFWwindow*, int w, int h)
-{
-	TwWindowSize(w, h);
-	glViewport(0, 0, w, h);
-}
+
 
 
 TestApplication::TestApplication()
@@ -294,6 +275,28 @@ void textureLoad()
 	stbi_image_free(data);
 	
 }
+
+void OnMouseButton(GLFWwindow*, int b, int a, int m) {
+	TwEventMouseButtonGLFW(b, a);
+}
+void OnMousePosition(GLFWwindow*, double x, double y) {
+	TwEventMousePosGLFW((int)x, (int)y);
+}
+void OnMouseScroll(GLFWwindow*, double x, double y) {
+	TwEventMouseWheelGLFW((int)y);
+}
+void OnKey(GLFWwindow*, int k, int s, int a, int m) {
+	TwEventKeyGLFW(k, a);
+}
+void OnChar(GLFWwindow*, unsigned int c) {
+	TwEventCharGLFW(c, GLFW_PRESS);
+}
+void OnWindowResize(GLFWwindow*, int w, int h)
+{
+	TwWindowSize(w, h);
+	glViewport(0, 0, w, h);
+}
+
 bool TestApplication::startup() {
 
 	// create a basic window
@@ -311,7 +314,7 @@ bool TestApplication::startup() {
 	//////////////////////////////////////////////////////////////////////////
 	m_pickPosition = glm::vec3(0);
 	
-	linkShader();
+	linkShader("./src/Shader.vert", "./src/Shader.frag");
 	textureLoad();
 
 	createOpenGLBuffers(dimension);
@@ -385,7 +388,7 @@ bool TestApplication::update(float deltaTime) {
 
 	if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
 	{
-		linkShader();
+		linkShader("./src/Shader.vert", "./src/Shader.frag");
 	}
 	Gizmos::addTransform(glm::translate(m_pickPosition));
 

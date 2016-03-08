@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include "FBXFile.h"
-
+#include "AntTweakBar.h"
 #include <stb_image.h>
 
 #include "Camera.h"
@@ -25,11 +25,14 @@ using glm::mat4;
 
 unsigned int m_program;
 
+
 int imageWidth = 0, imageHeight = 0, imageFormat = 0;
 
 unsigned int m_texture1, m_normalmap1, m_specularmap1;
 unsigned int m_texture2, m_normalmap2, m_specularmap2;
 unsigned char* data;
+
+TwBar* m_bar;
 
 unsigned int m_vertexAttributes;
 FBXMaterial* m_material;
@@ -44,9 +47,16 @@ FBXFile* m_fbx2;
 bool fbx1Cull = false;
 bool fbx2Cull = false;
 
+bool drawBounds = false;
+
+//position data to generate bounding spheres FBX had wrong format
 std::vector<vec3> posData1;
 std::vector<vec3> posData2;
+
+//timer for animating model skeletons
 float m_timer;
+
+
 void getFrustumPlanes(const glm::mat4& transform, glm::vec4* planes)
 {
 	//right side
@@ -83,10 +93,30 @@ void getFrustumPlanes(const glm::mat4& transform, glm::vec4* planes)
 
 	for (int i = 0; i < 6; i++)
 	{
-		planes[i].x /= glm::length(glm::vec3(planes[i].xyz));
-		planes[i].y /= glm::length(glm::vec3(planes[i].xyz));
-		planes[i].z /= glm::length(glm::vec3(planes[i].xyz));
+		planes[i] /= glm::length(glm::vec3(planes[i].xyz));
 	}
+}
+
+//callback functions for AntTweakBar
+void OnMouseButton(GLFWwindow*, int b, int a, int m) {
+	TwEventMouseButtonGLFW(b, a);
+}
+void OnMousePosition(GLFWwindow*, double x, double y) {
+	TwEventMousePosGLFW((int)x, (int)y);
+}
+void OnMouseScroll(GLFWwindow*, double x, double y) {
+	TwEventMouseWheelGLFW((int)y);
+}
+void OnKey(GLFWwindow*, int k, int s, int a, int m) {
+	TwEventKeyGLFW(k, a);
+}
+void OnChar(GLFWwindow*, unsigned int c) {
+	TwEventCharGLFW(c, GLFW_PRESS);
+}
+void OnWindowResize(GLFWwindow*, int w, int h)
+{
+	TwWindowSize(w, h);
+	glViewport(0, 0, w, h);
 }
 
 void cleanupOpenGLBuffers(FBXFile* fbx)
@@ -109,7 +139,7 @@ for (unsigned int i = 0; i < fbx->getMeshCount(); ++i)
 	{
 		FBXMeshNode* mesh = fbx->getMeshByIndex(i);
 		unsigned int* glData = new unsigned int [3];
-		for (int i = 0; i < mesh->m_vertices.size(); i++)
+		for (unsigned int i = 0; i < mesh->m_vertices.size(); i++)
 		{
 			posData.push_back(vec3(mesh->m_vertices.data()[i].position.x, mesh->m_vertices.data()[i].position.y, mesh->m_vertices.data()[i].position.z));
 		}
@@ -146,7 +176,7 @@ char* loadShader(char* filename)
 
 
 	std::ifstream file;
-	file.open(filename, std::ios::in); // opens as ASCII!
+	file.open(filename, std::ios::in); // opens as ASCII
 	assert(file);
 
 
@@ -283,8 +313,8 @@ bool TestApplication::startup() {
 	Gizmos::create();
 
 	// create a camera
-	m_camera = new Camera(glm::pi<float>() * 0.15f, 16 / 9.f, 0.1f, 5000.f);
-	m_camera->setLookAtFrom(vec3(0, 0, 0), vec3(1, 0, 1));
+	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 10000.f);
+	m_camera->setLookAtFrom(vec3(-2000, 2000, -2000), vec3(100, 1000, 100));
 
 	//////////////////////////////////////////////////////////////////////////
 	// YOUR STARTUP CODE HERE
@@ -306,9 +336,24 @@ bool TestApplication::startup() {
 	//m_fbx->load("./models/Lucy.fbx");
 	//m_fbx->load("./models/Bunny.fbx");
 	//m_fbx->load("./models/Buddha.fbx");
+
 	createOpenGLBuffers(m_fbx1,posData1);
 	createOpenGLBuffers(m_fbx2,posData2);
 
+	glfwSetMouseButtonCallback(m_window, OnMouseButton);
+	glfwSetCursorPosCallback(m_window, OnMousePosition);
+	glfwSetScrollCallback(m_window, OnMouseScroll);
+	glfwSetKeyCallback(m_window, OnKey);
+	glfwSetCharCallback(m_window, OnChar);
+	glfwSetWindowSizeCallback(m_window, OnWindowResize);
+
+	TwInit(TW_OPENGL_CORE, nullptr);
+	TwWindowSize(1280, 720);
+
+	m_bar = TwNewBar("my bar");
+
+	TwAddVarRW(m_bar, "Bounding Spheres", TW_TYPE_BOOLCPP, &drawBounds, "");
+	
 	return true;
 }
 
@@ -357,6 +402,8 @@ bool TestApplication::update(float deltaTime) {
 	}
 	Gizmos::addTransform(glm::translate(m_pickPosition));
 
+	
+	//Skeleton Update for each model
 	m_timer += deltaTime;
 
 	FBXSkeleton* skeleton1 = m_fbx1->getSkeletonByIndex(0);
@@ -379,6 +426,7 @@ bool TestApplication::update(float deltaTime) {
 		skeleton2->m_nodes[bone_index]->updateGlobalTransform();
 	}
 
+	//Frustum Culling for each model
 	vec4 planes[6];
 	getFrustumPlanes(m_camera->getProjectionView(), planes);
 
@@ -441,6 +489,7 @@ bool TestApplication::update(float deltaTime) {
 		}
 	}
 
+	//Generate visual representation of bounding spheres
 	if (fbx1Cull)
 	{
 		Gizmos::addSphere(sphere1.centre, sphere1.radius, 10, 10, vec4(1, 0, 1, 1));
@@ -450,6 +499,11 @@ bool TestApplication::update(float deltaTime) {
 		Gizmos::addSphere(sphere2.centre, sphere2.radius, 10, 10, vec4(1, 0, 1, 1));
 	}
 
+	//Hot-load shaders
+	if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
+	{
+		linkShader("./src/Shader.vert", "./src/Shader.frag");
+	}
 
 	// return true, else the application closes
 	return true;
@@ -479,6 +533,8 @@ void TestApplication::draw() {
 	unsigned int projectionViewUniform = glGetUniformLocation(m_program, "ProjectionView");
 	glUniformMatrix4fv(projectionViewUniform, 1, GL_FALSE, glm::value_ptr(m_camera->getProjectionView()));
 
+
+	//Bind textures
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture1);
 	glActiveTexture(GL_TEXTURE1);
@@ -556,6 +612,11 @@ void TestApplication::draw() {
 		}
 	}
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	Gizmos::draw(m_camera->getProjectionView());
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (drawBounds)
+	{
+		Gizmos::draw(m_camera->getProjectionView());
+	}
+
+	TwDraw();
 }
