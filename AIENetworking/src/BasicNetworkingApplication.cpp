@@ -7,6 +7,7 @@
 #include <RakPeerInterface.h>
 #include <MessageIdentifiers.h>
 #include <BitStream.h>
+#include "GameMessages.h"
 
 BasicNetworkingApplication::BasicNetworkingApplication() {
 
@@ -102,6 +103,15 @@ void BasicNetworkingApplication::HandleNetworkMessage()
 		case ID_CONNECTION_LOST:
 			std::cout << "Connection lost.\n";
 			break;
+		case ID_SERVER_TEXT_MESSAGE:
+		{
+			RakNet::BitStream bsIn(packet->data, packet->length, false);
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			RakNet::RakString str;
+			bsIn.Read(str);
+			std::cout << str.C_String() << std::endl;
+			break;
+		}
 		default:
 			std::cout << "Received a message with an unknown id: " << packet->data[0];
 			break;

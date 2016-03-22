@@ -3,18 +3,15 @@
 #include <RakPeerInterface.h>
 #include <MessageIdentifiers.h>
 #include <BitStream.h>
+#include "GameMessages.h"
+#include <thread>
 
-
-
-RakNet::RakPeerInterface* pPeerInterface = nullptr;
-
-
-void HandleNetworkMessages()
+void HandleNetworkMessages(RakNet::RakPeerInterface* pPeerInterface)
 {
 	RakNet::Packet* packet = nullptr;
 	while (true)
 	{
-		for (packet = pPeerInterface->Receive(); packet; pPeerInterface->DeallocatePacket(packet), packet = pPeerInterface->Receive());
+		for (packet = pPeerInterface->Receive(); packet; pPeerInterface->DeallocatePacket(packet), packet = pPeerInterface->Receive())
 		{
 			switch (packet->data[0])
 			{
@@ -35,9 +32,22 @@ void HandleNetworkMessages()
 	}
 }
 
+void sendClientPing(RakNet::RakPeerInterface* pPeerInterface)
+{
+	while (true)
+	{
+		RakNet::BitStream bs;
+		bs.Write((RakNet::MessageID)GameMessages::ID_SERVER_TEXT_MESSAGE);
+		bs.Write("Ping!");
+		pPeerInterface->Send(&bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+}
+
 void main() 
 {
 	const unsigned short PORT = 5456;
+	RakNet::RakPeerInterface* pPeerInterface = nullptr;
 	//Startup the serve, and start it listening to clients
 	std::cout << "Starting up the server..." << std::endl;
 	//Initialise the Raknet peer interface first
@@ -47,6 +57,10 @@ void main()
 	//Now call startp - max of 32 connections, on the assigned port
 	pPeerInterface->Startup(32, &sd, 1);
 	pPeerInterface->SetMaximumIncomingConnections(32);
-	HandleNetworkMessages();
+	
+	std::thread pingThread(sendClientPing, pPeerInterface);
+	
+	HandleNetworkMessages(pPeerInterface);
+
 
 }
