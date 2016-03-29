@@ -1,6 +1,22 @@
 #pragma once
 
 #include "BaseApplication.h"
+#include <GLFW/glfw3.h>
+
+#include <iostream>
+#include <string>
+
+#include <RakPeerInterface.h>
+#include <MessageIdentifiers.h>
+#include <BitStream.h>
+#include "GameMessages.h"
+#include "Camera.h"
+#include "Gizmos.h"
+#include <vector>
+#include "GameObject.h"
+
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
 namespace RakNet {
 	class RakPeerInterface;
@@ -29,6 +45,9 @@ public:
 
 private:
 	void readObjectDataFromServer(RakNet::BitStream& bsIn);
+	void createGameObject();
+	void moveClientObject(float deltaTime);
+	void sendUpdatedObjectPositionToServer(GameObject& myClientObject);
 
 	RakNet::RakPeerInterface* m_pPeerInterface;
 
@@ -37,6 +56,7 @@ private:
 	unsigned int m_uiClientId;
 	unsigned int m_uiClientObjectIndex;
 	Camera*		m_camera;
-	vec4 m_myColour;
+	glm::vec4 m_myColour;
+	glm::vec3	m_pickPosition;
 	std::vector<GameObject> m_gameObjects;
 };

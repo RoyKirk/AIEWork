@@ -34,8 +34,9 @@ protected:
 
 private:
 
+	void updateObject(RakNet::BitStream& bsIn, RakNet::SystemAddress& ownerSysAddress);
 	void createNewObject(RakNet::BitStream& bsIn, RakNet::SystemAddress& ownerSysAddress);
-	void sendGameObjectToAllClients(GameObject& gameObject, RakNet::SystemAddress ownerSystemAddress);
+	void sendGameObjectToAllClients(GameObject& gameObject, RakNet::SystemAddress& ownerSystemAddress);
 
 	struct ConnectionInfo {
 		unsigned int			uiConnectionID;

@@ -61,6 +61,13 @@ void Server::handleNetworkMessages() {
 				createNewObject(bsIn, packet->systemAddress);
 				break;
 			}
+			case ID_CLIENT_UPDATE_OBJECT_POSITION:
+			{
+				RakNet::BitStream bsIn(packet->data, packet->length, false);
+				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+				updateObject(bsIn, packet->systemAddress);
+				break;
+			}
 			default:
 				std::cout << "Received a message with a unknown id: " << packet->data[0];
 				break;
@@ -97,6 +104,7 @@ unsigned int Server::systemAddressToClientID(RakNet::SystemAddress& systemAddres
 	return 0;
 }
 
+
 void Server::sendClientIDToClient(unsigned int uiClientID) {
 	RakNet::BitStream bs;
 	bs.Write((RakNet::MessageID)GameMessages::ID_SERVER_CLIENT_ID);
@@ -118,9 +126,29 @@ void Server::createNewObject(RakNet::BitStream& bsIn, RakNet::SystemAddress& own
 
 	newGameObject.uiOwnerClientID = systemAddressToClientID(ownerSysAddress);
 	newGameObject.uiObjectID = m_uiObjectCounter++;
+
+	m_gameObjects.push_back(newGameObject);
+	//sendGameObjectToAllClients(newGameObject, ownerSysAddress);
 }
 
-void Server::sendGameObjectToAllClients(GameObject& gameObject, RakNet::SystemAddress ownerSystemAddress)
+void Server::updateObject(RakNet::BitStream& bsIn, RakNet::SystemAddress& ownerSysAddress)
+{
+	unsigned int tempuiObjectID;
+	bsIn.Read(tempuiObjectID);
+	tempuiObjectID -= 1;
+	if (m_gameObjects[tempuiObjectID].uiOwnerClientID == systemAddressToClientID(ownerSysAddress))
+	{
+		//Read in the information from the packet
+		bsIn.Read(m_gameObjects[tempuiObjectID].fXPos);
+		bsIn.Read(m_gameObjects[tempuiObjectID].fZPos);
+		bsIn.Read(m_gameObjects[tempuiObjectID].fRedColour);
+		bsIn.Read(m_gameObjects[tempuiObjectID].fGreenColour);
+		bsIn.Read(m_gameObjects[tempuiObjectID].fBlueColour);
+		//sendGameObjectToAllClients(m_gameObjects[tempuiObjectID], ownerSysAddress);
+	}
+}
+
+void Server::sendGameObjectToAllClients(GameObject& gameObject, RakNet::SystemAddress& ownerSystemAddress)
 {
 	RakNet::BitStream bsOut;
 	bsOut.Write((RakNet::MessageID)GameMessages::ID_SERVER_FULL_OBJECT_DATA);

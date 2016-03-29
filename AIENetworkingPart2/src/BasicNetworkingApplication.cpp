@@ -1,20 +1,5 @@
 #include "BasicNetworkingApplication.h"
-#include <GLFW/glfw3.h>
 
-#include <iostream>
-#include <string>
-
-#include <RakPeerInterface.h>
-#include <MessageIdentifiers.h>
-#include <BitStream.h>
-#include "GameMessages.h"
-#include "Camera.h"
-#include "Gizmos.h"
-#include <vector>
-#include "GameObject.h"
-
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
 
 using glm::vec3;
 using glm::vec4;
@@ -31,7 +16,9 @@ BasicNetworkingApplication::BasicNetworkingApplication() : m_camera(nullptr) {
 	colour2 = rand() % 100 + 1;
 	colour3 = rand() % 100 + 1;
 
-	m_myColour = vec4((float)(colour1 / 100), (float)(colour2 / 100), (float)(colour3 / 100), 1);
+	m_myColour = vec4((float)colour1 / 100, (float)colour2 / 100, (float)colour3 / 100, 1);
+
+	m_uiClientObjectIndex = m_gameObjects.size();
 }
 
 BasicNetworkingApplication::~BasicNetworkingApplication() {
@@ -77,12 +64,23 @@ bool BasicNetworkingApplication::update(float deltaTime) {
 	// clear the gizmos out for this frame
 	Gizmos::clear();
 
+	if (glfwGetMouseButton(m_window, 0) == GLFW_PRESS) {
+		double x = 0, y = 0;
+		glfwGetCursorPos(m_window, &x, &y);
+
+		// plane represents the ground, with a normal of (0,1,0) and a distance of 0 from (0,0,0)
+		glm::vec4 plane(0, 1, 0, 0);
+		m_pickPosition = m_camera->pickAgainstPlane((float)x, (float)y, plane);
+	}
+	Gizmos::addTransform(glm::translate(m_pickPosition));
+
 	for (int i = 0; i < m_gameObjects.size(); i++)
 	{
 		GameObject& obj = m_gameObjects[i];
 		Gizmos::addSphere(glm::vec3(obj.fXPos, 2, obj.fZPos), 2, 32, 32, glm::vec4(obj.fRedColour, obj.fGreenColour, obj.fBlueColour, 1), nullptr);
 	}
 
+	moveClientObject(deltaTime);
 
 	return true;
 }
@@ -180,6 +178,9 @@ void BasicNetworkingApplication::HandleNetworkMessage()
 			bsIn.Read(m_uiClientId);
 
 			std::cout << "Server has given us an id of: " << m_uiClientId << std::endl;
+
+			createGameObject();
+
 			break;
 		}
 		case ID_SERVER_FULL_OBJECT_DATA:
@@ -234,4 +235,71 @@ void BasicNetworkingApplication::readObjectDataFromServer(RakNet::BitStream& bsI
 		}
 	}
 
+}
+
+void BasicNetworkingApplication::createGameObject()
+{
+	RakNet::BitStream bsOut;
+
+	GameObject tempGameObject;
+	tempGameObject.fXPos = 0.0f;
+	tempGameObject.fZPos = 0.0f;
+	tempGameObject.fRedColour = m_myColour.r;
+	tempGameObject.fGreenColour = m_myColour.g;
+	tempGameObject.fBlueColour = m_myColour.b;
+
+	m_gameObjects.push_back(tempGameObject);
+	
+	bsOut.Write((RakNet::MessageID)GameMessages::ID_CLIENT_CREATE_OBJECT);
+	bsOut.Write(tempGameObject.fXPos);
+	bsOut.Write(tempGameObject.fZPos);
+	bsOut.Write(tempGameObject.fRedColour);
+	bsOut.Write(tempGameObject.fGreenColour);
+	bsOut.Write(tempGameObject.fBlueColour);
+
+	m_pPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+}
+
+void BasicNetworkingApplication::moveClientObject(float deltaTime)
+{
+	//We don't have a valid client ID, so we have no game object
+	if (m_uiClientId == 0) { return; }
+
+	//No game objects sent to us, so we don't know who we are yet
+	if (m_gameObjects.size() == 0) { return; }
+
+	bool bUpdateObjectPosition = false;
+
+	GameObject& myClientObject = m_gameObjects[m_uiClientObjectIndex];
+
+	if (glfwGetKey(m_window, GLFW_KEY_UP))
+	{
+		myClientObject.fZPos += 2 * deltaTime;
+		bUpdateObjectPosition = true;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_DOWN))
+	{
+		myClientObject.fZPos -= 2 * deltaTime;
+		bUpdateObjectPosition = true;
+	}
+	
+	if (bUpdateObjectPosition == true)
+	{
+		sendUpdatedObjectPositionToServer(myClientObject);
+	}
+}
+
+void  BasicNetworkingApplication::sendUpdatedObjectPositionToServer(GameObject& myClientObject)
+{
+	RakNet::BitStream bsOut;
+
+	bsOut.Write((RakNet::MessageID)GameMessages::ID_CLIENT_UPDATE_OBJECT_POSITION);
+	bsOut.Write(myClientObject.uiObjectID);
+	bsOut.Write(myClientObject.fXPos);
+	bsOut.Write(myClientObject.fZPos);
+	bsOut.Write(myClientObject.fRedColour);
+	bsOut.Write(myClientObject.fGreenColour);
+	bsOut.Write(myClientObject.fBlueColour);
+
+	m_pPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 }
