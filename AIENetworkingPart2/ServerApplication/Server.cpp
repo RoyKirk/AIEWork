@@ -4,8 +4,10 @@ Server::Server() {
 	// initialize the Raknet peer interface first
 	m_pPeerInterface = RakNet::RakPeerInterface::GetInstance();
 
-	m_uiConnectionCounter = 1;
-	m_uiObjectCounter = 1;
+	//m_pPeerInterface->ApplyNetworkSimulator(0.0f, 150, 20);
+
+	m_uiConnectionCounter = 0;
+	m_uiObjectCounter = 0;
 }
 
 Server::~Server() {
@@ -79,7 +81,7 @@ void Server::handleNetworkMessages() {
 void Server::addNewConnection(RakNet::SystemAddress systemAddress) {
 	ConnectionInfo info;
 	info.sysAddress = systemAddress;
-	info.uiConnectionID = m_uiConnectionCounter++;
+	info.uiConnectionID = ++m_uiConnectionCounter;
 	m_connectedClients[info.uiConnectionID] = info;
 
 	sendClientIDToClient(info.uiConnectionID);
@@ -126,39 +128,50 @@ void Server::createNewObject(RakNet::BitStream& bsIn, RakNet::SystemAddress& own
 
 	newGameObject.uiOwnerClientID = systemAddressToClientID(ownerSysAddress);
 	newGameObject.uiObjectID = m_uiObjectCounter++;
-
+	
 	m_gameObjects.push_back(newGameObject);
-	//sendGameObjectToAllClients(newGameObject, ownerSysAddress);
+	sendGameObjectToAllClients(newGameObject, ownerSysAddress);
 }
 
 void Server::updateObject(RakNet::BitStream& bsIn, RakNet::SystemAddress& ownerSysAddress)
 {
 	unsigned int tempuiObjectID;
 	bsIn.Read(tempuiObjectID);
-	tempuiObjectID -= 1;
-	if (m_gameObjects[tempuiObjectID].uiOwnerClientID == systemAddressToClientID(ownerSysAddress))
-	{
+
+
+	if (m_gameObjects[tempuiObjectID].uiOwnerClientID == systemAddressToClientID(ownerSysAddress)){
 		//Read in the information from the packet
 		bsIn.Read(m_gameObjects[tempuiObjectID].fXPos);
 		bsIn.Read(m_gameObjects[tempuiObjectID].fZPos);
 		bsIn.Read(m_gameObjects[tempuiObjectID].fRedColour);
 		bsIn.Read(m_gameObjects[tempuiObjectID].fGreenColour);
 		bsIn.Read(m_gameObjects[tempuiObjectID].fBlueColour);
-		//sendGameObjectToAllClients(m_gameObjects[tempuiObjectID], ownerSysAddress);
+		sendGameObjectToAllClients(m_gameObjects[tempuiObjectID], ownerSysAddress);
 	}
 }
 
 void Server::sendGameObjectToAllClients(GameObject& gameObject, RakNet::SystemAddress& ownerSystemAddress)
 {
-	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)GameMessages::ID_SERVER_FULL_OBJECT_DATA);
-	bsOut.Write(gameObject.fXPos);
-	bsOut.Write(gameObject.fZPos);
-	bsOut.Write(gameObject.fRedColour);
-	bsOut.Write(gameObject.fGreenColour);
-	bsOut.Write(gameObject.fBlueColour);
-	bsOut.Write(gameObject.uiOwnerClientID);
-	bsOut.Write(gameObject.uiObjectID);
 
-	m_pPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, ownerSystemAddress, true);
+	for (int i = 1; i < m_uiConnectionCounter+1; i++)
+	{
+		//unsigned int check = systemAddressToClientID(m_connectedClients[i].sysAddress);
+		//unsigned int check1 = systemAddressToClientID(ownerSystemAddress);
+		//if (systemAddressToClientID(m_connectedClients[i].sysAddress) == systemAddressToClientID(ownerSystemAddress)) {
+		//}
+		//else
+		//{
+			RakNet::BitStream bsOut;
+			bsOut.Write((RakNet::MessageID)GameMessages::ID_SERVER_FULL_OBJECT_DATA);
+			bsOut.Write(gameObject.fXPos);
+			bsOut.Write(gameObject.fZPos);
+			bsOut.Write(gameObject.fRedColour);
+			bsOut.Write(gameObject.fGreenColour);
+			bsOut.Write(gameObject.fBlueColour);
+			bsOut.Write(gameObject.uiOwnerClientID);
+			bsOut.Write(gameObject.uiObjectID);
+
+			m_pPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedClients[i].sysAddress, true);
+		//}
+	}
 }

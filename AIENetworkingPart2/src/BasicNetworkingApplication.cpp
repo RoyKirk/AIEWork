@@ -18,7 +18,7 @@ BasicNetworkingApplication::BasicNetworkingApplication() : m_camera(nullptr) {
 
 	m_myColour = vec4((float)colour1 / 100, (float)colour2 / 100, (float)colour3 / 100, 1);
 
-	m_uiClientObjectIndex = m_gameObjects.size();
+	m_uiClientObjectIndex = 0;
 }
 
 BasicNetworkingApplication::~BasicNetworkingApplication() {
@@ -197,6 +197,7 @@ void BasicNetworkingApplication::HandleNetworkMessage()
 	}
 }
 
+
 void BasicNetworkingApplication::readObjectDataFromServer(RakNet::BitStream& bsIn)
 {
 	GameObject tempGameObject;
@@ -247,6 +248,8 @@ void BasicNetworkingApplication::createGameObject()
 	tempGameObject.fRedColour = m_myColour.r;
 	tempGameObject.fGreenColour = m_myColour.g;
 	tempGameObject.fBlueColour = m_myColour.b;
+	tempGameObject.uiOwnerClientID = m_uiClientId;
+	tempGameObject.uiObjectID = m_uiClientObjectIndex;
 
 	m_gameObjects.push_back(tempGameObject);
 	
@@ -300,6 +303,7 @@ void  BasicNetworkingApplication::sendUpdatedObjectPositionToServer(GameObject& 
 	bsOut.Write(myClientObject.fRedColour);
 	bsOut.Write(myClientObject.fGreenColour);
 	bsOut.Write(myClientObject.fBlueColour);
+
 
 	m_pPeerInterface->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 }
