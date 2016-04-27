@@ -73,7 +73,7 @@ void Agent::setup(glm::vec2 startPos, float size,glm::vec4 colour,float facingDi
 	if (neuralNetwork == NULL)
 	{
 		int numberInputs = 2;
-		int numberHiddenNeurons = 4;  //the tutorial notes claim that there are three neurons in hte hidden layer but performance is rather poor with only three and four works better. Try three as an experiment
+		int numberHiddenNeurons = 40;  //the tutorial notes claim that there are three neurons in hte hidden layer but performance is rather poor with only three and four works better. Try three as an experiment
 		int numberOutputs = 4; 
 		neuralNetwork = new NeuralNetwork(numberInputs, numberHiddenNeurons, numberOutputs);
 		initMemory(memory);

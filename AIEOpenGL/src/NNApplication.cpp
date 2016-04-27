@@ -75,9 +75,9 @@ void NNApplication::draw() {
 
 void NNApplication::setUpSimulation() {
 	setUpAgents();
-	setUpSimpleLinearZone();
-	//setUpTurrets();
-	//setUpFood();
+	//setUpSimpleLinearZone();
+	setUpTurrets();
+	setUpFood();
 }
 
 void NNApplication::setUpSimpleLinearZone() {
@@ -129,7 +129,8 @@ void NNApplication::checkAgentFood(Agent* agent) {
 
 void NNApplication::setUpTurrets() {
 	turrets[0] = Turret(glm::vec2(400, 300), 200);
-//	turrets[1] = Turret(glm::vec2(1100, 300), 200); //second turret for next experiment
+	turrets[1] = Turret(glm::vec2(1100, 300), 200); //second turret for next experiment
+	turrets[2] = Turret(glm::vec2(800, 300), 200);
 }
 
 void NNApplication::setUpFood() {
