@@ -32,6 +32,7 @@ void Agent::update(float delta)
 	}
 	neuralNetwork->renderDebug(glm::vec2(30, 30), 200, memory);
 	_foodClock--;
+	_waterClock--;
 }
 
 bool Agent::checkBounds()
@@ -64,6 +65,7 @@ void Agent::setup(glm::vec2 startPos, float size,glm::vec4 colour,float facingDi
 	_diameter = size;
 	_clock = 0;
 	_foodClock = 0;
+	_waterClock = 0;
 	_memoryClock = 0;
 	_colour = colour;
 	_maxSpeed = 500;
@@ -132,6 +134,20 @@ void Agent::feedAgent(float foodFound)
 			addToMemory(glm::vec3(_position.x, _position.y, 2));
 			neuralNetwork->trainNetwork(memory);
 			_foodClock = 20;
+		}
+	}
+}
+
+void Agent::waterAgent(float waterFound)
+{
+	if (waterFound > 0)
+	{
+		health += waterFound;
+		if (_waterClock <= 0) //simple mechanism to stop too many water discoveries getting added to memory
+		{
+			addToMemory(glm::vec3(_position.x, _position.y, 3));
+			neuralNetwork->trainNetwork(memory);
+			_waterClock = 20;
 		}
 	}
 }

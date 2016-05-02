@@ -1,30 +1,30 @@
-#include "Turret.h"
+#include "Water.h"
 #include "Gizmos.h"
 
-Turret::Turret(glm::vec2 centre, float range)
+Water::Water(glm::vec2 centre, float range)
 {
 	_centre = centre;
 	_range = range;
 	active = true;
 }
-Turret::~Turret()
+Water::~Water()
 {
 }
 
-Turret::Turret()
+Water::Water()
 {
 	active = false;
 }
 
-void Turret::addGizmo()
+void Water::addGizmo()
 {
 	if (active)
 	{
-		Gizmos::add2DCircle(_centre, _range, 20, glm::vec4(1, 0, 0, .3));
+		Gizmos::add2DCircle(_centre, _range, 20, glm::vec4(0, 0, 1, .3));
 	}
 }
 
-float Turret::checkRange(glm::vec2 testPoint)
+float Water::checkRange(glm::vec2 testPoint)
 {
 	if (active)
 	{

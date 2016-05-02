@@ -19,6 +19,7 @@ class Agent
 	float _diameter;
 	float _clock;
 	int _foodClock;
+	int _waterClock;
 	glm::vec2 _velocity;
 
 	bool _active;
@@ -39,5 +40,6 @@ public:
 	void addGizmo();
 	void hurtAgent(float damage);
 	void feedAgent(float food);
+	void waterAgent(float water);
 	glm::vec2 getPosition();
 };

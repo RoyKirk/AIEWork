@@ -55,6 +55,7 @@ bool NNApplication::update(float deltaTime) {
 	addAgentGizmos();
 	addTurretWidgets();
 	addFoodWidgets();
+	addWaterWidgets();
 
 	// return true, else the application closes
 	return true;
@@ -78,6 +79,7 @@ void NNApplication::setUpSimulation() {
 	//setUpSimpleLinearZone();
 	setUpTurrets();
 	setUpFood();
+	setUpWater();
 }
 
 void NNApplication::setUpSimpleLinearZone() {
@@ -107,6 +109,7 @@ void NNApplication::updateAgents(float delta) {
 		agents[index].update(delta);
 		checkAgentDamage(&agents[index]);
 		checkAgentFood(&agents[index]);
+		checkAgentWater(&agents[index]);
 	}
 }
 
@@ -127,15 +130,33 @@ void NNApplication::checkAgentFood(Agent* agent) {
 	agent->feedAgent(foodFound);
 }
 
+void NNApplication::checkAgentWater(Agent* agent) {
+	float waterFound = 0;
+	for (auto& water : waters) {
+		waterFound += water.checkRange(agent->getPosition());
+	}
+	agent->waterAgent(waterFound);
+}
+
 void NNApplication::setUpTurrets() {
-	turrets[0] = Turret(glm::vec2(400, 300), 200);
-	turrets[1] = Turret(glm::vec2(1100, 300), 200); //second turret for next experiment
-	turrets[2] = Turret(glm::vec2(800, 300), 200);
+	turrets[0] = Turret(glm::vec2(400, 300), 100);
+	turrets[1] = Turret(glm::vec2(1100, 300), 100); 
+	turrets[2] = Turret(glm::vec2(1000, 400), 100);
+	turrets[3] = Turret(glm::vec2(300, 400), 100);
 }
 
 void NNApplication::setUpFood() {
-	foods[0] = Food(glm::vec2(900, 50), 75);
-	foods[1] = Food(glm::vec2(600, 600), 75);
+	foods[0] = Food(glm::vec2(700, 100), 75);
+	foods[1] = Food(glm::vec2(700, 600), 75);
+	foods[2] = Food(glm::vec2(1200, 400), 75);
+	foods[3] = Food(glm::vec2(50, 400), 75);
+}
+
+void NNApplication::setUpWater() {
+	waters[0] = Water(glm::vec2(50, 600), 60);
+	waters[1] = Water(glm::vec2(1200, 600), 60);
+	waters[2] = Water(glm::vec2(50, 100), 60);
+	waters[3] = Water(glm::vec2(1200, 100), 60);
 }
 
 float NNApplication::simulateTurret(glm::vec2& centre, float range, Agent* agent) {
@@ -168,5 +189,11 @@ void NNApplication::addTurretWidgets() {
 void NNApplication::addFoodWidgets() {
 	for (auto& food : foods) {
 		food.addGizmo();
+	}
+}
+
+void NNApplication::addWaterWidgets() {
+	for (auto& water : waters) {
+		water.addGizmo();
 	}
 }

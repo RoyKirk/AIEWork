@@ -23,6 +23,7 @@
     <ClCompile Include="src\NNApplication.cpp" />
     <ClCompile Include="src\TestApplication.cpp" />
     <ClCompile Include="src\Turret.cpp" />
+    <ClCompile Include="src\Water.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Agent.h" />
@@ -37,6 +38,7 @@
     <ClInclude Include="src\NNApplication.h" />
     <ClInclude Include="src\TestApplication.h" />
     <ClInclude Include="src\Turret.h" />
+    <ClInclude Include="src\Water.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{63494F4E-79FA-48AD-AA6C-BDF1FF1619FD}</ProjectGuid>

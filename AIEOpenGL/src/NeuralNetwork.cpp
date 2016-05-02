@@ -3,7 +3,7 @@
 #include "matrix.h"
 
 //colours used for displaying the classifications that the neural network as learnt
-const glm::vec4 gColours[] = { glm::vec4(0, 0, 0, 0.5), glm::vec4(1, 0, 0, 0.5), glm::vec4(0, 1, 0, 0.5) };
+const glm::vec4 gColours[] = { glm::vec4(0, 0, 0, 0.5), glm::vec4(1, 0, 0, 0.5), glm::vec4(0, 1, 0, 0.5), glm::vec4(0, 0, 1, 0.5) };
 
 //Constructor for a neural network
 NeuralNetwork::NeuralNetwork(int numberInputs, int numberHidden, int numberOutputs)
@@ -101,7 +101,7 @@ void NeuralNetwork::renderDebug(glm::vec2 screenOffset, int displaySize, std::ve
 	{
 
 		int colourIndex = (int)element.z; //classification is returned in Z.
-		colourIndex = glm::clamp(colourIndex, 0, 3);
+		colourIndex = glm::clamp(colourIndex, 0, 4);
 		glm::vec4 colour = gColours[colourIndex];
 		glm::vec2 screenPos(element.x  * displaySize, element.y *displaySize );
 		Gizmos::add2DAABBFilled(screenOffset + screenPos, extent, colour);
