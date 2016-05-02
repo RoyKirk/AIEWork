@@ -35,6 +35,7 @@ class Agent
 	void resetAgent();
 	void checkIfResourceFound();
 	void avoidDanger();
+	//void AStar();
 
 	bool resourceFound;
 
@@ -43,9 +44,15 @@ class Agent
 	float wanderTimer;
 
 	const float ENEMY_AVOIDANCE_RADIUS = 50.0f;
-	const float WANDER_TIME = 2.0f;
+	const float WANDER_TIME = 4.0f;
 	const int STARTING_HEALTH = 2;
 	const int MAX_HEALTH = 4;
+
+	std::vector<glm::vec3> graphList;
+	std::vector<glm::vec3> openList;
+	std::vector<glm::vec3> closedList;
+	std::vector<glm::vec3> pathList;
+	std::vector<glm::vec3> followList;
 
 public:
 	Agent();
