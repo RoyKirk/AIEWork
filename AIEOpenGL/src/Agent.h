@@ -3,7 +3,7 @@
 #include "glm/glm.hpp"
 #include <vector>
 
-const int StartingHealth = 1;
+
 
 class NeuralNetwork;
 
@@ -25,12 +25,28 @@ class Agent
 	bool _active;
 	glm::vec4 _colour;
 	float _maxSpeed;
-	bool checkBounds();
+	void checkBounds();
 	void fakeMemory(std::vector<glm::vec3>&);
 	void initMemory(std::vector<glm::vec3>&);
 	float health;
 	std::vector<glm::vec3> memory;
 	void addToMemory(glm::vec3);
+
+	void resetAgent();
+	void checkIfResourceFound();
+	void avoidDanger();
+
+	bool resourceFound;
+
+	glm::vec2 destination;
+
+	float wanderTimer;
+
+	const float ENEMY_AVOIDANCE_RADIUS = 100.0f;
+	const float WANDER_TIME = 0.5f;
+	const int STARTING_HEALTH = 2;
+	const int MAX_HEALTH = 4;
+
 public:
 	Agent();
 	~Agent();

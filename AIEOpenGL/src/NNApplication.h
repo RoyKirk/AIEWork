@@ -41,7 +41,7 @@ private:
 	float simulateTurret(glm::vec2&, float, Agent* agent);
 
 	static const int MAX_AGENTS = 1;
-	static const int MAX_TURRETS = 4;
+	static const int MAX_TURRETS = 10;
 	static const int MAX_FOOD = 4;
 	static const int MAX_WATER = 4;
 

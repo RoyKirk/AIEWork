@@ -23,33 +23,65 @@ void Agent::update(float delta)
 		addToMemory(testinput);
 		neuralNetwork->trainNetwork(memory); 
 	}
-	_position += _velocity * delta;
-	if (checkBounds())
-	{
-		_facingDirection = 44 / 7.0f * ((rand() % 1000) / 1000.0f);
-		_velocity.x = _maxSpeed * sin(_facingDirection);
-		_velocity.y = _maxSpeed * cos(_facingDirection);
-	}
+
+
+
 	neuralNetwork->renderDebug(glm::vec2(30, 30), 200, memory);
 	_foodClock--;
 	_waterClock--;
+	checkIfResourceFound();
+	if (resourceFound)
+	{
+		_velocity = destination - _position;
+		float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
+		_velocity.x /= length;
+		_velocity.y /= length;
+	}
+	else
+	{
+		wanderTimer += delta;
+		if (wanderTimer > WANDER_TIME)
+		{
+			int gScreenWidth = 0, gScreenHeight = 0;
+			glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
+			destination = glm::vec2((float)(rand() % gScreenWidth), (float)(rand() % gScreenHeight));
+			wanderTimer = 0;
+			_velocity = destination - _position;
+			float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
+			_velocity.x /= length;
+			_velocity.y /= length;
+		}
+	}
+	avoidDanger();
+	checkBounds();
+	_position += _velocity * _maxSpeed * delta;
 }
 
-bool Agent::checkBounds()
+void Agent::checkIfResourceFound()
+{
+	resourceFound = false;
+	for each(auto& node in memory)
+	{
+		if (node.z == 2 || node.z == 3)
+		{
+			resourceFound = true;
+		}
+	}
+}
+
+void Agent::checkBounds()
 {
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
 
-	if ((_position.x < 0 && _velocity.x < 0) || (_position.x >gScreenWidth  && _velocity.x > 0) )
+	if ((_position.x < 0) || (_position.x >gScreenWidth) )
 	{ 
-
-		return true;
+		_velocity.x *= -1;
 	}
-	if ((_position.y < 0 && _velocity.y < 0) || (_position.y >gScreenHeight  && _velocity.y > 0))
+	if ((_position.y < 0) || (_position.y >gScreenHeight))
 	{
-		return true;
+		_velocity.y *= -1;
 	}
-	return false;
 }
 
 void Agent::draw()
@@ -60,7 +92,7 @@ void Agent::setup(glm::vec2 startPos, float size,glm::vec4 colour,float facingDi
 {
 	_position = startPos;
 	_startingPosition = startPos;
-	_facingDirection = facingDirection;
+	//_facingDirection = facingDirection;
 	_startingFacingDirection = facingDirection;
 	_diameter = size;
 	_clock = 0;
@@ -68,20 +100,53 @@ void Agent::setup(glm::vec2 startPos, float size,glm::vec4 colour,float facingDi
 	_waterClock = 0;
 	_memoryClock = 0;
 	_colour = colour;
-	_maxSpeed = 500;
-	_velocity.x = _maxSpeed * sin(_facingDirection);
-	_velocity.y = _maxSpeed * cos(_facingDirection);
-	health = StartingHealth;
+	_maxSpeed = 200;
+	_velocity = destination - _position;
+	float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
+	_velocity.x /= length;
+	_velocity.y /= length;
+	//_velocity.x = _maxSpeed * sin(_facingDirection);
+	//_velocity.y = _maxSpeed * cos(_facingDirection);
+	health = STARTING_HEALTH;
+	resourceFound = false;
+	int gScreenWidth = 0, gScreenHeight = 0;
+	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
+	destination = glm::vec2((float)(rand() % gScreenWidth), (float)(rand() % gScreenHeight));
+	wanderTimer = 0;
 	if (neuralNetwork == NULL)
 	{
 		int numberInputs = 2;
-		int numberHiddenNeurons = 40;  //the tutorial notes claim that there are three neurons in hte hidden layer but performance is rather poor with only three and four works better. Try three as an experiment
+		int numberHiddenNeurons = 4;  //the tutorial notes claim that there are three neurons in hte hidden layer but performance is rather poor with only three and four works better. Try three as an experiment
 		int numberOutputs = 4; 
 		neuralNetwork = new NeuralNetwork(numberInputs, numberHiddenNeurons, numberOutputs);
 		initMemory(memory);
 		neuralNetwork->trainNetwork(memory);  //mock up for testing purposes
 		neuralNetwork->setUpDebugRender(30); //setup our debug 
 	}
+}
+
+void Agent::resetAgent()
+{
+	int gScreenWidth = 0, gScreenHeight = 0;
+	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
+	addToMemory(glm::vec3(_position.x, _position.y, 1));
+	neuralNetwork->trainNetwork(memory);
+	_startingPosition.x = gScreenWidth;
+	_startingPosition.y = gScreenHeight;
+	//if (resourceFound)
+	//{
+	//	_startingPosition.x = gScreenWidth;
+	//	_startingPosition.y = gScreenHeight;
+	//}
+	//else
+	//{
+	//	_startingPosition.x = (float)(rand() % gScreenWidth);
+	//	_startingPosition.y = (float)(rand() % 2 * gScreenHeight);
+	//}	
+	health = STARTING_HEALTH;
+	float size = 20;
+	float facing = 44 / 7.0f * ((rand() % 1000) / 1000.0f);
+	setup(_startingPosition, _diameter, _colour, facing);
 }
 
 void Agent::initMemory(std::vector<glm::vec3>& memory)
@@ -107,20 +172,35 @@ void Agent::addGizmo()
 
 }
 
+void Agent::avoidDanger()
+{
+	for each(auto& node in memory)
+	{
+		if (node.z == 1)
+		{
+			glm::vec2 direction = glm::vec2(node.x, node.y) - _position;
+			float distance = sqrt((direction.x*direction.x) + (direction.y*direction.y));
+			if (distance < ENEMY_AVOIDANCE_RADIUS)
+			{
+				direction.x /= distance;
+				
+				direction.y /= distance;
+				_velocity += glm::vec2(1/direction.y, 1 / direction.x);
+				float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
+				_velocity.x /= length;
+				_velocity.y /= length;
+			}
+		}
+	}
+}
+
 void Agent::hurtAgent(float damage)
 {
 	health -= damage;
 	if (health < 0)
 	{
-		int gScreenWidth = 0, gScreenHeight = 0;
-		glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
-		addToMemory(glm::vec3(_position.x, _position.y, 1));
-		neuralNetwork->trainNetwork(memory);
-		_startingPosition.x = (float)(rand() % gScreenWidth);
-		_startingPosition.y = (float)(rand() % 2 * gScreenHeight);
-		float size = 20;
-		float facing = 44 / 7.0f * ((rand() % 1000) / 1000.0f);
-		setup(_startingPosition, _diameter, _colour, facing);
+		checkIfResourceFound();
+		resetAgent();
 	}
 }
 
@@ -136,6 +216,11 @@ void Agent::feedAgent(float foodFound)
 			_foodClock = 20;
 		}
 	}
+	if (health > MAX_HEALTH)
+	{
+		checkIfResourceFound();
+		resetAgent();
+	}
 }
 
 void Agent::waterAgent(float waterFound)
@@ -150,6 +235,12 @@ void Agent::waterAgent(float waterFound)
 			_waterClock = 20;
 		}
 	}
+	if (health > MAX_HEALTH)
+	{
+		checkIfResourceFound();
+		resetAgent();
+	}
+
 }
 
 
