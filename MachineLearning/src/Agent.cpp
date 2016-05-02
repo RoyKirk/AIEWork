@@ -29,7 +29,6 @@ void Agent::update(float delta)
 	neuralNetwork->renderDebug(glm::vec2(30, 30), 200, memory);
 	_foodClock--;
 	_waterClock--;
-	checkIfResourceFound();
 	if (resourceFound)
 	{
 		_velocity = destination - _position;
@@ -51,6 +50,8 @@ void Agent::update(float delta)
 			_velocity.x /= length;
 			_velocity.y /= length;
 		}
+
+		checkIfResourceFound();
 	}
 	avoidDanger();
 	checkBounds();
@@ -59,12 +60,24 @@ void Agent::update(float delta)
 
 void Agent::checkIfResourceFound()
 {
+	int gScreenWidth = 0, gScreenHeight = 0;
+	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
 	resourceFound = false;
 	for each(auto& node in memory)
 	{
 		if (node.z == 2 || node.z == 3)
 		{
+
+			destination = glm::vec2(node.x*gScreenWidth, node.y*gScreenHeight);
 			resourceFound = true;
+			//glm::vec2 direction = glm::vec2(node.x, node.y) - _position;
+			//float distanceToNew = sqrt((direction.x*direction.x) + (direction.y*direction.y));
+			//direction = destination - _position;
+			//float distanceToDestination = sqrt((direction.x*direction.x) + (direction.y*direction.y));
+			//if (distanceToNew < distanceToDestination)
+			//{
+			//	destination = glm::vec2(node.x, node.y);
+			//}	
 		}
 	}
 }
@@ -131,8 +144,31 @@ void Agent::resetAgent()
 	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
 	addToMemory(glm::vec3(_position.x, _position.y, 1));
 	neuralNetwork->trainNetwork(memory);
-	_startingPosition.x = gScreenWidth;
-	_startingPosition.y = gScreenHeight;
+	int randSelector = rand() % 4;
+	if (randSelector == 0)
+	{
+		_startingPosition.x = 20;
+		_startingPosition.y = 20;
+	}
+	else if (randSelector == 1)
+	{
+		_startingPosition.x = 20;
+		_startingPosition.y = gScreenHeight-20;
+	}
+	else if (randSelector == 2)
+	{
+		_startingPosition.x = gScreenWidth-20;
+		_startingPosition.y = 20;
+	}
+	else
+	{
+		_startingPosition.x = gScreenWidth-20;
+		_startingPosition.y = gScreenHeight-20;
+	}
+	
+	//_startingPosition.x = gScreenWidth;
+	//_startingPosition.y = gScreenHeight;
+
 	//if (resourceFound)
 	//{
 	//	_startingPosition.x = gScreenWidth;
@@ -178,14 +214,24 @@ void Agent::avoidDanger()
 	{
 		if (node.z == 1)
 		{
-			glm::vec2 direction = glm::vec2(node.x, node.y) - _position;
+			int gScreenWidth = 0, gScreenHeight = 0;
+			glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
+			glm::vec2 direction = glm::vec2(node.x*gScreenWidth, node.y*gScreenHeight) - _position;
 			float distance = sqrt((direction.x*direction.x) + (direction.y*direction.y));
 			if (distance < ENEMY_AVOIDANCE_RADIUS)
 			{
 				direction.x /= distance;
-				
 				direction.y /= distance;
-				_velocity += glm::vec2(1/direction.y, 1 / direction.x);
+				//repulsing vector orthogonal to direction to enemy
+				int randDir = rand() % 1;
+				if (randDir == 0)
+				{
+					_velocity += glm::vec2(direction.y*-1*(1 / distance), direction.x*-1*(1 / distance));
+				}
+				else
+				{
+					_velocity += glm::vec2(direction.y*(1 / distance), direction.x*(1 / distance));
+				}
 				float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
 				_velocity.x /= length;
 				_velocity.y /= length;
