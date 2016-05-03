@@ -13,9 +13,9 @@ class NeuralNetwork
 	int _numberOfSamples;
 	Matrix *hiddenLayer;
 	Matrix *outputLayer = NULL;
-	std::vector<glm::vec3> testData; //This matrix will contain the x,y coordinates for displaying the NN representation of the scene
 	void applyActivationFunction(Matrix*);
 public:
+	std::vector<glm::vec3> testData; //This matrix will contain the x,y coordinates for displaying the NN representation of the scene
 	NeuralNetwork(int numberInputs, int numberHidden, int numberOutputs);
 	~NeuralNetwork();
 	void trainNetwork(std::vector<glm::vec3>&);

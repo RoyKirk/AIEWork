@@ -35,7 +35,7 @@ class Agent
 	void resetAgent();
 	void checkIfResourceFound();
 	void avoidDanger();
-	//void AStar();
+	void AStar();
 
 	bool resourceFound;
 
@@ -43,7 +43,7 @@ class Agent
 
 	float wanderTimer;
 
-	const float ENEMY_AVOIDANCE_RADIUS = 100.0f;
+	const float ENEMY_AVOIDANCE_RADIUS = 10.0f;
 	const float WANDER_TIME = 4.0f;
 	const int STARTING_HEALTH = 2;
 	const int MAX_HEALTH = 4;

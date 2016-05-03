@@ -15,7 +15,7 @@ void Agent::update(float delta)
 	glm::vec3 testinput = glm::vec3(_position.x, _position.y, 0);
 	_clock += delta;
 	_memoryClock+= delta;
-	float memoryFrequency = 1;
+	float memoryFrequency = 0.7;
 	if (_memoryClock > memoryFrequency)
 	{
 		_memoryClock -= memoryFrequency;
@@ -31,11 +31,7 @@ void Agent::update(float delta)
 	_waterClock--;
 	if (resourceFound)
 	{
-		//AStar();
-		_velocity = destination - _position;
-		float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
-		_velocity.x /= length;
-		_velocity.y /= length;
+		AStar();
 	}
 	else
 	{
@@ -53,8 +49,9 @@ void Agent::update(float delta)
 		}
 
 		checkIfResourceFound();
+		avoidDanger();
 	}
-	avoidDanger();
+
 	checkBounds();
 	_position += _velocity * _maxSpeed * delta;
 }
@@ -88,13 +85,12 @@ void Agent::checkBounds()
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
 
-	if ((_position.x < 0) || (_position.x >gScreenWidth) )
+	if ((_position.x < 0) || (_position.x >gScreenWidth) || (_position.y < 0) || (_position.y >gScreenHeight))
 	{ 
-		_velocity.x *= -1;
-	}
-	if ((_position.y < 0) || (_position.y >gScreenHeight))
-	{
-		_velocity.y *= -1;
+		_velocity = glm::vec2(gScreenWidth/2, gScreenHeight/2) - _position;
+		float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
+		_velocity.x /= length;
+		_velocity.y /= length;
 	}
 }
 
@@ -143,8 +139,6 @@ void Agent::resetAgent()
 {
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
-	addToMemory(glm::vec3(_position.x, _position.y, 1));
-	neuralNetwork->trainNetwork(memory);
 	//int randSelector = rand() % 4;
 	//if (randSelector == 0)
 	//{
@@ -211,7 +205,9 @@ void Agent::addGizmo()
 
 void Agent::avoidDanger()
 {
-	for each(auto& node in memory)
+	
+	//for each(auto& node in memory)
+	for each(auto& node in neuralNetwork->testData)
 	{
 		if (node.z == 1)
 		{
@@ -224,7 +220,9 @@ void Agent::avoidDanger()
 				//direction.x /= distance;
 				//direction.y /= distance;
 
-				_velocity -= glm::vec2(direction.x*(1 / distance), direction.y*(1 / distance));
+				//_velocity -= glm::vec2(direction.x*(1 / distance), direction.y*(1 / distance));
+				//_velocity *= -1;
+				_velocity = glm::vec2(_velocity.y, _velocity.x) + (glm::vec2(_velocity.x*-1, _velocity.y*-1));
 				//_velocity -= glm::vec2(direction.x*(1 / distance), direction.y*(1 / distance));
 				//_velocity -= glm::vec2(direction.y*(1 / distance), direction.x*(1 / distance));
 				//_velocity -= glm::vec2(_velocity.x*(1 / distance), _velocity.y*(1 / distance));
@@ -241,100 +239,22 @@ void Agent::avoidDanger()
 				float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
 				_velocity.x /= length;
 				_velocity.y /= length;
-				break;
+				//break;
 			}
 		}
 
 	}
 }
 
-//void Agent::AStar()
-//{
-//	glm::vec3 endNode = memory.front();
-//	if (!closedList.empty() && closedList.front().x == endNode.x && closedList.front().y == endNode.y && pathList.empty())
-//	{
-//		pathList.push_front(closedList.front());
-//		while (pathList.front() != pGraph.GetNode(START))
-//		{
-//			Graph::Node* currentNode = pathList.front().parent;
-//			pathList.push_front(currentNode);
-//		}
-//	}
-//	else if (!closedList.empty() && closedList.front().x == endNode.x && closedList.front().y == endNode.y)
-//	{
-//	}
-//	else
-//	{
-//		if (!openList.empty())
-//		{
-//			openList.sort([](const Graph::Node* a, const Graph::Node* b) { return a.f < b.f; });
-//			Graph::Node* currentNode = openList.front();
-//			openList.pop_front();
-//
-//			for each (Graph::Edge c in currentNode.connections)
-//			{
-//				if (c.connection.wall)
-//				{
-//					continue;
-//				}
-//				bool foundClosed = (std::find(closedList.begin(), closedList.end(), c.connection) != closedList.end());
-//				if (!foundClosed)
-//				{
-//					bool foundOpen = (std::find(openList.begin(), openList.end(), c.connection) != openList.end());
-//					if (!foundOpen)
-//					{
-//						//Manhattan Distance
-//						//c.connection.g = currentNode.g + abs(c.connection.x - currentNode.x) + abs(c.connection.y - currentNode.y);
-//						//c.connection.h = abs(endNode.x - c.connection.x) + abs(endNode.y - c.connection.y);
-//						//c.connection.f = c.connection.g + c.connection.h;
-//
-//						//Euclidian Distance
-//						c.connection.g = currentNode.g + sqrt((c.connection.x - currentNode.x)*(c.connection.x - currentNode.x)
-//							+ (c.connection.y - currentNode.y)*(c.connection.y - currentNode.y));
-//						c.connection.h = sqrt((endNode.x - c.connection.x)*(endNode.x - c.connection.x)
-//							+ (endNode.y - c.connection.y)*(endNode.y - c.connection.y));
-//						c.connection.f = c.connection.g + c.connection.h;
-//
-//						c.connection.parent = currentNode;
-//						openList.push_front(c.connection);
-//					}
-//					else
-//					{
-//						for each(Graph::Node* currentCandidate in openList)
-//						{
-//							if (c.connection.x == currentCandidate.x
-//								&& c.connection.y == currentCandidate.y
-//								&& currentCandidate.g > c.connection.g)
-//							{
-//								currentCandidate.parent = currentNode;
-//
-//								//Manhattan Distance
-//								//currentCandidate.g = currentNode.g + abs(currentCandidate.x - currentNode.x) + abs(currentCandidate.y - currentNode.y);
-//								//currentCandidate.h = abs(endNode.x - currentCandidate.x) + abs(endNode.y - currentCandidate.y);
-//								//currentCandidate.f = currentCandidate.g + currentCandidate.h;
-//
-//
-//								//Euclidian Distance renew f,g,h scores
-//								currentCandidate.g = currentNode.g + sqrt((currentCandidate.x - currentNode.x)*(currentCandidate.x - currentNode.x)
-//									+ (currentCandidate.y - currentNode.y)*(currentCandidate.y - currentNode.y));
-//								currentCandidate.h = sqrt((endNode.x - currentCandidate.x)*(endNode.x - currentCandidate.x)
-//									+ (endNode.y - currentCandidate.y)*(endNode.y - currentCandidate.y));
-//								currentCandidate.f = currentCandidate.g + currentCandidate.h;
-//							}
-//						}
-//					}
-//				}
-//			}
-//			closedList.push_front(currentNode);
-//		}
-//	}
-//}
+
 
 void Agent::hurtAgent(float damage)
 {
 	health -= damage;
 	if (health < 0)
 	{
+		addToMemory(glm::vec3(_position.x, _position.y, 1));
+		neuralNetwork->trainNetwork(memory);
 		checkIfResourceFound();
 		resetAgent();
 	}
@@ -383,4 +303,63 @@ void Agent::waterAgent(float waterFound)
 glm::vec2 Agent::getPosition()
 {
 	return _position;
+}
+
+void Agent::AStar()
+{
+	int gScreenWidth = 0, gScreenHeight = 0;
+	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
+	glm::vec2 closestFood = destination;
+	//for each(auto& node in memory)
+	for each(auto& node in neuralNetwork->testData)
+	{
+		if (node.z == 2)
+		{
+			glm::vec2 towardFood = closestFood - _position;
+			float distance = sqrt((towardFood.x*towardFood.x) + (towardFood.y*towardFood.y));
+
+			glm::vec2 newFood = glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
+			glm::vec2 towardNewFood = newFood - _position;
+			float distanceNewFood = sqrt((towardNewFood.x*towardNewFood.x) + (towardNewFood.y*towardNewFood.y));
+
+
+			if (distanceNewFood < distance)
+			{
+				closestFood = newFood;
+			}
+		}
+	}
+
+	//glm::vec2 bestNextStep = glm::vec2(neuralNetwork->testData[0].x, neuralNetwork->testData[0].y);//search for best next step will always be better than this as it is outside the dimensions of the screen
+	glm::vec2 bestNextStep = destination;
+	for each(auto& node in neuralNetwork->testData)
+	{
+		float radius = sqrt(((node.x * gScreenWidth) - _position.x) * ((node.x * gScreenWidth) - _position.x) + ((node.y * gScreenHeight) - _position.y) * ((node.y * gScreenHeight) - _position.y));
+		if (radius < 100)
+		{
+			if (node.z == 2)
+			{
+				bestNextStep = glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
+				break;
+			}
+			if (node.z == 0)
+			{
+				glm::vec2 nextNodeToFood = closestFood - glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
+				glm::vec2 currentBestRoute = closestFood - bestNextStep;
+				if (nextNodeToFood.x < currentBestRoute.x && nextNodeToFood.y < currentBestRoute.y)
+				{
+					bestNextStep = glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
+				}
+				break;
+			}
+		}
+	}
+
+	destination = bestNextStep;
+	_velocity = destination - _position;
+	float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
+	_velocity.x /= length;
+	_velocity.y /= length;
+
+
 }
