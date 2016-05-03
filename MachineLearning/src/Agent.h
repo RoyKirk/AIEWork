@@ -4,7 +4,13 @@
 #include <vector>
 #include <list>
 
-
+struct Node;
+struct Node
+{
+	glm::vec2 position;
+	float f, g, h;
+	Node* parent;
+};
 
 class NeuralNetwork;
 
@@ -40,6 +46,13 @@ class Agent
 	void FollowPath();
 
 	bool resourceFound;
+	bool followPath;
+
+	std::list<Node*> graphList;
+	std::list<Node*> openList;
+	std::list<Node*> closedList;
+	std::list<Node*> pathList;
+	std::list<Node*> followList;
 
 	glm::vec2 destination;
 
