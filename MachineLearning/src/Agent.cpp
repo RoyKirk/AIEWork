@@ -15,7 +15,7 @@ void Agent::update(float delta)
 	glm::vec3 testinput = glm::vec3(_position.x, _position.y, 0);
 	_clock += delta;
 	_memoryClock+= delta;
-	float memoryFrequency = 0.7;
+	float memoryFrequency = 1;
 	if (_memoryClock > memoryFrequency)
 	{
 		_memoryClock -= memoryFrequency;
@@ -29,6 +29,8 @@ void Agent::update(float delta)
 	neuralNetwork->renderDebug(glm::vec2(30, 30), 200, memory);
 	_foodClock--;
 	_waterClock--;
+	
+
 	if (resourceFound)
 	{
 		AStar();
@@ -54,6 +56,7 @@ void Agent::update(float delta)
 
 	checkBounds();
 	_position += _velocity * _maxSpeed * delta;
+	
 }
 
 void Agent::checkIfResourceFound()
@@ -68,14 +71,6 @@ void Agent::checkIfResourceFound()
 
 			destination = glm::vec2(node.x*gScreenWidth, node.y*gScreenHeight);
 			resourceFound = true;
-			//glm::vec2 direction = glm::vec2(node.x, node.y) - _position;
-			//float distanceToNew = sqrt((direction.x*direction.x) + (direction.y*direction.y));
-			//direction = destination - _position;
-			//float distanceToDestination = sqrt((direction.x*direction.x) + (direction.y*direction.y));
-			//if (distanceToNew < distanceToDestination)
-			//{
-			//	destination = glm::vec2(node.x, node.y);
-			//}	
 		}
 	}
 }
@@ -87,6 +82,8 @@ void Agent::checkBounds()
 
 	if ((_position.x < 0) || (_position.x >gScreenWidth) || (_position.y < 0) || (_position.y >gScreenHeight))
 	{ 
+		_position.x = (float)((int)_position.x % gScreenWidth);
+		_position.y = (float)((int)_position.y % gScreenHeight);
 		_velocity = glm::vec2(gScreenWidth/2, gScreenHeight/2) - _position;
 		float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
 		_velocity.x /= length;
@@ -115,9 +112,7 @@ void Agent::setup(glm::vec2 startPos, float size,glm::vec4 colour,float facingDi
 	float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
 	_velocity.x /= length;
 	_velocity.y /= length;
-	//_velocity.x = _maxSpeed * sin(_facingDirection);
-	//_velocity.y = _maxSpeed * cos(_facingDirection);
-	health = STARTING_HEALTH;
+	health = (float)STARTING_HEALTH;
 	resourceFound = false;
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
@@ -126,7 +121,7 @@ void Agent::setup(glm::vec2 startPos, float size,glm::vec4 colour,float facingDi
 	if (neuralNetwork == NULL)
 	{
 		int numberInputs = 2;
-		int numberHiddenNeurons = 40;  //the tutorial notes claim that there are three neurons in hte hidden layer but performance is rather poor with only three and four works better. Try three as an experiment
+		int numberHiddenNeurons = 30;  //the tutorial notes claim that there are three neurons in hte hidden layer but performance is rather poor with only three and four works better. Try three as an experiment
 		int numberOutputs = 4; 
 		neuralNetwork = new NeuralNetwork(numberInputs, numberHiddenNeurons, numberOutputs);
 		initMemory(memory);
@@ -139,42 +134,11 @@ void Agent::resetAgent()
 {
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
-	//int randSelector = rand() % 4;
-	//if (randSelector == 0)
-	//{
-	//	_startingPosition.x = 20;
-	//	_startingPosition.y = 20;
-	//}
-	//else if (randSelector == 1)
-	//{
-	//	_startingPosition.x = 20;
-	//	_startingPosition.y = gScreenHeight-20;
-	//}
-	//else if (randSelector == 2)
-	//{
-	//	_startingPosition.x = gScreenWidth-20;
-	//	_startingPosition.y = 20;
-	//}
-	//else
-	//{
-	//	_startingPosition.x = gScreenWidth-20;
-	//	_startingPosition.y = gScreenHeight-20;
-	//}
 	
-	_startingPosition.x = gScreenWidth;
-	_startingPosition.y = gScreenHeight;
+	_startingPosition.x = (float)gScreenWidth;
+	_startingPosition.y = (float)gScreenHeight;
 
-	//if (resourceFound)
-	//{
-	//	_startingPosition.x = gScreenWidth;
-	//	_startingPosition.y = gScreenHeight;
-	//}
-	//else
-	//{
-	//	_startingPosition.x = (float)(rand() % gScreenWidth);
-	//	_startingPosition.y = (float)(rand() % 2 * gScreenHeight);
-	//}	
-	health = STARTING_HEALTH;
+	health = (float)STARTING_HEALTH;
 	float size = 20;
 	float facing = 44 / 7.0f * ((rand() % 1000) / 1000.0f);
 	setup(_startingPosition, _diameter, _colour, facing);
@@ -222,7 +186,7 @@ void Agent::avoidDanger()
 
 				//_velocity -= glm::vec2(direction.x*(1 / distance), direction.y*(1 / distance));
 				//_velocity *= -1;
-				_velocity = glm::vec2(_velocity.y, _velocity.x) + (glm::vec2(_velocity.x*-1, _velocity.y*-1));
+				_velocity = glm::vec2(_velocity.y, _velocity.x) +(glm::vec2(_velocity.x*-1, _velocity.y*-1));
 				//_velocity -= glm::vec2(direction.x*(1 / distance), direction.y*(1 / distance));
 				//_velocity -= glm::vec2(direction.y*(1 / distance), direction.x*(1 / distance));
 				//_velocity -= glm::vec2(_velocity.x*(1 / distance), _velocity.y*(1 / distance));
@@ -305,16 +269,23 @@ glm::vec2 Agent::getPosition()
 	return _position;
 }
 
+void Agent::FollowPath()
+{
+
+}
+
+
 void Agent::AStar()
 {
+	resourceFound = false;
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
 	glm::vec2 closestFood = destination;
-	//for each(auto& node in memory)
 	for each(auto& node in neuralNetwork->testData)
 	{
 		if (node.z == 2)
 		{
+			resourceFound = true;
 			glm::vec2 towardFood = closestFood - _position;
 			float distance = sqrt((towardFood.x*towardFood.x) + (towardFood.y*towardFood.y));
 
@@ -330,27 +301,47 @@ void Agent::AStar()
 		}
 	}
 
-	//glm::vec2 bestNextStep = glm::vec2(neuralNetwork->testData[0].x, neuralNetwork->testData[0].y);//search for best next step will always be better than this as it is outside the dimensions of the screen
 	glm::vec2 bestNextStep = destination;
 	for each(auto& node in neuralNetwork->testData)
 	{
 		float radius = sqrt(((node.x * gScreenWidth) - _position.x) * ((node.x * gScreenWidth) - _position.x) + ((node.y * gScreenHeight) - _position.y) * ((node.y * gScreenHeight) - _position.y));
-		if (radius < 100)
+		if (radius < 30)
 		{
 			if (node.z == 2)
 			{
 				bestNextStep = glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
-				break;
+				//resetAgent();
+				//break;
 			}
 			if (node.z == 0)
 			{
 				glm::vec2 nextNodeToFood = closestFood - glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
-				glm::vec2 currentBestRoute = closestFood - bestNextStep;
-				if (nextNodeToFood.x < currentBestRoute.x && nextNodeToFood.y < currentBestRoute.y)
+				float nextNodeToFoodDistance = sqrt((nextNodeToFood.x*nextNodeToFood.x) + (nextNodeToFood.y*nextNodeToFood.y));
+				glm::vec2 currentBestNode = closestFood - bestNextStep;
+				float currentBestNodeDistance = sqrt((currentBestNode.x*currentBestNode.x) + (currentBestNode.y*currentBestNode.y));
+				if (nextNodeToFoodDistance < currentBestNodeDistance)
 				{
 					bestNextStep = glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
 				}
-				break;
+				//break;
+			}
+			if (node.z == 1)
+			{
+
+				glm::vec2 nextNodeToFood = closestFood - glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
+				float nextNodeToFoodDistance = sqrt((nextNodeToFood.x*nextNodeToFood.x) + (nextNodeToFood.y*nextNodeToFood.y));
+				glm::vec2 currentBestNode = closestFood - bestNextStep;
+				float currentBestNodeDistance = sqrt((currentBestNode.x*currentBestNode.x) + (currentBestNode.y*currentBestNode.y));
+				if (nextNodeToFoodDistance < currentBestNodeDistance)
+				{
+					destination = bestNextStep;
+					_velocity = destination - _position;
+					float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
+					_velocity.x /= length;
+					_velocity.y /= length;
+					glm::vec2 avoidDirection = glm::vec2(_velocity.y * 30, _velocity.x * 30);
+					bestNextStep += avoidDirection;
+				}
 			}
 		}
 	}

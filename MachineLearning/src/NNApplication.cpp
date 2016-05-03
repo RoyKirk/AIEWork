@@ -77,7 +77,7 @@ void NNApplication::draw() {
 void NNApplication::setUpSimulation() {
 	setUpAgents();
 	//setUpSimpleLinearZone();
-	//setUpTurrets();
+	setUpTurrets();
 	setUpFood();
 	setUpWater();
 }
@@ -96,32 +96,9 @@ void NNApplication::setUpAgents() {
 	srand((unsigned int)time(NULL));
 	for (int index = 0; index < MAX_AGENTS; index++) {
 		glm::vec2 startPos;
-		//startPos.x = (float)(rand() % gScreenWidth);
-		//startPos.y = (float)(rand() % 2 * gScreenHeight);
-		//int randSelector = rand() % 4;
-		//if (randSelector == 0)
-		//{
-		//	startPos.x = 0;
-		//	startPos.y = 0;
-		//}
-		//else if (randSelector == 1)
-		//{ 
-		//	startPos.x = 0;
-		//	startPos.y = gScreenHeight;
-		//}
-		//else if (randSelector == 2)
-		//{
-		//	startPos.x = gScreenWidth;
-		//	startPos.y = 0;
-		//}
-		//else
-		//{
-		//	startPos.x = gScreenWidth;
-		//	startPos.y = gScreenHeight;
-		//}
 
-		startPos.x = gScreenWidth;
-		startPos.y = gScreenHeight;
+		startPos.x = (float)gScreenWidth;
+		startPos.y = (float)gScreenHeight;
 		float size = 30;
 		float facing = 44 / 7.0f * ((rand() % 1000) / 1000.0f);
 		agents[index].setup(startPos, size, glm::vec4(1, 1, 1, 1), facing);
@@ -176,7 +153,7 @@ void NNApplication::setUpTurrets() {
 	//turrets[8] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
 	//turrets[9] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
 
-	turrets[0] = Turret(glm::vec2(gScreenWidth/2, gScreenHeight/2), 150);
+	turrets[0] = Turret(glm::vec2(gScreenWidth/2, gScreenHeight/2), 100);
 	//turrets[1] = Turret(glm::vec2(gScreenWidth*3/4, gScreenHeight*3/4), 100);
 	//turrets[2] = Turret(glm::vec2(gScreenWidth / 4, gScreenHeight * 3 / 4), 100);
 	//turrets[3] = Turret(glm::vec2(gScreenWidth * 3 / 4, gScreenHeight / 4), 100);
