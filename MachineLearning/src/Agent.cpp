@@ -34,6 +34,11 @@ void Agent::update(float delta)
 	if (resourceFound)
 	{
 		AStar();
+		//_velocity = destination - _position;
+		//float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
+		//_velocity.x /= length;
+		//_velocity.y /= length;
+		//avoidDanger();
 	}
 	else
 	{
@@ -186,7 +191,7 @@ void Agent::avoidDanger()
 
 				//_velocity -= glm::vec2(direction.x*(1 / distance), direction.y*(1 / distance));
 				//_velocity *= -1;
-				_velocity = glm::vec2(_velocity.y, _velocity.x) +(glm::vec2(_velocity.x*-1, _velocity.y*-1));
+				_velocity = glm::vec2(_velocity.y*-1, _velocity.x*-1)+(glm::vec2(_velocity.x*-1, _velocity.y*-1));
 				//_velocity -= glm::vec2(direction.x*(1 / distance), direction.y*(1 / distance));
 				//_velocity -= glm::vec2(direction.y*(1 / distance), direction.x*(1 / distance));
 				//_velocity -= glm::vec2(_velocity.x*(1 / distance), _velocity.y*(1 / distance));
@@ -310,8 +315,7 @@ void Agent::AStar()
 			if (node.z == 2)
 			{
 				bestNextStep = glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
-				//resetAgent();
-				//break;
+				break;
 			}
 			if (node.z == 0)
 			{
@@ -323,26 +327,26 @@ void Agent::AStar()
 				{
 					bestNextStep = glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
 				}
-				//break;
+				break;
 			}
-			if (node.z == 1)
-			{
+			//if (node.z == 1)
+			//{
 
-				glm::vec2 nextNodeToFood = closestFood - glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
-				float nextNodeToFoodDistance = sqrt((nextNodeToFood.x*nextNodeToFood.x) + (nextNodeToFood.y*nextNodeToFood.y));
-				glm::vec2 currentBestNode = closestFood - bestNextStep;
-				float currentBestNodeDistance = sqrt((currentBestNode.x*currentBestNode.x) + (currentBestNode.y*currentBestNode.y));
-				if (nextNodeToFoodDistance < currentBestNodeDistance)
-				{
-					destination = bestNextStep;
-					_velocity = destination - _position;
-					float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
-					_velocity.x /= length;
-					_velocity.y /= length;
-					glm::vec2 avoidDirection = glm::vec2(_velocity.y * 30, _velocity.x * 30);
-					bestNextStep += avoidDirection;
-				}
-			}
+			//	glm::vec2 nextNodeToFood = closestFood - glm::vec2((node.x * gScreenWidth), (node.y * gScreenHeight));
+			//	float nextNodeToFoodDistance = sqrt((nextNodeToFood.x*nextNodeToFood.x) + (nextNodeToFood.y*nextNodeToFood.y));
+			//	glm::vec2 currentBestNode = closestFood - bestNextStep;
+			//	float currentBestNodeDistance = sqrt((currentBestNode.x*currentBestNode.x) + (currentBestNode.y*currentBestNode.y));
+			//	if (nextNodeToFoodDistance < currentBestNodeDistance)
+			//	{
+			//		destination = bestNextStep;
+			//		_velocity = destination - _position;
+			//		float length = sqrt((_velocity.x*_velocity.x) + (_velocity.y*_velocity.y));
+			//		_velocity.x /= length;
+			//		_velocity.y /= length;
+			//		glm::vec2 avoidDirection = glm::vec2(_velocity.y * 30, _velocity.x * 30);
+			//		bestNextStep += avoidDirection;
+			//	}
+			//}
 		}
 	}
 
