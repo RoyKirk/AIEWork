@@ -46,7 +46,7 @@ class Agent
 	void FollowPath();
 
 	bool resourceFound;
-	bool followPath;
+	bool followPath = false;
 
 	std::list<Node*> graphList;
 	std::list<Node*> openList;

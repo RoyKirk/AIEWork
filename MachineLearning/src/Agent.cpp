@@ -279,6 +279,7 @@ glm::vec2 Agent::getPosition()
 
 void Agent::AStar()
 {
+	resetAgent();
 	resourceFound = false;
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
@@ -303,7 +304,6 @@ void Agent::AStar()
 		}
 	}
 	destination = closestFood;
-	followPath = true;
 	Node* startNode = new Node;
 	//{glm::vec2(0, 0), 0, 0, 0, nullptr};
 	startNode->position = _position;
@@ -317,88 +317,89 @@ void Agent::AStar()
 	endNode->g = 0;
 	endNode->h = 0;
 	endNode->parent = nullptr;
-	if (!closedList.empty() && closedList.front()->position.x == endNode->position.x && closedList.front()->position.y == endNode->position.y && pathList.empty())
-	{
-		pathList.push_front(closedList.front());
-		while (pathList.front() != startNode)
-		{
-			Node* currentNode = pathList.front()->parent;
-			pathList.push_front(currentNode);
-		}
-	}
-	else if (!closedList.empty() && closedList.front()->position.x == endNode->position.x && closedList.front()->position.y == endNode->position.y)
-	{
-	}
-	else
-	{
-		if (!openList.empty())
-		{
-			openList.sort([](const Node* a, const Node* b) { return a->f < b->f; });
-			Node* currentNode = openList.front();
-			openList.pop_front();
 
-
-			for each(auto& node in neuralNetwork->testData)
+	openList.push_front(startNode);
+	while (!followPath)
+	{
+		if (!closedList.empty() && closedList.front()->position.x == endNode->position.x && closedList.front()->position.y == endNode->position.y && pathList.empty())
+		{
+			followPath = true;
+			pathList.push_front(closedList.front());
+			while (pathList.front() != startNode)
 			{
-				float radius = sqrt(((node.x * gScreenWidth) - _position.x) * ((node.x * gScreenWidth) - _position.x) + ((node.y * gScreenHeight) - _position.y) * ((node.y * gScreenHeight) - _position.y));
-				if (radius < 30)
+				Node* currentNode = pathList.front()->parent;
+				pathList.push_front(currentNode);
+			}
+		}
+		else if (!closedList.empty() && closedList.front()->position.x == endNode->position.x && closedList.front()->position.y == endNode->position.y)
+		{
+			followPath = true;
+		}
+		else
+		{
+			if (!openList.empty())
+			{
+				openList.sort([](const Node* a, const Node* b) { return a->f < b->f; });
+				Node* currentNode = openList.front();
+				openList.pop_front();
+
+
+				for each(auto& node in neuralNetwork->testData)
 				{
-					Node* testNode;
-					testNode->position = glm::vec2(node.x*gScreenWidth, node.y*gScreenHeight);
-					if (node.z == 1)
+					float radius = sqrt(((node.x * gScreenWidth) - _position.x) * ((node.x * gScreenWidth) - _position.x) + ((node.y * gScreenHeight) - _position.y) * ((node.y * gScreenHeight) - _position.y));
+					if (radius < 20)
 					{
-						continue;
-					}
-					bool foundClosed = (std::find(closedList.begin(), closedList.end(), testNode) != closedList.end());
-					if (!foundClosed)
-					{
-						bool foundOpen = (std::find(openList.begin(), openList.end(), currentNode) != openList.end());
-						if (!foundOpen)
+						Node* testNode = new Node;
+						testNode->position = glm::vec2(node.x*gScreenWidth, node.y*gScreenHeight);
+						testNode->f = 0;
+						testNode->g = 0;
+						testNode->h = 0;
+						testNode->parent = nullptr;
+						if (node.z == 1)
 						{
-							//Manhattan Distance
-							//c.connection->g = currentNode->g + abs(c.connection->x - currentNode->x) + abs(c.connection->y - currentNode->y);
-							//c.connection->h = abs(endNode->x - c.connection->x) + abs(endNode->y - c.connection->y);
-							//c.connection->f = c.connection->g + c.connection->h;
-
-							//Euclidian Distance
-							testNode->g = currentNode->g + sqrt((testNode->position.x - currentNode->position.x)*(testNode->position.x - currentNode->position.x)
-								+ (testNode->position.y - currentNode->position.y)*(testNode->position.y - currentNode->position.y));
-							testNode->h = sqrt((endNode->position.x - testNode->position.x)*(endNode->position.x - testNode->position.x)
-								+ (endNode->position.y - testNode->position.y)*(endNode->position.y - testNode->position.y));
-							testNode->f = testNode->g + testNode->h;
-
-							testNode->parent = currentNode;
-							openList.push_front(testNode);
+							continue;
 						}
-						else
+						bool foundClosed = (std::find(closedList.begin(), closedList.end(), testNode) != closedList.end());
+						if (!foundClosed)
 						{
-							for each(Node* currentCandidate in openList)
+							bool foundOpen = (std::find(openList.begin(), openList.end(), currentNode) != openList.end());
+							if (!foundOpen)
 							{
-								if (testNode->position.x == currentCandidate->position.x
-									&& currentNode->position.y == currentCandidate->position.y
-									&& currentCandidate->g > currentNode->g)
+								//Euclidian Distance
+								testNode->g = currentNode->g + sqrt((testNode->position.x - currentNode->position.x)*(testNode->position.x - currentNode->position.x)
+									+ (testNode->position.y - currentNode->position.y)*(testNode->position.y - currentNode->position.y));
+								testNode->h = sqrt((endNode->position.x - testNode->position.x)*(endNode->position.x - testNode->position.x)
+									+ (endNode->position.y - testNode->position.y)*(endNode->position.y - testNode->position.y));
+								testNode->f = testNode->g + testNode->h;
+
+								testNode->parent = currentNode;
+								openList.push_front(testNode);
+							}
+							else
+							{
+								for each(Node* currentCandidate in openList)
 								{
-									currentCandidate->parent = currentNode;
+									if (testNode->position.x == currentCandidate->position.x
+										&& currentNode->position.y == currentCandidate->position.y
+										&& currentCandidate->g > currentNode->g)
+									{
+										currentCandidate->parent = currentNode;
 
-									//Manhattan Distance
-									//currentCandidate->g = currentNode->g + abs(currentCandidate->x - currentNode->x) + abs(currentCandidate->y - currentNode->y);
-									//currentCandidate->h = abs(endNode->x - currentCandidate->x) + abs(endNode->y - currentCandidate->y);
-									//currentCandidate->f = currentCandidate->g + currentCandidate->h;
-
-
-									//Euclidian Distance renew f,g,h scores
-									currentCandidate->g = currentNode->g + sqrt((currentCandidate->position.x - currentNode->position.x)*(currentCandidate->position.x - currentNode->position.x)
-										+ (currentCandidate->position.y - currentNode->position.y)*(currentCandidate->position.y - currentNode->position.y));
-									currentCandidate->h = sqrt((endNode->position.x - currentCandidate->position.x)*(endNode->position.x - currentCandidate->position.x)
-										+ (endNode->position.y - currentCandidate->position.y)*(endNode->position.y - currentCandidate->position.y));
-									currentCandidate->f = currentCandidate->g + currentCandidate->h;
+										//Euclidian Distance renew f,g,h scores
+										currentCandidate->g = currentNode->g + sqrt((currentCandidate->position.x - currentNode->position.x)*(currentCandidate->position.x - currentNode->position.x)
+											+ (currentCandidate->position.y - currentNode->position.y)*(currentCandidate->position.y - currentNode->position.y));
+										currentCandidate->h = sqrt((endNode->position.x - currentCandidate->position.x)*(endNode->position.x - currentCandidate->position.x)
+											+ (endNode->position.y - currentCandidate->position.y)*(endNode->position.y - currentCandidate->position.y));
+										currentCandidate->f = currentCandidate->g + currentCandidate->h;
+									}
 								}
 							}
 						}
 					}
 				}
-		}
-			closedList.push_front(currentNode);
+				closedList.push_front(currentNode);
+			}
+
 		}
 	}
 }

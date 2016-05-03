@@ -77,7 +77,7 @@ void NNApplication::draw() {
 void NNApplication::setUpSimulation() {
 	setUpAgents();
 	//setUpSimpleLinearZone();
-	setUpTurrets();
+	//setUpTurrets();
 	setUpFood();
 	setUpWater();
 }
