@@ -4,13 +4,6 @@
 #include <vector>
 #include <list>
 
-struct Node;
-struct Node
-{
-	glm::vec2 position;
-	float f, g, h;
-	Node* parent;
-};
 
 class NeuralNetwork;
 
@@ -42,17 +35,9 @@ class Agent
 	void resetAgent();
 	void checkIfResourceFound();
 	void avoidDanger();
-	void AStar();
-	void FollowPath();
+	void seekFood();
 
 	bool resourceFound;
-	bool followPath = false;
-
-	std::list<Node*> graphList;
-	std::list<Node*> openList;
-	std::list<Node*> closedList;
-	std::list<Node*> pathList;
-	std::list<Node*> followList;
 
 	glm::vec2 destination;
 

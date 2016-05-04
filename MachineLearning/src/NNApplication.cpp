@@ -77,7 +77,7 @@ void NNApplication::draw() {
 void NNApplication::setUpSimulation() {
 	setUpAgents();
 	//setUpSimpleLinearZone();
-	//setUpTurrets();
+	setUpTurrets();
 	setUpFood();
 	setUpWater();
 }
@@ -142,28 +142,14 @@ void NNApplication::checkAgentWater(Agent* agent) {
 void NNApplication::setUpTurrets() {
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(m_window, &gScreenWidth, &gScreenHeight);
-	//turrets[0] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100) , (float)(rand() % (gScreenHeight - 200) + 100)), 75);
-	//turrets[1] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
-	//turrets[2] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
-	//turrets[3] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
-	//turrets[4] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
-	//turrets[5] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
-	//turrets[6] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
-	//turrets[7] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
-	//turrets[8] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
-	//turrets[9] = Turret(glm::vec2((float)(rand() % (gScreenWidth - 200) + 100), (float)(rand() % (gScreenHeight - 200) + 100)), 75);
 
 	turrets[0] = Turret(glm::vec2(gScreenWidth/2, gScreenHeight/2), 100);
-	//turrets[1] = Turret(glm::vec2(gScreenWidth*3/4, gScreenHeight*3/4), 100);
-	//turrets[2] = Turret(glm::vec2(gScreenWidth / 4, gScreenHeight * 3 / 4), 100);
-	//turrets[3] = Turret(glm::vec2(gScreenWidth * 3 / 4, gScreenHeight / 4), 100);
 }
 
 void NNApplication::setUpFood() {
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(m_window, &gScreenWidth, &gScreenHeight);
-	foods[0] = Food(glm::vec2(200, 200), 75);
-	//foods[1] = Food(glm::vec2(50, 100), 75);
+	foods[0] = Food(glm::vec2(200, 200), 150);
 }
 
 void NNApplication::setUpWater() {
