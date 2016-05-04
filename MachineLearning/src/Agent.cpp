@@ -281,6 +281,7 @@ void Agent::AStar()
 {
 	resetAgent();
 	resourceFound = false;
+	followPath = false;
 	int gScreenWidth = 0, gScreenHeight = 0;
 	glfwGetWindowSize(glfwGetCurrentContext(), &gScreenWidth, &gScreenHeight);
 	glm::vec2 closestFood = destination;
@@ -319,6 +320,19 @@ void Agent::AStar()
 	endNode->parent = nullptr;
 
 	openList.push_front(startNode);
+
+
+	//for (int i = gScreenWidth; i < gScreenWidth - 100; i--)
+	//{
+	//	for (int j = gScreenWidth; j < gScreenWidth - 100; j--)
+	//	{
+	//		glm::vec3 testinput = glm::vec3((float)i, (float)j, 0);
+	//		addToMemory(testinput);
+	//		neuralNetwork->trainNetwork(memory);
+	//	}
+	//}
+
+
 	while (!followPath)
 	{
 		if (!closedList.empty() && closedList.front()->position.x == endNode->position.x && closedList.front()->position.y == endNode->position.y && pathList.empty())
@@ -347,7 +361,7 @@ void Agent::AStar()
 				for each(auto& node in neuralNetwork->testData)
 				{
 					float radius = sqrt(((node.x * gScreenWidth) - _position.x) * ((node.x * gScreenWidth) - _position.x) + ((node.y * gScreenHeight) - _position.y) * ((node.y * gScreenHeight) - _position.y));
-					if (radius < 20)
+					if (radius < 100)
 					{
 						Node* testNode = new Node;
 						testNode->position = glm::vec2(node.x*gScreenWidth, node.y*gScreenHeight);
@@ -373,7 +387,12 @@ void Agent::AStar()
 								testNode->f = testNode->g + testNode->h;
 
 								testNode->parent = currentNode;
-								openList.push_front(testNode);
+								openList.push_front(new Node);
+								openList.front()->position = testNode->position;
+								openList.front()->f = testNode->f;
+								openList.front()->g = testNode->g;
+								openList.front()->h = testNode->h;
+								openList.front()->parent = testNode->parent;
 							}
 							else
 							{
@@ -399,8 +418,8 @@ void Agent::AStar()
 				}
 				closedList.push_front(currentNode);
 			}
-
 		}
+		
 	}
 }
 

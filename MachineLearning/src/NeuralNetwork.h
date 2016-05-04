@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "Agent.h"
+#include "Agent.h"
 #include <vector>
 #include "glm/glm.hpp"
 
@@ -16,8 +16,8 @@ class NeuralNetwork
 	Matrix *outputLayer = NULL;
 	void applyActivationFunction(Matrix*);
 public:
-	std::vector<glm::vec3> testData; //This matrix will contain the x,y coordinates for displaying the NN representation of the scene
-	//std::vector<Node> testData; //This matrix will contain the x,y coordinates for displaying the NN representation of the scene
+	//std::vector<glm::vec3> testData; //This matrix will contain the x,y coordinates for displaying the NN representation of the scene
+	std::vector<Node> testData; //This matrix will contain the x,y coordinates for displaying the NN representation of the scene
 	NeuralNetwork(int numberInputs, int numberHidden, int numberOutputs);
 	~NeuralNetwork();
 	void trainNetwork(std::vector<glm::vec3>&);
