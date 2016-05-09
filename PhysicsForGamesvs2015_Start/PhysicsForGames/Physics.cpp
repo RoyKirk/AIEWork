@@ -27,11 +27,16 @@ bool Physics::startup()
 
 	m_renderer = new Renderer();
 	
+	SetUpPhysX();
+
     return true;
 }
 
 void Physics::shutdown()
 {
+	g_PhysicsScene->release();
+	g_Physics->release();
+	g_PhysicsFoundation->release();
 	delete m_renderer;
     Gizmos::destroy();
     Application::shutdown();
@@ -63,6 +68,7 @@ bool Physics::update()
 
     m_camera.update(1.0f / 60.0f);
 
+	UpdatePhysX(m_delta_time);
 
     return true;
 }
@@ -183,3 +189,30 @@ void Physics::renderGizmos(PxScene* physics_scene)
     }
 }
 
+void Physics::SetUpPhysX()
+{
+	PxAllocatorCallback *myCallback = new myAllocator();
+	g_PhysicsFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *myCallback, gDefaultErrorCallback);
+	g_Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *g_PhysicsFoundation, PxTolerancesScale());
+	PxInitExtensions(*g_Physics);
+	//create physics material
+	g_PhysicsMaterial = g_Physics->createMaterial(0.5f, 0.5f, 0.5f);
+	PxSceneDesc sceneDesc(g_Physics->getTolerancesScale());
+	sceneDesc.gravity = PxVec3(0, -10.0f, 0);
+	sceneDesc.filterShader = &physx::PxDefaultSimulationFilterShader;
+	sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(1);
+	g_PhysicsScene = g_Physics->createScene(sceneDesc);
+}
+
+void Physics::UpdatePhysX(float a_deltaTime)
+{
+	if (a_deltaTime <= 0)
+	{
+		return;
+	}
+	g_PhysicsScene->simulate(a_deltaTime);
+	while (g_PhysicsScene->fetchResults() == false)
+	{
+
+	}
+}
