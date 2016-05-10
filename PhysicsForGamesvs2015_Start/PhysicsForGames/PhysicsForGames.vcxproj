@@ -130,6 +130,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;PhysX3_x86.lib;PhysX3Common_x86.lib;PhysX3Extensions.lib;PhysXVisualDebuggerSDK.lib;PhysX3Cooking_x86.lib;PhysX3CharacterKinematic_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
