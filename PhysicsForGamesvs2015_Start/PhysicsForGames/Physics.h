@@ -29,6 +29,8 @@ public:
     FlyCamera m_camera;
     float m_delta_time;
 
+	
+
 	PxFoundation* g_PhysicsFoundation;
 	PxPhysics* g_Physics;
 	PxScene* g_PhysicsScene;

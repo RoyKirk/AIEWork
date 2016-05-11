@@ -22,7 +22,7 @@ bool Physics::startup()
     Gizmos::create();
 
     m_camera = FlyCamera(1280.0f / 720.0f, 10.0f);
-    m_camera.setLookAt(vec3(10, 10, 10), vec3(0), vec3(0, 1, 0));
+    m_camera.setLookAt(vec3(50, 50, 50), vec3(0), vec3(0, 1, 0));
     m_camera.sensitivity = 3;
 
 	m_renderer = new Renderer();
@@ -67,10 +67,13 @@ bool Physics::update()
         Gizmos::addLine(vec3(-10, -0.01, -10 + i), vec3(10, -0.01, -10 + i),
             i == 10 ? white : black);
     }
+	Gizmos::addAABBFilled(glm::vec3(0, 0, 0), glm::vec3(500, 0, 500),glm::vec4(0,0.8,0,1));
 
     m_camera.update(1.0f / 60.0f);
 
 	UpdatePhysX(m_delta_time);
+
+	renderGizmos(g_PhysicsScene);
 
     return true;
 }
@@ -244,10 +247,40 @@ void Physics::SetUpTutorial1()
 	//Add it to the physx scene
 	g_PhysicsScene->addActor(*plane);
 	//Add a box
-	float density = 10;
+	float density = 5;
 	PxBoxGeometry box(1, 1, 1);
-	PxTransform transform(PxVec3(0, 25, 0));
-	PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			for (int k = 0; k < 5; k++)
+			{
+				PxTransform transform(PxVec3(2*i, 2*j+1, 2*k));
+				PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
+				//add it to the physx scene
+				g_PhysicsScene->addActor(*dynamicActor);
+				dynamicActor->putToSleep();
+			}
+		}
+	}
+	//float densityS = 5000;
+	//PxSphereGeometry sphere(2);
+	//PxTransform transformS(PxVec3(5, 50, 5));
+	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
+	////add it to the physx scene
+	//g_PhysicsScene->addActor(*dynamicActorS);
+
+	float densityS = 500;
+	PxBoxGeometry sphere(5,5,5);
+	PxTransform transformS(PxVec3(4, 50, 4));
+	PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
 	//add it to the physx scene
-	g_PhysicsScene->addActor(*dynamicActor);
+	g_PhysicsScene->addActor(*dynamicActorS);
+
+	//float densityS = 5000;
+	//PxCapsuleGeometry sphere(0.5,10);
+	//PxTransform transformS(PxVec3(5, 50, 5));
+	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
+	////add it to the physx scene
+	//g_PhysicsScene->addActor(*dynamicActorS);
 }
