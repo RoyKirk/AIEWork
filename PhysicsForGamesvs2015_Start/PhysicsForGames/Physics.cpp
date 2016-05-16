@@ -31,6 +31,10 @@ bool Physics::startup()
 	SetUpVisualDebugger(); 
 	SetUpTutorial1();
 
+	muzzleSpeed = 1000000.0f;
+	shootTimer = 0.0f;
+	shootTimeOut = 0.2f;
+
     return true;
 }
 
@@ -74,6 +78,14 @@ bool Physics::update()
 	UpdatePhysX(m_delta_time);
 
 	renderGizmos(g_PhysicsScene);
+
+	shootTimer += m_delta_time;
+
+	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS && shootTimer >= shootTimeOut)
+	{
+		shootTimer = 0;
+		Shoot();
+	}
 
     return true;
 }
@@ -270,12 +282,12 @@ void Physics::SetUpTutorial1()
 	////add it to the physx scene
 	//g_PhysicsScene->addActor(*dynamicActorS);
 
-	float densityS = 500;
-	PxBoxGeometry sphere(5,5,5);
-	PxTransform transformS(PxVec3(4, 50, 4));
-	PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
-	//add it to the physx scene
-	g_PhysicsScene->addActor(*dynamicActorS);
+	//float densityS = 50;
+	//PxBoxGeometry sphere(5,5,5);
+	//PxTransform transformS(PxVec3(4, 50, 4));
+	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
+	////add it to the physx scene
+	//g_PhysicsScene->addActor(*dynamicActorS);
 
 	//float densityS = 5000;
 	//PxCapsuleGeometry sphere(0.5,10);
@@ -283,4 +295,15 @@ void Physics::SetUpTutorial1()
 	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
 	////add it to the physx scene
 	//g_PhysicsScene->addActor(*dynamicActorS);
+}
+
+void Physics::Shoot()
+{
+	float densityS = 5;
+	PxSphereGeometry sphere(2);
+	PxTransform transformS(PxVec3(m_camera.world[3].x, m_camera.world[3].y, m_camera.world[3].z));
+	PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
+	//add it to the physx scene
+	g_PhysicsScene->addActor(*dynamicActorS);
+	dynamicActorS->addForce(PxVec3(-m_camera.world[2].x, -m_camera.world[2].y, -m_camera.world[2].z)*muzzleSpeed, PxForceMode::eFORCE, true);
 }

@@ -25,10 +25,14 @@ public:
 	void SetUpVisualDebugger();
 	void SetUpTutorial1();
 
+	void Shoot();
+
     Renderer* m_renderer;
     FlyCamera m_camera;
     float m_delta_time;
-
+	float muzzleSpeed;
+	float shootTimer;
+	float shootTimeOut;
 	
 
 	PxFoundation* g_PhysicsFoundation;
