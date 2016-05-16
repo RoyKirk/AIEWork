@@ -31,7 +31,7 @@ bool Physics::startup()
 	SetUpVisualDebugger(); 
 	SetUpTutorial1();
 
-	muzzleSpeed = 1000000.0f;
+	muzzleSpeed = 10000.0f;
 	shootTimer = 0.0f;
 	shootTimeOut = 0.2f;
 
@@ -261,11 +261,11 @@ void Physics::SetUpTutorial1()
 	//Add a box
 	float density = 5;
 	PxBoxGeometry box(1, 1, 1);
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 2; i++)
 	{
-		for (int j = 0; j < 5; j++)
+		for (int j = 0; j < 100; j++)
 		{
-			for (int k = 0; k < 5; k++)
+			for (int k = 0; k < 2; k++)
 			{
 				PxTransform transform(PxVec3(2*i, 2*j+1, 2*k));
 				PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
@@ -305,5 +305,5 @@ void Physics::Shoot()
 	PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
 	//add it to the physx scene
 	g_PhysicsScene->addActor(*dynamicActorS);
-	dynamicActorS->addForce(PxVec3(-m_camera.world[2].x, -m_camera.world[2].y, -m_camera.world[2].z)*muzzleSpeed, PxForceMode::eFORCE, true);
+	dynamicActorS->addForce(PxVec3(-m_camera.world[2].x, -m_camera.world[2].y, -m_camera.world[2].z)*muzzleSpeed, PxForceMode::eIMPULSE, true);
 }
