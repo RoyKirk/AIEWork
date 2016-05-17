@@ -299,8 +299,8 @@ void Physics::SetUpTutorial1()
 
 void Physics::Shoot()
 {
-	float densityS = 5;
-	PxSphereGeometry sphere(2);
+	float densityS = 50;
+	PxBoxGeometry sphere(1,1,1);
 	PxTransform transformS(PxVec3(m_camera.world[3].x, m_camera.world[3].y, m_camera.world[3].z));
 	PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
 	//add it to the physx scene
