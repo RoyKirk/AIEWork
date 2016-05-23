@@ -1,3 +1,0 @@
-﻿  Physics.cpp
-c:\users\roy.kirk\documents\aiework\physicsforgamesvs2015_start\physicsforgames\physics.cpp(270): warning C4244: 'argument': conversion from 'int' to 'physx::PxReal', possible loss of data
-  PhysicsForGames.vcxproj -> C:\Users\roy.kirk\Documents\AIEWork\PhysicsForGamesvs2015_Start\Debug\PhysicsForGames.exe
