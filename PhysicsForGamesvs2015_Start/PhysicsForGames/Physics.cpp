@@ -253,54 +253,61 @@ void Physics::SetUpVisualDebugger()
 
 void Physics::SetUpTutorial1()
 {
-	//Add a plane
-	PxTransform pose = PxTransform(PxVec3(0.0f, 0, 0.0f), PxQuat(PxHalfPi*1.0f, PxVec3(0.0f, 0.0f, 1.0f)));
-	PxRigidStatic* plane = PxCreateStatic(*g_Physics, pose, PxPlaneGeometry(), *g_PhysicsMaterial);
-	//Add it to the physx scene
-	g_PhysicsScene->addActor(*plane);
-	//Add a box
-	float density = 5;
-	PxBoxGeometry box(1, 1, 1);
-	for (int i = 0; i < 2; i++)
-	{
-		for (int j = 0; j < 100; j++)
-		{
-			for (int k = 0; k < 2; k++)
-			{
-				PxTransform transform(PxVec3(2*i, 2*j+1, 2*k));
-				PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
-				//add it to the physx scene
-				g_PhysicsScene->addActor(*dynamicActor);
-				dynamicActor->putToSleep();
-			}
-		}
-	}
-	//float densityS = 5000;
-	//PxSphereGeometry sphere(2);
-	//PxTransform transformS(PxVec3(5, 50, 5));
-	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
-	////add it to the physx scene
-	//g_PhysicsScene->addActor(*dynamicActorS);
-
-	//float densityS = 50;
-	//PxBoxGeometry sphere(5,5,5);
-	//PxTransform transformS(PxVec3(4, 50, 4));
-	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
-	////add it to the physx scene
-	//g_PhysicsScene->addActor(*dynamicActorS);
-
-	//float densityS = 5000;
-	//PxCapsuleGeometry sphere(0.5,10);
-	//PxTransform transformS(PxVec3(5, 50, 5));
-	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
-	////add it to the physx scene
-	//g_PhysicsScene->addActor(*dynamicActorS);
+	PxArticulation* ragDollArticulation;
+	ragDollArticulation = makeRagdoll(g_Physics, ragdollData, PxTransform(PxVec3(0, 0, 0)), 0.1f, g_PhysicsMaterial);
+	g_PhysicsScene->addArticulation(*ragdoll);
 }
+
+//void Physics::SetUpTutorial1()
+//{
+//	//Add a plane
+//	PxTransform pose = PxTransform(PxVec3(0.0f, 0, 0.0f), PxQuat(PxHalfPi*1.0f, PxVec3(0.0f, 0.0f, 1.0f)));
+//	PxRigidStatic* plane = PxCreateStatic(*g_Physics, pose, PxPlaneGeometry(), *g_PhysicsMaterial);
+//	//Add it to the physx scene
+//	g_PhysicsScene->addActor(*plane);
+//	//Add a box
+//	float density = 5;
+//	PxBoxGeometry box(1, 1, 1);
+//	for (int i = 0; i < 2; i++)
+//	{
+//		for (int j = 0; j < 100; j++)
+//		{
+//			for (int k = 0; k < 2; k++)
+//			{
+//				PxTransform transform(PxVec3(2*i, 2*j+1, 2*k));
+//				PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
+//				//add it to the physx scene
+//				g_PhysicsScene->addActor(*dynamicActor);
+//				dynamicActor->putToSleep();
+//			}
+//		}
+//	}
+//	//float densityS = 5000;
+//	//PxSphereGeometry sphere(2);
+//	//PxTransform transformS(PxVec3(5, 50, 5));
+//	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
+//	////add it to the physx scene
+//	//g_PhysicsScene->addActor(*dynamicActorS);
+//
+//	//float densityS = 50;
+//	//PxBoxGeometry sphere(5,5,5);
+//	//PxTransform transformS(PxVec3(4, 50, 4));
+//	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
+//	////add it to the physx scene
+//	//g_PhysicsScene->addActor(*dynamicActorS);
+//
+//	//float densityS = 5000;
+//	//PxCapsuleGeometry sphere(0.5,10);
+//	//PxTransform transformS(PxVec3(5, 50, 5));
+//	//PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
+//	////add it to the physx scene
+//	//g_PhysicsScene->addActor(*dynamicActorS);
+//}
 
 void Physics::Shoot()
 {
-	float densityS = 50;
-	PxBoxGeometry sphere(1,1,1);
+	float densityS = 100;
+	PxSphereGeometry sphere(1);
 	PxTransform transformS(PxVec3(m_camera.world[3].x, m_camera.world[3].y, m_camera.world[3].z));
 	PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
 	//add it to the physx scene
