@@ -71,7 +71,7 @@ bool Physics::update()
         Gizmos::addLine(vec3(-10, -0.01, -10 + i), vec3(10, -0.01, -10 + i),
             i == 10 ? white : black);
     }
-	Gizmos::addAABBFilled(glm::vec3(0, 0, 0), glm::vec3(500, 0, 500),glm::vec4(0,0.8,0,1));
+	Gizmos::addAABBFilled(glm::vec3(0, 0, 0), glm::vec3(500, 0, 500),glm::vec4(0.3,0.3,0.8,1));
 
     m_camera.update(1.0f / 60.0f);
 
