@@ -289,11 +289,18 @@ void Physics::SetUpTutorial1()
 	g_PhysicsScene->addArticulation(*ragDollArticulation);	
 
 	float density = 5;
-	PxBoxGeometry box(2, 2, 2);
-	PxTransform transform(PxVec3(0, -48, 0));
-	PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, box, *g_PhysicsMaterial);
-	//add it to the physx scene
-	g_PhysicsScene->addActor(*staticActor);
+	PxBoxGeometry box(10, 1, 1);
+	for (int i = 0; i < 10; i++)
+	{
+		for (int j = -10; j < 0; j++)
+		{
+			PxTransform transform(PxVec3(0, (j*2)-10, (j*-2)-5));
+			PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, box, *g_PhysicsMaterial);
+			//add it to the physx scene
+			g_PhysicsScene->addActor(*staticActor);
+			
+		}
+	}
 }
 
 //void Physics::SetUpTutorial1()
