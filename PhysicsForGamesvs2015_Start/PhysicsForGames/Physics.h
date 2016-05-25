@@ -37,7 +37,7 @@ enum RagDollParts
 
 struct RagdollNode
 {
-	PxQuat globalRotation; //rotation of this link in model space - we could have done this relative to the parent node but it"s harder to visuakise when setting up the data by hand
+	PxQuat globalRotation; //rotation of this link in model space - we could have done this relative to the parent node but it"s harder to visualise when setting up the data by hand
 	PxVec3 scaledGlobalPos; //position of the link centre in world space which is calculated when we process the node. It's easiest if we store it here so we have it when we transform tje child
 	int parentNodeIdx; //Index of the parent node
 	float halfLength; //half length of the capsule for this node
@@ -45,9 +45,11 @@ struct RagdollNode
 	float parentLinkPos; //relative position of link centre in parent to this node. 0 is the centre of the node, -1 is left end of the capsule and 1 is right end of the capsule relative to x
 	float childLinkPos; //relative position of link centre in child
 	char* name; //name of link
+	float ySwingLimit;
+	float zSwingLimit;
 	PxArticulationLink* linkPtr;
 	//constructor
-	RagdollNode(PxQuat _globalRotation, int _parentNodeIdx, float _halfLength, float _radius, float _parentLinkPos, float _childLinkPos, char* _name)
+	RagdollNode(PxQuat _globalRotation, int _parentNodeIdx, float _halfLength, float _radius, float _parentLinkPos, float _childLinkPos, char* _name, float _ySwingLimit, float _zSwingLimit)
 	{
 		globalRotation = _globalRotation;
 		parentNodeIdx = _parentNodeIdx;
@@ -56,6 +58,8 @@ struct RagdollNode
 		parentLinkPos = _parentLinkPos;
 		childLinkPos = _childLinkPos;
 		name = _name;
+		ySwingLimit = _ySwingLimit;
+		zSwingLimit = _zSwingLimit;
 	};
 };
 

@@ -17,22 +17,22 @@ const PxVec3 Z_AXIS = PxVec3(0, 0, 1);
 
 RagdollNode* ragdollData[] =
 {
-	new RagdollNode(PxQuat(PxPi / 2.0f,Z_AXIS), NO_PARENT,1,3,1,1,"lower spine"),
-	new RagdollNode(PxQuat(PxPi, Z_AXIS), LOWER_SPINE,1,1,-1,1,"left pelvis"),
-	new RagdollNode(PxQuat(0, Z_AXIS), LOWER_SPINE,1,1,-1,1,"right pelvis"),
-	new RagdollNode(PxQuat(PxPi / 2.0f + 0.2f, Z_AXIS), LEFT_PELVIS,5,2,-1,1,"L upper leg"),
-	new RagdollNode(PxQuat(PxPi / 2.0f - 0.2f, Z_AXIS), RIGHT_PELVIS,5,2,-1,1,"R upper leg"),
-	new RagdollNode(PxQuat(PxPi / 2.0f + 0.2f, Z_AXIS), LEFT_UPPER_LEG,5,1.75,-1,1,"L lower leg"),
-	new RagdollNode(PxQuat(PxPi / 2.0f - 0.2f, Z_AXIS), RIGHT_UPPER_LEG,5,1.75,-1,1,"R lower leg"),
-	new RagdollNode(PxQuat(PxPi / 2.0f, Z_AXIS), LOWER_SPINE,1,3,1,-1,"upper spine"),
-	new RagdollNode(PxQuat(PxPi, Z_AXIS), UPPER_SPINE,1,1.5,1,1,"left clavicle"),
-	new RagdollNode(PxQuat(0, Z_AXIS), UPPER_SPINE,1,1.5,1,1,"right clavicle"),
-	new RagdollNode(PxQuat(PxPi / 2.0f, Z_AXIS), UPPER_SPINE,1,1,1,-1,"neck"),
-	new RagdollNode(PxQuat(PxPi / 2.0f, Z_AXIS), NECK,1,3,1,-1, "HEAD"),
-	new RagdollNode(PxQuat(PxPi - 0.3, Z_AXIS), LEFT_CLAVICLE,3,1.5,-1,1,"left upper arm"),
-	new RagdollNode(PxQuat(0.3, Z_AXIS), RIGHT_CLAVICLE,3,1.5,-1,1,"right upper arm"),
-	new RagdollNode(PxQuat(PxPi - 0.3, Z_AXIS), LEFT_UPPER_ARM,3,1,-1,1,"left lower arm"),
-	new RagdollNode(PxQuat(0.3, Z_AXIS), RIGHT_UPPER_ARM,3,1,-1,1,"right lower arm"),
+	new RagdollNode(PxQuat(PxPi / 2.0f,Z_AXIS), NO_PARENT,1,3,1,1,"lower spine",0.01f,0.3f),
+	new RagdollNode(PxQuat(PxPi, Z_AXIS), LOWER_SPINE,1,1,-1,1,"left pelvis",0.1f,0.8f),
+	new RagdollNode(PxQuat(0, Z_AXIS), LOWER_SPINE,1,1,-1,1,"right pelvis",0.1f,0.8f),
+	new RagdollNode(PxQuat(PxPi / 2.0f + 0.2f, Z_AXIS), LEFT_PELVIS,5,2,-1,1,"L upper leg",0.01f,0.8f),
+	new RagdollNode(PxQuat(PxPi / 2.0f - 0.2f, Z_AXIS), RIGHT_PELVIS,5,2,-1,1,"R upper leg",0.01f,0.8f),
+	new RagdollNode(PxQuat(PxPi / 2.0f + 0.2f, Z_AXIS), LEFT_UPPER_LEG,5,1.75,-1,1,"L lower leg",0.01f,0.8f),
+	new RagdollNode(PxQuat(PxPi / 2.0f - 0.2f, Z_AXIS), RIGHT_UPPER_LEG,5,1.75,-1,1,"R lower leg",0.01f,0.8f),
+	new RagdollNode(PxQuat(PxPi / 2.0f, Z_AXIS), LOWER_SPINE,1,3,1,-1,"upper spine",0.01f,0.3f),
+	new RagdollNode(PxQuat(PxPi, Z_AXIS), UPPER_SPINE,1,1.5,1,1,"left clavicle",0.1f,0.1f),
+	new RagdollNode(PxQuat(0, Z_AXIS), UPPER_SPINE,1,1.5,1,1,"right clavicle",0.1f,0.1f),
+	new RagdollNode(PxQuat(PxPi / 2.0f, Z_AXIS), UPPER_SPINE,1,1,1,-1,"neck",0.01f,0.8f),
+	new RagdollNode(PxQuat(PxPi / 2.0f, Z_AXIS), NECK,1,3,1,-1, "HEAD",0.3f,0.3f),
+	new RagdollNode(PxQuat(PxPi - 0.3, Z_AXIS), LEFT_CLAVICLE,3,1.5,-1,1,"left upper arm",0.5f,0.8f),
+	new RagdollNode(PxQuat(0.3, Z_AXIS), RIGHT_CLAVICLE,3,1.5,-1,1,"right upper arm",0.5f,0.8f),
+	new RagdollNode(PxQuat(PxPi - 0.3, Z_AXIS), LEFT_UPPER_ARM,3,1,-1,1,"left lower arm",0.01f,0.8f),
+	new RagdollNode(PxQuat(0.3, Z_AXIS), RIGHT_UPPER_ARM,3,1,-1,1,"right lower arm",0.01f,0.8f),
 	NULL
 };
 
@@ -48,7 +48,7 @@ bool Physics::startup()
     Gizmos::create();
 
     m_camera = FlyCamera(1280.0f / 720.0f, 10.0f);
-    m_camera.setLookAt(vec3(50, 50, 50), vec3(0), vec3(0, 1, 0));
+    m_camera.setLookAt(vec3(30, 30, 30), vec3(0,-30,0), vec3(0, 1, 0));
     m_camera.sensitivity = 3;
 
 	m_renderer = new Renderer();
@@ -288,15 +288,39 @@ void Physics::SetUpTutorial1()
 	ragDollArticulation = makeRagdoll(g_Physics, ragdollData, PxTransform(PxVec3(0, 0, 0)), 0.1f, g_PhysicsMaterial);
 	g_PhysicsScene->addArticulation(*ragDollArticulation);	
 
-	float density = 5;
 	PxBoxGeometry box(1, 1, 10);
 	for (int j = -25; j < 0; j++)
 	{
-		PxTransform transform(PxVec3((j*-2) - 5, (j*2)-10, 0));
+		PxTransform transform(PxVec3((j*-2) - 4, (j*2)-9, 0));
 		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, box, *g_PhysicsMaterial);
 		//add it to the physx scene
 		g_PhysicsScene->addActor(*staticActor);
 			
+	}
+	for (int j = -25; j < 0; j++)
+	{
+		PxTransform transform(PxVec3((j*-2) - 3, (j * 2) - 10, 0));
+		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, box, *g_PhysicsMaterial);
+		//add it to the physx scene
+		g_PhysicsScene->addActor(*staticActor);
+
+	}
+
+	float density = 5000;
+	PxBoxGeometry boxes(1, 1, 1);
+	for (int i = 0; i < 2; i++)
+	{
+		for (int j = 30; j < 50; j++)
+		{
+			for (int k = 0; k < 2; k++)
+			{
+				PxTransform transform(PxVec3(2*i, 2*j+1, 2*k));
+				PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, boxes, *g_PhysicsMaterial, density);
+				//add it to the physx scene
+				g_PhysicsScene->addActor(*dynamicActor);
+				//dynamicActor->putToSleep();
+			}
+		}
 	}
 	
 }
@@ -418,7 +442,7 @@ PxArticulation* Physics::makeRagdoll(PxPhysics* g_Physics, RagdollNode** nodeArr
 			//set up some constraints to stop it flopping around
 			joint->setStiffness(20);
 			joint->setDamping(20);
-			joint->setSwingLimit(0.4f, 0.4f);
+			joint->setSwingLimit(currentNodePtr->ySwingLimit, currentNodePtr->zSwingLimit);
 			joint->setSwingLimitEnabled(true);
 			joint->setTwistLimit(-0.1f, 0.1f);
 			joint->setTwistLimitEnabled(true);
