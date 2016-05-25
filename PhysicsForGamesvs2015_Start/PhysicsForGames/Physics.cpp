@@ -291,7 +291,7 @@ void Physics::SetUpTutorial1()
 	PxBoxGeometry box(1, 1, 10);
 	for (int j = -25; j < 0; j++)
 	{
-		PxTransform transform(PxVec3((j*-2) - 4, (j*2)-9, 0));
+		PxTransform transform(PxVec3((j*-2) - 4, (j*2)-9, 8));
 		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, box, *g_PhysicsMaterial);
 		//add it to the physx scene
 		g_PhysicsScene->addActor(*staticActor);
@@ -299,8 +299,27 @@ void Physics::SetUpTutorial1()
 	}
 	for (int j = -25; j < 0; j++)
 	{
-		PxTransform transform(PxVec3((j*-2) - 3, (j * 2) - 10, 0));
+		PxTransform transform(PxVec3((j*-2) - 3, (j * 2) - 10, 8));
 		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, box, *g_PhysicsMaterial);
+		//add it to the physx scene
+		g_PhysicsScene->addActor(*staticActor);
+
+	}
+
+
+	PxBoxGeometry boxS(10, 1, 1);
+	for (int j = -25; j < 0; j++)
+	{
+		PxTransform transform(PxVec3(8, (j * 2) - 9, (j*-2) - 4));
+		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, boxS, *g_PhysicsMaterial);
+		//add it to the physx scene
+		g_PhysicsScene->addActor(*staticActor);
+
+	}
+	for (int j = -25; j < 0; j++)
+	{
+		PxTransform transform(PxVec3(8, (j * 2) - 10, (j*-2) - 3));
+		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, boxS, *g_PhysicsMaterial);
 		//add it to the physx scene
 		g_PhysicsScene->addActor(*staticActor);
 
