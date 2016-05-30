@@ -48,7 +48,7 @@ bool Physics::startup()
     Gizmos::create();
 
     m_camera = FlyCamera(1280.0f / 720.0f, 10.0f);
-    m_camera.setLookAt(vec3(30, 30, 30), vec3(0,-30,0), vec3(0, 1, 0));
+    m_camera.setLookAt(vec3(10, 10, 10), vec3(0,0,0), vec3(0, 1, 0));
     m_camera.sensitivity = 3;
 
 	m_renderer = new Renderer();
@@ -258,11 +258,17 @@ void Physics::UpdatePhysX(float a_deltaTime)
 	{
 
 	}
-	if (m_particleEmitter)
+	//if (m_particleEmitter)
+	//{
+	//	m_particleEmitter->update(a_deltaTime);
+	//	//render all our particles
+	//	m_particleEmitter->renderParticles();
+	//}
+	if (m_particleFluidEmitter)
 	{
-		m_particleEmitter->update(a_deltaTime);
+		m_particleFluidEmitter->update(a_deltaTime);
 		//render all our particles
-		m_particleEmitter->renderParticles();
+		m_particleFluidEmitter->renderParticles();
 	}
 }
 
@@ -289,8 +295,8 @@ void Physics::SetUpTutorial1()
 	PxRigidStatic* plane = PxCreateStatic(*g_Physics, pose, PxPlaneGeometry(), *g_PhysicsMaterial);
 	const PxU32 numShapes = plane->getNbShapes();
 	g_PhysicsScene->addActor(*plane);
-	
-	//container for fluid
+
+	//container for particles
 	PxBoxGeometry side1(4.5, 1, 0.5);
 	PxBoxGeometry side2(0.5, 1, 4.5);
 
@@ -310,7 +316,57 @@ void Physics::SetUpTutorial1()
 	box = PxCreateStatic(*g_Physics, pose, side2, *g_PhysicsMaterial);
 	g_PhysicsScene->addActor(*box);
 
-	//fluid particle system
+	//particle system
+	PxParticleFluid* pf;
+	//create particle system in PhysX SDK
+	//set immutable properties.
+	PxU32 maxParticles = 4000;
+	bool perParticleRestOffset = false;
+	pf = g_Physics->createParticleFluid(maxParticles, perParticleRestOffset);
+	pf->setRestParticleDistance(0.3f);
+	pf->setDynamicFriction(0.01);
+	pf->setStaticFriction(0.01);
+	pf->setDamping(0.01);
+	pf->setParticleMass(1.1);
+	pf->setRestitution(0);
+	pf->setStiffness(10);
+	pf->setParticleBaseFlag(PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
+	if (pf)
+	{
+		g_PhysicsScene->addActor(*pf);
+		m_particleFluidEmitter = new ParticleFluidEmitter(maxParticles, PxVec3(0, 10, 0), pf, 0.1);
+		m_particleFluidEmitter->setStartVelocityRange(-0.001f, -250.0f, -0.001f, 0.001f, -250.0f, 0.001f);
+	}
+
+}
+void Physics::SetUpTutorial1()
+{
+	PxTransform pose = PxTransform(PxVec3(0.0f, 0, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
+	PxRigidStatic* plane = PxCreateStatic(*g_Physics, pose, PxPlaneGeometry(), *g_PhysicsMaterial);
+	const PxU32 numShapes = plane->getNbShapes();
+	g_PhysicsScene->addActor(*plane);
+	
+	//container for particles
+	PxBoxGeometry side1(4.5, 1, 0.5);
+	PxBoxGeometry side2(0.5, 1, 4.5);
+
+	pose = PxTransform(PxVec3(0.0f, 0.5, 4.0f));
+	PxRigidStatic* box = PxCreateStatic(*g_Physics, pose, side1, *g_PhysicsMaterial);
+	g_PhysicsScene->addActor(*box);
+
+	pose = PxTransform(PxVec3(0.0f, 0.5, -4.0f));
+	box = PxCreateStatic(*g_Physics, pose, side1, *g_PhysicsMaterial);
+	g_PhysicsScene->addActor(*box);
+
+	pose = PxTransform(PxVec3(4.0f, 0.5, 0.0f));
+	box = PxCreateStatic(*g_Physics, pose, side2, *g_PhysicsMaterial);
+	g_PhysicsScene->addActor(*box);
+
+	pose = PxTransform(PxVec3(-4.0f, 0.5, 0.0f));
+	box = PxCreateStatic(*g_Physics, pose, side2, *g_PhysicsMaterial);
+	g_PhysicsScene->addActor(*box);
+
+	//particle system
 	PxParticleSystem* pf;
 	//create particle system in PhysX SDK
 	//set immutable properties.
