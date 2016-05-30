@@ -89,7 +89,7 @@ public:
 	float shootTimer;
 	float shootTimeOut;
 	
-
+	PxParticleSystem* m_particleEmitter;
 	PxFoundation* g_PhysicsFoundation;
 	PxPhysics* g_Physics;
 	PxScene* g_PhysicsScene;
