@@ -291,30 +291,48 @@ void Physics::SetUpVisualDebugger()
 
 void Physics::SetUpTutorial1()
 {
-	PxTransform pose = PxTransform(PxVec3(0.0f, 0, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
+	//Add a plane
+	PxTransform pose = PxTransform(PxVec3(0.0f, -50, 0.0f), PxQuat(PxHalfPi*1.0f, PxVec3(0.0f, 0.0f, 1.0f)));
 	PxRigidStatic* plane = PxCreateStatic(*g_Physics, pose, PxPlaneGeometry(), *g_PhysicsMaterial);
-	const PxU32 numShapes = plane->getNbShapes();
-	g_PhysicsScene->addActor(*plane);
 
-	//container for particles
-	PxBoxGeometry side1(4.5, 1, 0.5);
-	PxBoxGeometry side2(0.5, 1, 4.5);
+	PxBoxGeometry box(1, 1, 10);
+	for (int j = -25; j < 0; j++)
+	{
+		PxTransform transform(PxVec3((j*-2) - 4, (j*2)-9, 8));
+		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, box, *g_PhysicsMaterial);
+		//add it to the physx scene
+		g_PhysicsScene->addActor(*staticActor);
+				
+	}
+	for (int j = -25; j < 0; j++)
+	{
+		PxTransform transform(PxVec3((j*-2) - 3, (j * 2) - 10, 8));
+		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, box, *g_PhysicsMaterial);
+		//add it to the physx scene
+		g_PhysicsScene->addActor(*staticActor);
+	
+	}
+	
+	
+	PxBoxGeometry boxS(10, 1, 1);
+	for (int j = -25; j < 0; j++)
+	{
+		PxTransform transform(PxVec3(8, (j * 2) - 9, (j*-2) - 4));
+		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, boxS, *g_PhysicsMaterial);
+		//add it to the physx scene
+		g_PhysicsScene->addActor(*staticActor);
+	
+	}
+	for (int j = -25; j < 0; j++)
+	{
+		PxTransform transform(PxVec3(8, (j * 2) - 10, (j*-2) - 3));
+		PxRigidStatic* staticActor = PxCreateStatic(*g_Physics, transform, boxS, *g_PhysicsMaterial);
+		//add it to the physx scene
+		g_PhysicsScene->addActor(*staticActor);
+	
+	}
 
-	pose = PxTransform(PxVec3(0.0f, 0.5, 4.0f));
-	PxRigidStatic* box = PxCreateStatic(*g_Physics, pose, side1, *g_PhysicsMaterial);
-	g_PhysicsScene->addActor(*box);
-
-	pose = PxTransform(PxVec3(0.0f, 0.5, -4.0f));
-	box = PxCreateStatic(*g_Physics, pose, side1, *g_PhysicsMaterial);
-	g_PhysicsScene->addActor(*box);
-
-	pose = PxTransform(PxVec3(4.0f, 0.5, 0.0f));
-	box = PxCreateStatic(*g_Physics, pose, side2, *g_PhysicsMaterial);
-	g_PhysicsScene->addActor(*box);
-
-	pose = PxTransform(PxVec3(-4.0f, 0.5, 0.0f));
-	box = PxCreateStatic(*g_Physics, pose, side2, *g_PhysicsMaterial);
-	g_PhysicsScene->addActor(*box);
+	
 
 	//particle system
 	PxParticleFluid* pf;
@@ -325,12 +343,14 @@ void Physics::SetUpTutorial1()
 	pf = g_Physics->createParticleFluid(maxParticles, perParticleRestOffset);
 	pf->setRestParticleDistance(0.3f);
 	pf->setDynamicFriction(0.01);
-	pf->setStaticFriction(0.01);
-	pf->setDamping(0.01);
-	pf->setParticleMass(1.1);
-	pf->setRestitution(0.5);
-	pf->setStiffness(100);
+	pf->setStaticFriction(0.1);
+	pf->setDamping(0.1);
+	pf->setParticleMass(0.1);
+	pf->setRestitution(0);
+	pf->setViscosity(100);
+	//pf->setParticleReadDataFlag(PxParticleReadDataFlag::eDENSITY_BUFFER, true);
 	pf->setParticleBaseFlag(PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
+	pf->setStiffness(100);
 	if (pf)
 	{
 		g_PhysicsScene->addActor(*pf);
