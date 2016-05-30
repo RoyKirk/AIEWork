@@ -4,6 +4,8 @@
 #include "Application.h"
 #include "Camera.h"
 #include "Render.h"
+#include "ParticleEmitter.h"
+#include "ParticleFluidEmitter.h"
 
 #include <PxPhysicsAPI.h>
 #include <PxScene.h>
@@ -89,7 +91,7 @@ public:
 	float shootTimer;
 	float shootTimeOut;
 	
-	PxParticleSystem* m_particleEmitter;
+	ParticleEmitter* m_particleEmitter;
 	PxFoundation* g_PhysicsFoundation;
 	PxPhysics* g_Physics;
 	PxScene* g_PhysicsScene;

@@ -258,6 +258,12 @@ void Physics::UpdatePhysX(float a_deltaTime)
 	{
 
 	}
+	if (m_particleEmitter)
+	{
+		m_particleEmitter->update(a_deltaTime);
+		//render all our particles
+		m_particleEmitter->renderParticles();
+	}
 }
 
 void Physics::SetUpVisualDebugger()
@@ -319,7 +325,7 @@ void Physics::SetUpTutorial1()
 	{
 		g_PhysicsScene->addActor(*pf);
 		m_particleEmitter = new ParticleEmitter(maxParticles, PxVec3(0, 10, 0), pf, 0.01);
-		m_particleEmitter->setStartVelocityRange(-2.0f)
+		m_particleEmitter->setStartVelocityRange(-2.0f, 0.0f, -2.0f, 2.0f, 0.0f, 2.0f);
 	}
 
 }
