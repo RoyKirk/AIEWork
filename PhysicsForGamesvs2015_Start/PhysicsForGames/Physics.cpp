@@ -328,8 +328,8 @@ void Physics::SetUpTutorial1()
 	pf->setStaticFriction(0.01);
 	pf->setDamping(0.01);
 	pf->setParticleMass(1.1);
-	pf->setRestitution(0);
-	pf->setStiffness(10);
+	pf->setRestitution(0.5);
+	pf->setStiffness(100);
 	pf->setParticleBaseFlag(PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
 	if (pf)
 	{
@@ -337,55 +337,55 @@ void Physics::SetUpTutorial1()
 		m_particleFluidEmitter = new ParticleFluidEmitter(maxParticles, PxVec3(0, 10, 0), pf, 0.1);
 		m_particleFluidEmitter->setStartVelocityRange(-0.001f, -250.0f, -0.001f, 0.001f, -250.0f, 0.001f);
 	}
-
-}
-void Physics::SetUpTutorial1()
-{
-	PxTransform pose = PxTransform(PxVec3(0.0f, 0, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
-	PxRigidStatic* plane = PxCreateStatic(*g_Physics, pose, PxPlaneGeometry(), *g_PhysicsMaterial);
-	const PxU32 numShapes = plane->getNbShapes();
-	g_PhysicsScene->addActor(*plane);
-	
-	//container for particles
-	PxBoxGeometry side1(4.5, 1, 0.5);
-	PxBoxGeometry side2(0.5, 1, 4.5);
-
-	pose = PxTransform(PxVec3(0.0f, 0.5, 4.0f));
-	PxRigidStatic* box = PxCreateStatic(*g_Physics, pose, side1, *g_PhysicsMaterial);
-	g_PhysicsScene->addActor(*box);
-
-	pose = PxTransform(PxVec3(0.0f, 0.5, -4.0f));
-	box = PxCreateStatic(*g_Physics, pose, side1, *g_PhysicsMaterial);
-	g_PhysicsScene->addActor(*box);
-
-	pose = PxTransform(PxVec3(4.0f, 0.5, 0.0f));
-	box = PxCreateStatic(*g_Physics, pose, side2, *g_PhysicsMaterial);
-	g_PhysicsScene->addActor(*box);
-
-	pose = PxTransform(PxVec3(-4.0f, 0.5, 0.0f));
-	box = PxCreateStatic(*g_Physics, pose, side2, *g_PhysicsMaterial);
-	g_PhysicsScene->addActor(*box);
-
-	//particle system
-	PxParticleSystem* pf;
-	//create particle system in PhysX SDK
-	//set immutable properties.
-	PxU32 maxParticles = 4000;
-	bool perParticleRestOffset = false;
-	pf = g_Physics->createParticleSystem(maxParticles, perParticleRestOffset);
-	pf->setDamping(0.1);
-	pf->setParticleMass(0.1);
-	pf->setRestitution(0);
-	pf->setParticleBaseFlag(PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
-	if(pf)
-	{
-		g_PhysicsScene->addActor(*pf);
-		m_particleEmitter = new ParticleEmitter(maxParticles, PxVec3(0, 10, 0), pf, 0.01);
-		m_particleEmitter->setStartVelocityRange(-2.0f, 0.0f, -2.0f, 2.0f, 0.0f, 2.0f);
-	}
-
 }
 
+//void Physics::SetUpTutorial1()
+//{
+//	PxTransform pose = PxTransform(PxVec3(0.0f, 0, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
+//	PxRigidStatic* plane = PxCreateStatic(*g_Physics, pose, PxPlaneGeometry(), *g_PhysicsMaterial);
+//	const PxU32 numShapes = plane->getNbShapes();
+//	g_PhysicsScene->addActor(*plane);
+//	
+//	//container for particles
+//	PxBoxGeometry side1(4.5, 1, 0.5);
+//	PxBoxGeometry side2(0.5, 1, 4.5);
+//
+//	pose = PxTransform(PxVec3(0.0f, 0.5, 4.0f));
+//	PxRigidStatic* box = PxCreateStatic(*g_Physics, pose, side1, *g_PhysicsMaterial);
+//	g_PhysicsScene->addActor(*box);
+//
+//	pose = PxTransform(PxVec3(0.0f, 0.5, -4.0f));
+//	box = PxCreateStatic(*g_Physics, pose, side1, *g_PhysicsMaterial);
+//	g_PhysicsScene->addActor(*box);
+//
+//	pose = PxTransform(PxVec3(4.0f, 0.5, 0.0f));
+//	box = PxCreateStatic(*g_Physics, pose, side2, *g_PhysicsMaterial);
+//	g_PhysicsScene->addActor(*box);
+//
+//	pose = PxTransform(PxVec3(-4.0f, 0.5, 0.0f));
+//	box = PxCreateStatic(*g_Physics, pose, side2, *g_PhysicsMaterial);
+//	g_PhysicsScene->addActor(*box);
+//
+//	//particle system
+//	PxParticleSystem* pf;
+//	//create particle system in PhysX SDK
+//	//set immutable properties.
+//	PxU32 maxParticles = 4000;
+//	bool perParticleRestOffset = false;
+//	pf = g_Physics->createParticleSystem(maxParticles, perParticleRestOffset);
+//	pf->setDamping(0.1);
+//	pf->setParticleMass(0.1);
+//	pf->setRestitution(0);
+//	pf->setParticleBaseFlag(PxParticleBaseFlag::eCOLLISION_TWOWAY, true);
+//	if(pf)
+//	{
+//		g_PhysicsScene->addActor(*pf);
+//		m_particleEmitter = new ParticleEmitter(maxParticles, PxVec3(0, 10, 0), pf, 0.01);
+//		m_particleEmitter->setStartVelocityRange(-2.0f, 0.0f, -2.0f, 2.0f, 0.0f, 2.0f);
+//	}
+//
+//}
+//
 //void Physics::SetUpTutorial1()
 //{
 //	//Add a plane
