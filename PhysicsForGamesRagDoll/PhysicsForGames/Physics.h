@@ -91,8 +91,6 @@ public:
 	float shootTimer;
 	float shootTimeOut;
 	
-	ParticleEmitter* m_particleEmitter;
-	ParticleFluidEmitter* m_particleFluidEmitter;
 	PxFoundation* g_PhysicsFoundation;
 	PxPhysics* g_Physics;
 	PxScene* g_PhysicsScene;
