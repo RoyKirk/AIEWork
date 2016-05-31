@@ -149,18 +149,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Box.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Gizmos.h" />
     <ClInclude Include="gl_core_4_4.h" />
     <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="ParticleFluidEmitter.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="PhysicsObject.h" />
+    <ClInclude Include="PhysicsScene.h" />
+    <ClInclude Include="Plane.h" />
     <ClInclude Include="Render.h" />
+    <ClInclude Include="RigidBody.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Box.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Gizmos.cpp" />
     <ClCompile Include="gl_core_4_4.c" />
@@ -168,7 +175,12 @@
     <ClCompile Include="ParticleEmitter.cpp" />
     <ClCompile Include="ParticleFluidEmitter.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="PhysicsObject.cpp" />
+    <ClCompile Include="PhysicsScene.cpp" />
+    <ClCompile Include="Plane.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
+    <ClCompile Include="Sphere.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

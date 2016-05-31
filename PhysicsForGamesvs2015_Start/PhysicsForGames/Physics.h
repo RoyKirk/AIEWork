@@ -5,10 +5,6 @@
 #include "Camera.h"
 #include "Render.h"
 
-#include <PxPhysicsAPI.h>
-#include <PxScene.h>
-
-using namespace physx;
 class Physics : public Application
 {
 public:
