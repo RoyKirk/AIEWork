@@ -298,10 +298,9 @@ void Physics::SetUpTutorial1()
 	g_PhysicsScene->addActor(*dynamicActor2);
 
 
-	PxTransform transform3(PxVec3(0, 0,10));
-	PxRevoluteJointCreate(*g_Physics,dynamicActor,transform3,dynamicActor2, transform3);
-
-
+	PxTransform transform3(PxVec3(0, 0,5));
+	PxSphericalJoint* pJoint = PxSphericalJointCreate(*g_Physics,dynamicActor,transform3,dynamicActor2, transform3);
+	pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, true);
 
 	//for (int i = 0; i < 2; i++)
 	//{
