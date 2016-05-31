@@ -10,6 +10,7 @@
 #include <PxPhysicsAPI.h>
 #include <PxScene.h>
 #include <pvd/PxVisualDebugger.h>
+#include <vector>
 
 
 
@@ -91,8 +92,8 @@ public:
 	float shootTimer;
 	float shootTimeOut;
 	
-	ParticleEmitter* m_particleEmitter;
-	ParticleFluidEmitter* m_particleFluidEmitter;
+	std::vector<PxRigidDynamic*> box_list;
+
 	PxFoundation* g_PhysicsFoundation;
 	PxPhysics* g_Physics;
 	PxScene* g_PhysicsScene;
