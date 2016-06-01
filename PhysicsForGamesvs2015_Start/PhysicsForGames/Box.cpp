@@ -4,6 +4,7 @@
 
 Box::Box()
 {
+	_shapeID = BOX;
 }
 
 

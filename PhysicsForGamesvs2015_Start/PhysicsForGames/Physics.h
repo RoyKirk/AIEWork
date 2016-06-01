@@ -5,6 +5,20 @@
 #include "Camera.h"
 #include "Render.h"
 
+#include "PhysicsScene.h"
+#include "PhysicsObject.h"
+#include "RigidBody.h"
+#include "Plane.h"
+#include "Box.h"
+#include "Sphere.h"
+
+
+#include <PxPhysicsAPI.h>
+#include <PxScene.h>
+#include <pvd/PxVisualDebugger.h>
+
+using namespace physx;
+
 class Physics : public Application
 {
 public:
@@ -14,6 +28,8 @@ public:
     virtual void draw();
 
 	void renderGizmos(PxScene* physics_scene);
+
+	PhysicsScene* m_physics;
 
     Renderer* m_renderer;
     FlyCamera m_camera;

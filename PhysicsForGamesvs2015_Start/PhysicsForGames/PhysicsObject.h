@@ -18,7 +18,7 @@ public:
 	~PhysicsObject();
 	ShapeType _shapeID;
 	void virtual update(glm::vec3 gravity, float timeStep) = 0;
-	void virtual denug() = 0;
+	void virtual debug() = 0;
 	void virtual makeGizmo() = 0;
 	void virtual resetPosition() {};
 };

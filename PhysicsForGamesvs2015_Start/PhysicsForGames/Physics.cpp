@@ -26,6 +26,10 @@ bool Physics::startup()
     m_camera.sensitivity = 3;
 
 	m_renderer = new Renderer();
+
+	m_physics = new PhysicsScene();
+	m_physics->gravity = glm::vec3(0, -10, 0);
+	m_physics->timeStep = 0.01f;
 	
     return true;
 }
