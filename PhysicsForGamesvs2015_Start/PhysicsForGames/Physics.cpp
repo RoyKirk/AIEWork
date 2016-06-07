@@ -29,9 +29,9 @@ bool Physics::startup()
 
 	m_physics = new PhysicsScene();
 	m_physics->gravity = glm::vec3(0, -10, 0);
-	m_physics->timeStep = 0.01f;
-
-	rocketEngineSetup();
+	m_physics->timeStep = m_timeStep;
+	projectileMotionSetup();
+	//rocketEngineSetup();
 
 
     return true;
@@ -51,7 +51,7 @@ bool Physics::update()
         return false;
     }
 
-    Gizmos::clear();
+    //Gizmos::clear();
 	
 	m_physics->update();
 	m_physics->addGizmos();
@@ -60,7 +60,7 @@ bool Physics::update()
     m_delta_time = dt;
     glfwSetTime(0.0);
 	
-	rocketEngine();
+	//rocketEngine();
 
     //vec4 white(1);
     //vec4 black(0, 0, 0, 1);
@@ -91,9 +91,26 @@ void Physics::draw()
     glfwPollEvents();
 }
 
-void Physics::rocketEngine()
+void Physics::projectileMotionSetup()
 {
-	newBall = new Sphere(glm::vec3(0, 1, 0), glm::vec3(0, 0, 0), 2000.0f, 1, glm::vec4(1, 0, 0, 1));
+	float muzzleSpeed = 25;
+	glm::vec3 intialPos = glm::vec3(-25, 0, 0);
+	float initialAngle = PI*1/4;
+	for (int i = 0; i < 100; i++)
+	{
+		glm::vec2 tempPos;
+		tempPos.x = intialPos.x + muzzleSpeed * ((float)i * m_timeStep) * cos(initialAngle);
+		tempPos.y = intialPos.y + muzzleSpeed * ((float)i * m_timeStep) * sin(initialAngle) + 0.5*(-10)*((float)i*m_timeStep)*((float)i*m_timeStep);
+		Gizmos::addSphereFilled(glm::vec3(tempPos,0), 1, 6, 6, glm::vec4(1, 0, 1, 1));
+	}
+
+	newBall = new Sphere(intialPos, glm::vec3(cos(initialAngle)*muzzleSpeed, sin(initialAngle)*muzzleSpeed,0) , 20.0f, 1, glm::vec4(1, 0, 0, 1));
+	m_physics->addActor(newBall);
+}
+
+void Physics::rocketEngineSetup()
+{
+	newBall = new Sphere(glm::vec3(0, 1, 0), glm::vec3(0, 0, 0), 200.0f, 1, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newBall);
 }
 
@@ -104,18 +121,43 @@ void Physics::rocketEngine()
 		float massreduction = 10;
 		if (newBall->mass > massreduction)
 		{
-
+			Sphere *newBall2;
+			newBall2 = new Sphere(glm::vec3(newBall->position.x, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
+			m_physics->addActor(newBall2);
+			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(0, 100));
-			newBall->mass -= massreduction;
+			//newBall->mass -= massreduction;
 		}
 	}
 
-	Sphere *newBall2;
-	newBall2 = new Sphere(glm::vec3(newBall->position.x, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
-	m_physics->addActor(newBall2);
-	newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
+	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		float massreduction = 10;
+		if (newBall->mass > massreduction)
+		{
+			Sphere *newBall2;
+			newBall2 = new Sphere(glm::vec3(newBall->position.x + 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
+			m_physics->addActor(newBall2);
+			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
+			newBall->applyForce(glm::vec2(-50, 0));
+			//newBall->mass -= massreduction;
+		}
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		float massreduction = 10;
+		if (newBall->mass > massreduction)
+		{
+			Sphere *newBall2;
+			newBall2 = new Sphere(glm::vec3(newBall->position.x - 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
+			m_physics->addActor(newBall2);
+			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
+			newBall->applyForce(glm::vec2(50, 0));
+			//newBall->mass -= massreduction;
+		}
+	}
 
-	if (m_physics->actors.size() > 30)
+	if (m_physics->actors.size() > 10)
 	{
 		m_physics->actors.erase(m_physics->actors.begin() + 1);
 	}

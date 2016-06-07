@@ -28,6 +28,12 @@ public:
     virtual bool update();
     virtual void draw();
 
+	float m_timeStep = 0.01f;
+
+	float const PI = 3.14159265359f;
+
+	void projectileMotionSetup();
+
 	void rocketEngineSetup();
 
 	void rocketEngine();
