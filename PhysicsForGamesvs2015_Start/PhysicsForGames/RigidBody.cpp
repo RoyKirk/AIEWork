@@ -19,7 +19,9 @@ RigidBody::RigidBody(glm::vec3 _position, glm::vec3 _velocity, float _rotation, 
 
 void RigidBody::update(glm::vec3 gravity, float timeStep)
 {
-	position += velocity*timeStep + gravity.xy*timeStep;
+	applyForce(gravity.xy*mass*timeStep);
+	//velocity += gravity.xy*timeStep;
+	position += velocity*timeStep;
 }
 void RigidBody::debug()
 {
@@ -28,9 +30,9 @@ void RigidBody::debug()
 
 void RigidBody::applyForce(glm::vec2 force)
 {
-
+	velocity += force / mass;
 }
-void RigidBody::applyForceToActor(RigidBody* actor2, glm::vec3 force)
+void RigidBody::applyForceToActor(RigidBody* actor2, glm::vec2 force)
 {
 
 }
