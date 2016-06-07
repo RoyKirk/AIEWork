@@ -3,6 +3,7 @@
 
 #define GLM_SWIZZLE
 #include "glm/glm.hpp"
+#include "Gizmos.h"
 
 enum ShapeType
 {
@@ -17,6 +18,7 @@ public:
 	PhysicsObject();
 	~PhysicsObject();
 	ShapeType _shapeID;
+	glm::vec4 colour;
 	void virtual update(glm::vec3 gravity, float timeStep) = 0;
 	void virtual debug() = 0;
 	void virtual makeGizmo() = 0;

@@ -27,7 +27,7 @@ public:
     virtual bool update();
     virtual void draw();
 
-	void renderGizmos(PxScene* physics_scene);
+	//void renderGizmos(PhysicsScene* physics_scene);
 
 	PhysicsScene* m_physics;
 

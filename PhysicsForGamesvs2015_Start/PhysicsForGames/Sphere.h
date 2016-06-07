@@ -8,8 +8,8 @@ class Sphere :
 public:
 	Sphere();
 	~Sphere();
-	float _radius;
-	Sphere(glm::vec3 position, glm::vec3 velocity, float mass, float radius, glm::vec4 colour);
+	float radius;
+	Sphere(glm::vec3 _position, glm::vec3 _velocity, float _mass, float _radius, glm::vec4 _colour);
 	virtual void makeGizmo();
 };
 
