@@ -30,7 +30,8 @@ bool Physics::startup()
 	m_physics = new PhysicsScene();
 	m_physics->gravity = glm::vec3(0, -10, 0);
 	m_physics->timeStep = m_timeStep;
-	projectileMotionSetup();
+	
+	//projectileMotionSetup();
 	//rocketEngineSetup();
 
 
@@ -51,7 +52,7 @@ bool Physics::update()
         return false;
     }
 
-    //Gizmos::clear();
+    Gizmos::clear();
 	
 	m_physics->update();
 	m_physics->addGizmos();
