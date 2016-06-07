@@ -28,6 +28,10 @@ public:
     virtual bool update();
     virtual void draw();
 
+	void rocketEngineSetup();
+
+	void rocketEngine();
+
 	//void renderGizmos(PhysicsScene* physics_scene);
 
 	Sphere *newBall;
