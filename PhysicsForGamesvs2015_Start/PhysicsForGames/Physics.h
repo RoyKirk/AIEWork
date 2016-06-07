@@ -19,6 +19,7 @@
 
 using namespace physx;
 
+
 class Physics : public Application
 {
 public:
@@ -28,6 +29,9 @@ public:
     virtual void draw();
 
 	//void renderGizmos(PhysicsScene* physics_scene);
+
+	Sphere *newBall;
+	
 
 	PhysicsScene* m_physics;
 
