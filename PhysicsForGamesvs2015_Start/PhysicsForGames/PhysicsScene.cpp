@@ -1,12 +1,12 @@
 #include "PhysicsScene.h"
 
-//function pointer array for doing our collisions
-typedef bool(*fn)(PhysicsObject*, PhysicsObject*);
+typedef bool(PhysicsScene::*fn)(PhysicsObject*, PhysicsObject*);
 //function pointer array for doing our collisions
 static fn collisionFunctionArray[] = 
 { 
-	PhysicsScene::plane2Plane, PhysicsScene::plane2SPhere, 
-	PhysicsScene::sphere2Plane, PhysicsScene::sphere2Sphere,
+	&PhysicsScene::plane2Plane,		&PhysicsScene::plane2SPhere,	&PhysicsScene::plane2Box,
+	&PhysicsScene::sphere2Plane,	&PhysicsScene::sphere2Sphere,	&PhysicsScene::sphere2Box,
+	&PhysicsScene::box2Plane,		&PhysicsScene::box2Sphere,		&PhysicsScene::box2Box,
 };
 
 PhysicsScene::PhysicsScene()
@@ -41,6 +41,7 @@ void PhysicsScene::update()
 	{
 		_actor->update(gravity,timeStep);
 	}
+	checkForCollision();
 }
 
 void PhysicsScene::debugScene()
@@ -69,28 +70,67 @@ void PhysicsScene::checkForCollision()
 			int _shapeID1 = object1->_shapeID;
 			int _shapeID2 = object2->_shapeID;
 			//using function pointers
-			int functionIndex = (_shapeID1*NUMBERSHAPE) + _shapeID2;
+			int functionIndex = _shapeID1*NUMBERSHAPE+_shapeID2;
 			fn collisionFunctionPtr = collisionFunctionArray[functionIndex];
 			if (collisionFunctionPtr != NULL)
 			{
-				collisionFunctionPtr(object1, object2);
+				(this->*collisionFunctionPtr)(object1, object2);
 			}
 		}
 	}
 }
 bool PhysicsScene::plane2Plane(PhysicsObject* object1, PhysicsObject* object2)
 {
-
+	return false;
 }
 bool PhysicsScene::plane2SPhere(PhysicsObject* object1, PhysicsObject* object2)
 {
 
+	return false;
+}
+bool PhysicsScene::plane2Box(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
 }
 bool PhysicsScene::sphere2Plane(PhysicsObject* object1, PhysicsObject* object2)
 {
-
+	return plane2SPhere(object2,object1);
 }
 bool PhysicsScene::sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2)
 {
+	//try to cast objects to sphere and sphere
+	Sphere *sphere1 = dynamic_cast<Sphere*>(object1);
+	Sphere *sphere2 = dynamic_cast<Sphere*>(object2);
+	//if we are successful then test for collision
+	if (sphere1 != NULL && sphere2 != NULL)
+	{
+		float distanceBetweenSpheres = glm::length(sphere1->position - sphere2->position);
+		float sphereCombinedRadii = sphere1->radius + sphere2->radius;
+		if (distanceBetweenSpheres <= sphereCombinedRadii)
+		{
+			glm::vec2 temp = sphere1->velocity;
+			sphere1->velocity = sphere2->velocity;;
+			sphere2->velocity = temp;
 
+			return true;
+		}
+
+	}
+	return false;
+}
+bool PhysicsScene::sphere2Box(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
+}
+bool PhysicsScene::box2Box(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
+}
+bool PhysicsScene::box2Plane(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
+}
+bool PhysicsScene::box2Sphere(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
 }

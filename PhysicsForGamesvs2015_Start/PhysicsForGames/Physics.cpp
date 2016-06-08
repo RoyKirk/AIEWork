@@ -169,13 +169,15 @@ void Physics::rocketEngine()
 
 void Physics::collisionDetectionTuteSetup()
 {
-	float muzzleSpeed = 25;
-	glm::vec3 intialPos = glm::vec3(-25, 0, 0);
-	float initialAngle = PI * 1 / 4;
-	newBall = new Sphere(intialPos, glm::vec3(cos(initialAngle)*muzzleSpeed, sin(initialAngle)*muzzleSpeed, 0), 20.0f, 1, glm::vec4(1, 0, 0, 1));
+	//float muzzleSpeed = 25;
+	//glm::vec3 intialPos = glm::vec3(-25, 0, 0);
+	//float initialAngle = PI * 1 / 4;
+	newBall = new Sphere(glm::vec3(-25, 0, 0), glm::vec3(10, 0, 0), 20.0f, 10, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newBall);
-	newPlane = new Plane(glm::vec2(1, 0), 0, glm::vec4(1, 0, 0, 1));
-	m_physics->addActor(newPlane);
+	newBall = new Sphere(glm::vec3(25, 0, 0), glm::vec3(-10, 0, 0), 20.0f,15, glm::vec4(1, 0, 0, 1));
+	m_physics->addActor(newBall);
+	//newPlane = new Plane(glm::vec2(1, 0), 0, glm::vec4(1, 0, 0, 1));
+	//m_physics->addActor(newPlane);
 }
 
 void Physics::collisionDetectionTute()
