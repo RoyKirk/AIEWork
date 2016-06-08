@@ -13,12 +13,6 @@
 #include "Sphere.h"
 
 
-#include <PxPhysicsAPI.h>
-#include <PxScene.h>
-#include <pvd/PxVisualDebugger.h>
-
-using namespace physx;
-
 
 class Physics : public Application
 {
@@ -38,12 +32,17 @@ public:
 
 	void rocketEngine();
 
+	void collisionDetectionTute();
+	void collisionDetectionTuteSetup();
+
 	void mousePush();
 
 	//void renderGizmos(PhysicsScene* physics_scene);
 
 	Sphere *newBall;
-	
+	Plane *newPlane;
+	int width = 0, height = 0;
+
 
 	PhysicsScene* m_physics;
 

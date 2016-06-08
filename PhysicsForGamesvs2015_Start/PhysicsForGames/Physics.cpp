@@ -31,9 +31,11 @@ bool Physics::startup()
 	m_physics->gravity = glm::vec3(0, -10, 0);
 	m_physics->timeStep = m_timeStep;
 	
+	glfwGetWindowSize(m_window, &width, &height);
+
 	//projectileMotionSetup();
 	//rocketEngineSetup();
-
+	collisionDetectionTuteSetup();
 
     return true;
 }
@@ -73,8 +75,7 @@ bool Physics::update()
     //    Gizmos::addLine(vec3(-10, -0.01, -10 + i), vec3(10, -0.01, -10 + i),
     //        i == 10 ? white : black);
     //}
-
-    m_camera.update(1.0f / 60.0f);
+	m_camera.update(1.0f / 60.0f);
 
 
     return true;
@@ -82,10 +83,12 @@ bool Physics::update()
 
 void Physics::draw()
 {
+	
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
-	Gizmos::draw(m_camera.proj, m_camera.view);
-	//Gizmos::draw(glm::ortho<float>(-100, 100,-100 / (16/9), 100 / (16 / 9),-1.0f, 1.0f));
+	//Gizmos::draw(m_camera.proj, m_camera.view);
+	Gizmos::draw(glm::ortho<float>(-100 , 100 , -100 / ((float)width / (float)height), 100 / ((float)width / (float)height), -1.0f, 1.0f));
+	Gizmos::draw2D(glm::ortho<float>(-100, 100, -100 / ((float)width / (float)height), 100 / ((float)width / (float)height), -1.0f, 1.0f));
     m_renderer->RenderAndClear(m_camera.view_proj);
 
     glfwSwapBuffers(m_window);
@@ -162,4 +165,20 @@ void Physics::rocketEngine()
 	{
 		m_physics->actors.erase(m_physics->actors.begin() + 1);
 	}
+}
+
+void Physics::collisionDetectionTuteSetup()
+{
+	float muzzleSpeed = 25;
+	glm::vec3 intialPos = glm::vec3(-25, 0, 0);
+	float initialAngle = PI * 1 / 4;
+	newBall = new Sphere(intialPos, glm::vec3(cos(initialAngle)*muzzleSpeed, sin(initialAngle)*muzzleSpeed, 0), 20.0f, 1, glm::vec4(1, 0, 0, 1));
+	m_physics->addActor(newBall);
+	newPlane = new Plane(glm::vec2(1, 0), 0, glm::vec4(1, 0, 0, 1));
+	m_physics->addActor(newPlane);
+}
+
+void Physics::collisionDetectionTute()
+{
+
 }
