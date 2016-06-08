@@ -22,9 +22,13 @@ public:
     virtual bool update();
     virtual void draw();
 
-	float m_timeStep = 0.01f;
+	float m_timeStep;
 
 	float const PI = 3.14159265359f;
+
+	float simSize;
+
+	float aspectRatio;
 
 	void projectileMotionSetup();
 
@@ -41,7 +45,6 @@ public:
 
 	Sphere *newBall;
 	Plane *newPlane;
-	int width = 0, height = 0;
 
 
 	PhysicsScene* m_physics;

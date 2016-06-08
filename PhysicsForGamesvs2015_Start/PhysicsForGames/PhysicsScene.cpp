@@ -85,7 +85,26 @@ bool PhysicsScene::plane2Plane(PhysicsObject* object1, PhysicsObject* object2)
 }
 bool PhysicsScene::plane2SPhere(PhysicsObject* object1, PhysicsObject* object2)
 {
-
+	//try to cast objects to sphere and sphere
+	Plane *plane = dynamic_cast<Plane*>(object1);
+	Sphere *sphere = dynamic_cast<Sphere*>(object2);
+	//if we are successful then test for collision
+	if (plane != NULL && sphere != NULL)
+	{
+		glm::vec2 collisionNormal = plane->normal;
+		float sphereToPlaneDsitance = glm::dot(sphere->position, plane->normal) - plane->distanceToOrigin;
+		if (sphereToPlaneDsitance < 0)
+		{
+			collisionNormal *= -1;
+			sphereToPlaneDsitance *= -1;
+		}
+		float intersection = sphere->radius - sphereToPlaneDsitance;
+		if (intersection > 0)
+		{
+			sphere->velocity *= -1;
+			return true;
+		}
+	}
 	return false;
 }
 bool PhysicsScene::plane2Box(PhysicsObject* object1, PhysicsObject* object2)
@@ -109,7 +128,7 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2)
 		if (distanceBetweenSpheres <= sphereCombinedRadii)
 		{
 			glm::vec2 temp = sphere1->velocity;
-			sphere1->velocity = sphere2->velocity;;
+			sphere1->velocity = sphere2->velocity;
 			sphere2->velocity = temp;
 
 			return true;
