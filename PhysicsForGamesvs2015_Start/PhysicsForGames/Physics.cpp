@@ -165,11 +165,11 @@ void Physics::collisionDetectionTuteSetup()
 	//float muzzleSpeed = 25;
 	//glm::vec3 intialPos = glm::vec3(-25, 0, 0);
 	//float initialAngle = PI * 1 / 4;
-	newBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 20.0f, 10, glm::vec4(1, 0, 0, 1));
+	newBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 2.0f, 1, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newBall);
-	newBall = new Sphere(glm::vec3(40, 0, 0), glm::vec3(0, 0, 0), 20.0f, 10, glm::vec4(1, 0, 0, 1));
+	newBall = new Sphere(glm::vec3(40, 0, 0), glm::vec3(0, 0, 0), 2.0f, 1, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newBall);
-	whiteBall = new Sphere(glm::vec3(20, 30, 0), glm::vec3(0, 0, 0), 20.0f, 10, glm::vec4(1, 1, 1, 1));
+	whiteBall = new Sphere(glm::vec3(20, 30, 0), glm::vec3(0, 0, 0), 2.0f, 1, glm::vec4(1, 1, 1, 1));
 	m_physics->addActor(whiteBall);
 	newPlane = new Plane(glm::vec2(1, 0), simSize, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newPlane);
@@ -215,14 +215,16 @@ void Physics::collisionDetectionTute()
 		direction = worldPos.xy - endPos.xy;
 		selectedPower = glm::length(direction);
 		direction = glm::normalize(direction);
-		if (selectedPower > 30.0f)
+		if (selectedPower > MAX_SHOT_POWER)
 		{
-			selectedPower = 30.0f;
+			selectedPower = MAX_SHOT_POWER;
 		}
-		Gizmos::add2DLine(whiteBall->position, worldPos.xy, glm::vec4(1, 1, 1, 1));
+		Gizmos::add2DLine(whiteBall->position, whiteBall->position+ direction.xy * selectedPower, glm::vec4(1, 1, 1, 1));
+		shot = true;
 	}
-	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE)
+	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE && shot)
 	{
 		whiteBall->velocity = -1.0f*direction.xy * selectedPower;
+		shot = false;
 	}
 }

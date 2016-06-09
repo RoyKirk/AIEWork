@@ -28,8 +28,12 @@ public:
 
 	float const simSize = 100.0f;
 
+
+	float const MAX_SHOT_POWER = 30.0f;
+
 	glm::vec2 direction;
 	float selectedPower;
+	bool shot;
 
 	float aspectRatio;
 
