@@ -16,6 +16,7 @@ PhysicsScene::PhysicsScene()
 
 PhysicsScene::~PhysicsScene()
 {
+	actors.clear();
 }
 
 void PhysicsScene::addActor(PhysicsObject* _actor)
@@ -101,7 +102,17 @@ bool PhysicsScene::plane2SPhere(PhysicsObject* object1, PhysicsObject* object2)
 		float intersection = sphere->radius - sphereToPlaneDsitance;
 		if (intersection > 0)
 		{
-			sphere->velocity *= -1;
+			//find the point where the collision occured (we need this for collision response later)
+			//the plane is always static so collision response only applies to the sphere
+			glm::vec2 planeNormal = plane->normal;
+			if(sphereToPlaneDsitance < 0)
+			{
+				planeNormal *= -1; //flip the normal if we are behind the plane
+			}
+			glm::vec2 forceVector = -1 * sphere->mass * planeNormal * (glm::dot(planeNormal, sphere->velocity));
+			sphere->applyForce(2.0f * forceVector);
+			sphere->position += collisionNormal * intersection * 0.5f;
+
 			return true;
 		}
 	}
@@ -123,14 +134,21 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2)
 	//if we are successful then test for collision
 	if (sphere1 != NULL && sphere2 != NULL)
 	{
-		float distanceBetweenSpheres = glm::length(sphere1->position - sphere2->position);
-		float sphereCombinedRadii = sphere1->radius + sphere2->radius;
-		if (distanceBetweenSpheres <= sphereCombinedRadii)
+		glm::vec2 delta = sphere2->position - sphere1->position;
+		float distance = glm::length(delta);
+		float intersection = sphere1->radius + sphere2->radius - distance;
+		if (intersection > 0)
 		{
-			glm::vec2 temp = sphere1->velocity;
-			sphere1->velocity = sphere2->velocity;
-			sphere2->velocity = temp;
-
+			glm::vec2 collisionNormal = glm::normalize(delta);
+			glm::vec2 relativeVelocity = sphere2->velocity - sphere1->velocity;
+			glm::vec2 collisionVector = collisionNormal * (glm::dot(relativeVelocity, collisionNormal));
+			glm::vec2 forceVector = collisionVector * 1.0f / (1 / sphere1->mass + 1 / sphere2->mass);
+			//use newtons third law to apply colision forces to colliding bodies.
+			sphere1->applyForceToActor(sphere2, 2.0f * forceVector);
+			//move our spheres out of collision
+			glm::vec2 separationVector = collisionNormal * intersection *0.5f;
+			sphere1->position -= separationVector;
+			sphere2->position += separationVector;
 			return true;
 		}
 

@@ -22,7 +22,7 @@ public:
     virtual bool update();
     virtual void draw();
 
-	float m_timeStep;
+	float const m_timeStep = 0.01f;
 
 	float const PI = 3.14159265359f;
 
@@ -38,10 +38,6 @@ public:
 
 	void collisionDetectionTute();
 	void collisionDetectionTuteSetup();
-
-	void mousePush();
-
-	//void renderGizmos(PhysicsScene* physics_scene);
 
 	Sphere *newBall;
 	Plane *newPlane;

@@ -31,7 +31,6 @@ bool Physics::startup()
 	m_physics->gravity = glm::vec3(0, -10, 0);
 	m_physics->timeStep = m_timeStep;
 	
-	m_timeStep = 0.01f;
 	simSize = 100.0f;
 
 	int width = 0, height = 0;
@@ -48,6 +47,9 @@ bool Physics::startup()
 void Physics::shutdown()
 {
 	delete m_renderer;
+	delete m_physics;
+	delete newBall;
+	delete newPlane;
     Gizmos::destroy();
     Application::shutdown();
 }
@@ -70,16 +72,6 @@ bool Physics::update()
 	
 	//rocketEngine();
 
-    //vec4 white(1);
-    //vec4 black(0, 0, 0, 1);
-
-    //for (int i = 0; i <= 20; ++i)
-    //{
-    //    Gizmos::addLine(vec3(-10 + i, -0.01, -10), vec3(-10 + i, -0.01, 10),
-    //        i == 10 ? white : black);
-    //    Gizmos::addLine(vec3(-10, -0.01, -10 + i), vec3(10, -0.01, -10 + i),
-    //        i == 10 ? white : black);
-    //}
 	m_camera.update(1.0f / 60.0f);
 
 
@@ -130,10 +122,9 @@ void Physics::rocketEngine()
 		float massreduction = 10;
 		if (newBall->mass > massreduction)
 		{
-			Sphere *newBall2;
-			newBall2 = new Sphere(glm::vec3(newBall->position.x, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
-			m_physics->addActor(newBall2);
-			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
+			newBall = new Sphere(glm::vec3(newBall->position.x, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
+			m_physics->addActor(newBall);
+			newBall->applyForceToActor(newBall, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(0, 100));
 			//newBall->mass -= massreduction;
 		}
@@ -144,10 +135,9 @@ void Physics::rocketEngine()
 		float massreduction = 10;
 		if (newBall->mass > massreduction)
 		{
-			Sphere *newBall2;
-			newBall2 = new Sphere(glm::vec3(newBall->position.x + 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
-			m_physics->addActor(newBall2);
-			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
+			newBall = new Sphere(glm::vec3(newBall->position.x + 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
+			m_physics->addActor(newBall);
+			newBall->applyForceToActor(newBall, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(-50, 0));
 			//newBall->mass -= massreduction;
 		}
@@ -157,10 +147,9 @@ void Physics::rocketEngine()
 		float massreduction = 10;
 		if (newBall->mass > massreduction)
 		{
-			Sphere *newBall2;
-			newBall2 = new Sphere(glm::vec3(newBall->position.x - 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
-			m_physics->addActor(newBall2);
-			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
+			newBall = new Sphere(glm::vec3(newBall->position.x - 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1));
+			m_physics->addActor(newBall);
+			newBall->applyForceToActor(newBall, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(50, 0));
 			//newBall->mass -= massreduction;
 		}
@@ -193,5 +182,30 @@ void Physics::collisionDetectionTuteSetup()
 
 void Physics::collisionDetectionTute()
 {
-
+	/*if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+	{
+		int width = 0, height = 0;
+		glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+		float aspectRatio = width / (float)height;
+		double mouseX;
+		double mouseY;
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+		glm::vec3 screenCoord(mouseX, mouseY, 0);
+		float fSize = 50;
+		float farPlane = 200;
+		glm::vec4 viewPort = glm::vec4(0.f, 0.f, width, height);
+		glm::vec3 worldPos = glm::unProject(screenCoord, glm::mat4(), projectionMatrix, viewPort);
+		worldPos.y *= -1;
+		worldPos.z = 1;
+		glm::vec3 endPos = glm::vec3(whiteBall->position, 0);
+		direction = worldPos - endPos;
+		selectedPower = glm::length(direction);
+		direction = glm::normalize(direction);
+		if (selectedPower>30)
+		{
+			selectedPower = 30;
+		}
+		glm::vec3 finalEnd = endPos + direction* selectedPower;
+		Gizmos::add2DLine(whiteBall->position, worldPos.xy, glm::vec4(1, 1, 1, 1));
+	}*/
 }
