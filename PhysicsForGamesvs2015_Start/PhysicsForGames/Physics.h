@@ -26,7 +26,10 @@ public:
 
 	float const PI = 3.14159265359f;
 
-	float simSize;
+	float const simSize = 100.0f;
+
+	glm::vec2 direction;
+	float selectedPower;
 
 	float aspectRatio;
 
@@ -40,6 +43,7 @@ public:
 	void collisionDetectionTuteSetup();
 
 	Sphere *newBall;
+	Sphere *whiteBall;
 	Plane *newPlane;
 
 

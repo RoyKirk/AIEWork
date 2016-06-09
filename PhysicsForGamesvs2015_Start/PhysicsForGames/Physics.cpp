@@ -28,11 +28,9 @@ bool Physics::startup()
 	m_renderer = new Renderer();
 
 	m_physics = new PhysicsScene();
-	m_physics->gravity = glm::vec3(0, -10, 0);
+	m_physics->gravity = glm::vec3(0, 0, 0);
 	m_physics->timeStep = m_timeStep;
 	
-	simSize = 100.0f;
-
 	int width = 0, height = 0;
 	glfwGetWindowSize(m_window, &width, &height);
 	aspectRatio = (float)width / (float)height;
@@ -71,6 +69,7 @@ bool Physics::update()
     glfwSetTime(0.0);
 	
 	//rocketEngine();
+	collisionDetectionTute();
 
 	m_camera.update(1.0f / 60.0f);
 
@@ -166,10 +165,12 @@ void Physics::collisionDetectionTuteSetup()
 	//float muzzleSpeed = 25;
 	//glm::vec3 intialPos = glm::vec3(-25, 0, 0);
 	//float initialAngle = PI * 1 / 4;
-	newBall = new Sphere(glm::vec3(-25, 0, 0), glm::vec3(30, 0, 0), 20.0f, 10, glm::vec4(1, 0, 0, 1));
+	newBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 20.0f, 10, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newBall);
-	newBall = new Sphere(glm::vec3(-50, 30, 0), glm::vec3(30, 0, 0), 20.0f,15, glm::vec4(1, 0, 0, 1));
+	newBall = new Sphere(glm::vec3(40, 0, 0), glm::vec3(0, 0, 0), 20.0f, 10, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newBall);
+	whiteBall = new Sphere(glm::vec3(20, 30, 0), glm::vec3(0, 0, 0), 20.0f, 10, glm::vec4(1, 1, 1, 1));
+	m_physics->addActor(whiteBall);
 	newPlane = new Plane(glm::vec2(1, 0), simSize, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newPlane);
 	newPlane = new Plane(glm::vec2(-1, 0), simSize, glm::vec4(1, 0, 0, 1));
@@ -182,30 +183,46 @@ void Physics::collisionDetectionTuteSetup()
 
 void Physics::collisionDetectionTute()
 {
-	/*if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
 	{
 		int width = 0, height = 0;
 		glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-		float aspectRatio = width / (float)height;
+		float aspectRatio = (float)width / (float)height;
 		double mouseX;
 		double mouseY;
-		glfwGetCursorPos(window, &mouseX, &mouseY);
-		glm::vec3 screenCoord(mouseX, mouseY, 0);
-		float fSize = 50;
-		float farPlane = 200;
-		glm::vec4 viewPort = glm::vec4(0.f, 0.f, width, height);
-		glm::vec3 worldPos = glm::unProject(screenCoord, glm::mat4(), projectionMatrix, viewPort);
-		worldPos.y *= -1;
-		worldPos.z = 1;
+		glfwGetCursorPos(m_window, &mouseX, &mouseY);
+		float mouseZ;
+		glReadPixels(mouseX, mouseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouseZ);
+		glm::vec3 screenCoord(mouseX, mouseY, mouseZ);
+
+		glm::mat4 projectionM = m_camera.view * m_camera.proj;
+		glm::mat4 invPM = glm::inverse(projectionM);
+
+		glm::vec4 viewport;
+		float winZ = 1.0f;
+
+		viewport.x = (2.0f*((float)(mouseX - 0) / ((float)width - 0))) - 1.0f;
+		viewport.y = 1.0f - (2.0f*((float)(mouseY - 0) / ((float)height - 0)));
+		viewport.z = 2.0f * winZ - 1.0f;
+		viewport.w = 1.0f;
+
+		glm::vec4 worldPos = viewport * invPM;
+
+		worldPos.x *= simSize;
+		worldPos.y *= simSize;
+
 		glm::vec3 endPos = glm::vec3(whiteBall->position, 0);
-		direction = worldPos - endPos;
+		direction = worldPos.xy - endPos.xy;
 		selectedPower = glm::length(direction);
 		direction = glm::normalize(direction);
-		if (selectedPower>30)
+		if (selectedPower > 30.0f)
 		{
-			selectedPower = 30;
+			selectedPower = 30.0f;
 		}
-		glm::vec3 finalEnd = endPos + direction* selectedPower;
 		Gizmos::add2DLine(whiteBall->position, worldPos.xy, glm::vec4(1, 1, 1, 1));
-	}*/
+	}
+	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE)
+	{
+		whiteBall->velocity = -1.0f*direction.xy * selectedPower;
+	}
 }
