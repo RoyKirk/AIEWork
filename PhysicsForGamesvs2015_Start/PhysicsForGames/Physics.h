@@ -51,6 +51,7 @@ public:
 	Sphere *newBall;
 	Sphere *whiteBall;
 	Plane *newPlane;
+	Box *newBox;
 
 
 	PhysicsScene* m_physics;

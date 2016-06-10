@@ -31,7 +31,8 @@ bool Physics::startup()
 	m_physics->gravity = glm::vec3(0, 0, 0);
 	m_physics->timeStep = m_timeStep;
 
-	timer = 0.0f;
+	timer = timerLimit;
+	shot = false;
 	
 	int width = 0, height = 0;
 	glfwGetWindowSize(m_window, &width, &height);
@@ -191,10 +192,16 @@ void Physics::collisionDetectionTuteSetup()
 	m_physics->addActor(newPlane);
 	newPlane = new Plane(glm::vec2(0, -1), simSize/aspectRatio, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newPlane);
+	newBox = new Box(glm::vec3(0, 40, 0), glm::vec3(0, 0, 0), 10.0f, 10, 10, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f);
+	m_physics->addActor(newBox);
 }
 
 void Physics::collisionDetectionTute()
 {
+	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		newBox->applyForce(glm::vec2(100.0f, 100.0f));
+	}
 	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS && timer > timerLimit)
 	{
 		int width = 0, height = 0;

@@ -26,7 +26,7 @@ public:
 	void addGizmos();
 	void checkForCollision();
 	bool plane2Plane(PhysicsObject* object1, PhysicsObject* object2);
-	bool plane2SPhere(PhysicsObject* object1, PhysicsObject* object2);
+	bool plane2Sphere(PhysicsObject* object1, PhysicsObject* object2);
 	bool plane2Box(PhysicsObject* object1, PhysicsObject* object2);
 	bool sphere2Plane(PhysicsObject* object1, PhysicsObject* object2);
 	bool sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2);

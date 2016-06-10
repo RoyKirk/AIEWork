@@ -4,7 +4,7 @@ typedef bool(PhysicsScene::*fn)(PhysicsObject*, PhysicsObject*);
 //function pointer array for doing our collisions
 static fn collisionFunctionArray[] = 
 { 
-	&PhysicsScene::plane2Plane,		&PhysicsScene::plane2SPhere,	&PhysicsScene::plane2Box,
+	&PhysicsScene::plane2Plane,		&PhysicsScene::plane2Sphere,	&PhysicsScene::plane2Box,
 	&PhysicsScene::sphere2Plane,	&PhysicsScene::sphere2Sphere,	&PhysicsScene::sphere2Box,
 	&PhysicsScene::box2Plane,		&PhysicsScene::box2Sphere,		&PhysicsScene::box2Box,
 };
@@ -84,7 +84,7 @@ bool PhysicsScene::plane2Plane(PhysicsObject* object1, PhysicsObject* object2)
 {
 	return false;
 }
-bool PhysicsScene::plane2SPhere(PhysicsObject* object1, PhysicsObject* object2)
+bool PhysicsScene::plane2Sphere(PhysicsObject* object1, PhysicsObject* object2)
 {
 	//try to cast objects to sphere and sphere
 	Plane *plane = dynamic_cast<Plane*>(object1);
@@ -118,13 +118,73 @@ bool PhysicsScene::plane2SPhere(PhysicsObject* object1, PhysicsObject* object2)
 	}
 	return false;
 }
+
 bool PhysicsScene::plane2Box(PhysicsObject* object1, PhysicsObject* object2)
 {
-	return false;
+	//try to cast objects to sphere and sphere
+	Plane *plane = dynamic_cast<Plane*>(object1);
+	Box *box = dynamic_cast<Box*>(object2);
+	//if we are successful then test for collision
+	if (plane != NULL && box != NULL)
+	{
+		glm::vec2 vec1, vec2;
+
+		if (plane->normal.x >= 0)
+		{
+			vec1.x = box->minCorner.x;
+			vec2.x = box->maxCorner.x;
+		}
+		else
+		{
+			vec1.x = box->maxCorner.x;
+			vec2.x = box->minCorner.x;
+		}
+		if (plane->normal.y >= 0)
+		{
+			vec1.y = box->minCorner.y;
+			vec2.y = box->maxCorner.y;
+		}
+		else
+		{
+			vec1.y = box->maxCorner.y;
+			vec2.y = box->minCorner.y;
+		}
+
+		float posSide = plane->distanceToOrigin - (plane->normal.x * vec2.x) - (plane->normal.y * vec2.y);
+		if (posSide > 0)
+		{
+			//box is completely on positive side of plane
+			return false;
+		}
+		
+		float negSide = plane->distanceToOrigin - (plane->normal.x * vec1.x) - (plane->normal.y * vec1.y);
+		if (negSide < 0)
+		{
+			//box is completely on negative side of plane
+			return false;
+		}
+		
+		
+		box->position = glm::vec2(0);
+
+		//box->applyForce(glm::vec2(10));
+		////find the point where the collision occured (we need this for collision response later)
+		////the plane is always static so collision response only applies to the box
+		//glm::vec2 planeNormal = plane->normal;
+		//if (boxToPlaneDsitance < 0)
+		//{
+		//	planeNormal *= -1; //flip the normal if we are behind the plane
+		//}
+		//glm::vec2 forceVector = -1 * box->mass * planeNormal * (glm::dot(planeNormal, box->velocity));
+		//box->applyForce(2.0f * forceVector);
+		//box->position += collisionNormal * intersection * 0.5f;
+
+		return false;
+	}
 }
 bool PhysicsScene::sphere2Plane(PhysicsObject* object1, PhysicsObject* object2)
 {
-	return plane2SPhere(object2,object1);
+	return plane2Sphere(object2,object1);
 }
 bool PhysicsScene::sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2)
 {
@@ -156,18 +216,39 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2)
 	return false;
 }
 bool PhysicsScene::sphere2Box(PhysicsObject* object1, PhysicsObject* object2)
-{
+{	
+	//try to cast objects to sphere and sphere
+	Sphere *sphere = dynamic_cast<Sphere*>(object1);
+	Box *box = dynamic_cast<Box*>(object2);
+	//if we are successful then test for collision
+	if (sphere != NULL && box != NULL)
+	{
+
+	}
 	return false;
 }
 bool PhysicsScene::box2Box(PhysicsObject* object1, PhysicsObject* object2)
 {
+	//try to cast objects to sphere and sphere
+	Box *box1 = dynamic_cast<Box*>(object1);
+	Box *box2 = dynamic_cast<Box*>(object2);
+	//if we are successful then test for collision
+	if (box1 != NULL && box2 != NULL)
+	{
+		//return(tBox1.m_vecMax.x > tBox2.m_vecMin.x &&
+		//	tBox1.m_vecMin.x < tBox2.m_vecMax.x &&
+		//	tBox1.m_vecMax.y > tBox2.m_vecMin.y &&
+		//	tBox1.m_vecMin.y < tBox2.m_vecMax.y &&
+		//	tBox1.m_vecMax.z > tBox2.m_vecMin.z &&
+		//	tBox1.m_vecMin.z < tBox2.m_vecMax.z);
+	}
 	return false;
 }
 bool PhysicsScene::box2Plane(PhysicsObject* object1, PhysicsObject* object2)
 {
-	return false;
+	return plane2Box(object2, object1);
 }
 bool PhysicsScene::box2Sphere(PhysicsObject* object1, PhysicsObject* object2)
 {
-	return false;
+	return sphere2Box(object2, object1);
 }
