@@ -28,8 +28,10 @@ public:
 
 	float const simSize = 100.0f;
 
+	float timer;
+	float const timerLimit = 1.0f;
 
-	float const MAX_SHOT_POWER = 50.0f;
+	float const MAX_SHOT_POWER = 20.0f;
 
 	glm::vec2 direction;
 	float selectedPower;

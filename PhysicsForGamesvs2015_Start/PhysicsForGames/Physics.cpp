@@ -30,6 +30,8 @@ bool Physics::startup()
 	m_physics = new PhysicsScene();
 	m_physics->gravity = glm::vec3(0, 0, 0);
 	m_physics->timeStep = m_timeStep;
+
+	timer = 0.0f;
 	
 	int width = 0, height = 0;
 	glfwGetWindowSize(m_window, &width, &height);
@@ -68,6 +70,8 @@ bool Physics::update()
     float dt = (float)glfwGetTime();
     m_delta_time = dt;
     glfwSetTime(0.0);
+
+	timer += m_delta_time;
 	
 	//rocketEngine();
 	collisionDetectionTute();
@@ -105,13 +109,13 @@ void Physics::projectileMotionSetup()
 		Gizmos::addSphereFilled(glm::vec3(tempPos,0), 1, 6, 6, glm::vec4(1, 0, 1, 1));
 	}
 
-	newBall = new Sphere(intialPos, glm::vec3(cos(initialAngle)*muzzleSpeed, sin(initialAngle)*muzzleSpeed,0) , 20.0f, 1, glm::vec4(1, 0, 0, 1),0.99f);
+	newBall = new Sphere(intialPos, glm::vec3(cos(initialAngle)*muzzleSpeed, sin(initialAngle)*muzzleSpeed,0) , 20.0f, 1, glm::vec4(1, 0, 0, 1),0.1f);
 	m_physics->addActor(newBall);
 }
 
 void Physics::rocketEngineSetup()
 {
-	newBall = new Sphere(glm::vec3(0, 1, 0), glm::vec3(0, 0, 0), 200.0f, 1, glm::vec4(1, 0, 0, 1), 0.99f);
+	newBall = new Sphere(glm::vec3(0, 1, 0), glm::vec3(0, 0, 0), 200.0f, 1, glm::vec4(1, 0, 0, 1), 0.1f);
 	m_physics->addActor(newBall);
 }
 
@@ -123,7 +127,7 @@ void Physics::rocketEngine()
  		if (newBall->mass > massreduction)
 		{
 			Sphere* newBall2;
-			newBall2 = new Sphere(glm::vec3(newBall->position.x, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.99f);
+			newBall2 = new Sphere(glm::vec3(newBall->position.x, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.1f);
 			m_physics->addActor(newBall2);
 			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(0, 100));
@@ -137,7 +141,7 @@ void Physics::rocketEngine()
 		if (newBall->mass > massreduction)
 		{
 			Sphere* newBall2;
-			newBall2 = new Sphere(glm::vec3(newBall->position.x + 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.99f);
+			newBall2 = new Sphere(glm::vec3(newBall->position.x + 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.1f);
 			m_physics->addActor(newBall2);
 			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(-50, 0));
@@ -150,7 +154,7 @@ void Physics::rocketEngine()
 		if (newBall->mass > massreduction)
 		{
 			Sphere* newBall2;
-			newBall2 = new Sphere(glm::vec3(newBall->position.x - 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.99f);
+			newBall2 = new Sphere(glm::vec3(newBall->position.x - 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.1f);
 			m_physics->addActor(newBall2);
 			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(50, 0));
@@ -166,14 +170,18 @@ void Physics::rocketEngine()
 
 void Physics::collisionDetectionTuteSetup()
 {
-	//float muzzleSpeed = 25;
-	//glm::vec3 intialPos = glm::vec3(-25, 0, 0);
-	//float initialAngle = PI * 1 / 4;
-	newBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 2.0f, 1, glm::vec4(1, 0, 0, 1), 0.99f);
-	m_physics->addActor(newBall);
-	newBall = new Sphere(glm::vec3(40, 0, 0), glm::vec3(0, 0, 0), 2.0f, 1, glm::vec4(1, 0, 0, 1), 0.99f);
-	m_physics->addActor(newBall);
-	whiteBall = new Sphere(glm::vec3(20, 30, 0), glm::vec3(0, 0, 0), 2.0f, 1, glm::vec4(1, 1, 1, 1), 0.99f);
+	for (int i = 0; i < 5; i++)
+	{ 
+		for (int j = -5; j < 6; j++)
+		{
+			if (i == j || i == -j)
+			{
+				newBall = new Sphere(glm::vec3(i * 10, j * 5, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 0, 0, 1), 0.1f);
+				m_physics->addActor(newBall);
+			}
+		}
+	}
+	whiteBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 1, 1, 1), 0.1f);
 	m_physics->addActor(whiteBall);
 	newPlane = new Plane(glm::vec2(1, 0), simSize, glm::vec4(1, 0, 0, 1));
 	m_physics->addActor(newPlane);
@@ -187,7 +195,7 @@ void Physics::collisionDetectionTuteSetup()
 
 void Physics::collisionDetectionTute()
 {
-	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS && timer > timerLimit)
 	{
 		int width = 0, height = 0;
 		glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
@@ -226,9 +234,10 @@ void Physics::collisionDetectionTute()
 		Gizmos::add2DLine(whiteBall->position, whiteBall->position+ direction.xy * selectedPower, glm::vec4(1, 1, 1, 1));
 		shot = true;
 	}
-	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE && shot)
+	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE && shot && timer > timerLimit)
 	{
-		whiteBall->velocity += -1.0f*direction.xy * selectedPower;
+		whiteBall->velocity += -1.0f*direction.xy * selectedPower * selectedPower;
 		shot = false;
+		timer = 0.0f;
 	}
 }

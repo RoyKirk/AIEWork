@@ -23,8 +23,16 @@ void RigidBody::update(glm::vec3 gravity, float timeStep)
 	applyForce(gravity.xy*mass*timeStep);
 	//velocity += gravity.xy*timeStep;
 	position += velocity*timeStep;
-	//applyForce(-velocity*linearDrag*mass*timeStep);
-	velocity *= linearDrag;
+	if (glm::length(velocity)>0)
+	{
+		//glm::vec2 dragVelocity = velocity;
+		applyForce(-velocity*linearDrag);
+		//velocity *= linearDrag;
+	}
+	if (glm::length(velocity) < 1)
+	{
+		velocity = glm::vec2(0);
+	}
 }
 void RigidBody::debug()
 {
