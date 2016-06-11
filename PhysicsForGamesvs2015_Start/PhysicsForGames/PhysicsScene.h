@@ -32,6 +32,7 @@ public:
 	bool sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2);
 	bool sphere2Box(PhysicsObject* object1, PhysicsObject* object2);
 	bool box2Box(PhysicsObject* object1, PhysicsObject* object2);
+	int box2PlaneHelper(glm::vec2* verts, glm::vec2 normal, float distance);
 	bool box2Plane(PhysicsObject* object1, PhysicsObject* object2);
 	bool box2Sphere(PhysicsObject* object1, PhysicsObject* object2);
 };

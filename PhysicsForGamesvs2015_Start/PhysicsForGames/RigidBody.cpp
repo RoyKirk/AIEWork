@@ -9,13 +9,14 @@ RigidBody::~RigidBody()
 {
 }
 
-RigidBody::RigidBody(glm::vec3 _position, glm::vec3 _velocity, float _rotation, float _mass, float _linearDrag)
+RigidBody::RigidBody(glm::vec3 _position, glm::vec3 _velocity, float _rotation, float _mass, float _linearDrag, bool _dynamic)
 {
 	position = _position.xy;
 	velocity = _velocity.xy;
 	mass = _mass;
 	rotation2D = _rotation;
 	linearDrag = _linearDrag;
+	dynamic = _dynamic;
 }
 
 void RigidBody::update(glm::vec3 gravity, float timeStep)

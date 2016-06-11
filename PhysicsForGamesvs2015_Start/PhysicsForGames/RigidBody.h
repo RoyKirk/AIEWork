@@ -9,13 +9,14 @@ class RigidBody :
 public:
 	RigidBody();
 	~RigidBody();
-	RigidBody(glm::vec3 _position, glm::vec3 _velocity, float _rotation, float _mass, float _linearDrag);
+	RigidBody(glm::vec3 _position, glm::vec3 _velocity, float _rotation, float _mass, float _linearDrag, bool _dynamic);
 	glm::vec2 position;
 	glm::vec2 velocity;
 	glm::vec2 force;
 	float linearDrag;
 	float mass;
 	float rotation2D; //2D so we only need a single float to represent our rotation
+	bool dynamic;
 	virtual void update(glm::vec3 gravity, float timeStep);
 	virtual void debug();
 	void applyForce(glm::vec2 force);

@@ -184,24 +184,32 @@ void Physics::collisionDetectionTuteSetup()
 	}
 	whiteBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 1, 1, 1), 0.1f);
 	m_physics->addActor(whiteBall);
-	newPlane = new Plane(glm::vec2(1, 0), simSize, glm::vec4(1, 0, 0, 1));
-	m_physics->addActor(newPlane);
-	newPlane = new Plane(glm::vec2(-1, 0), simSize, glm::vec4(1, 0, 0, 1));
-	m_physics->addActor(newPlane);
-	newPlane = new Plane(glm::vec2(0, 1), simSize/aspectRatio, glm::vec4(1, 0, 0, 1));
-	m_physics->addActor(newPlane);
-	newPlane = new Plane(glm::vec2(0, -1), simSize/aspectRatio, glm::vec4(1, 0, 0, 1));
-	m_physics->addActor(newPlane);
-	newBox = new Box(glm::vec3(0, 40, 0), glm::vec3(0, 0, 0), 10.0f, 10, 10, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f);
+	
+	//newPlane = new Plane(glm::vec2(1, 0), simSize, glm::vec4(1, 0, 0, 1));
+	//m_physics->addActor(newPlane);
+	//newPlane = new Plane(glm::vec2(-1, 0), simSize, glm::vec4(1, 0, 0, 1));
+	//m_physics->addActor(newPlane);
+	//newPlane = new Plane(glm::vec2(0, 1), simSize/aspectRatio, glm::vec4(1, 0, 0, 1));
+	//m_physics->addActor(newPlane);
+	//newPlane = new Plane(glm::vec2(0, -1), simSize/aspectRatio, glm::vec4(1, 0, 0, 1));
+	//m_physics->addActor(newPlane);
+
+	newBox = new Box(glm::vec3(simSize/2-2.5, simSize / aspectRatio-5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize-20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f,false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(-simSize / 2 + 2.5, simSize / aspectRatio - 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize - 20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(simSize / 2 - 2.5, -simSize / aspectRatio + 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize - 20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(-simSize / 2 + 2.5, -simSize / aspectRatio +5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize - 20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(simSize - 5.0f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f,  10.0f, 2*simSize / aspectRatio - 40.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(-simSize + 5.0f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f,  10.0f, 2*simSize / aspectRatio - 40.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
 	m_physics->addActor(newBox);
 }
 
 void Physics::collisionDetectionTute()
 {
-	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
-	{
-		newBox->applyForce(glm::vec2(100.0f, 100.0f));
-	}
 	if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS && timer > timerLimit)
 	{
 		int width = 0, height = 0;
