@@ -171,51 +171,71 @@ void Physics::rocketEngine()
 
 void Physics::collisionDetectionTuteSetup()
 {
-	//for (int i = 0; i < 5; i++)
-	//{ 
-	//	for (int j = -5; j < 6; j++)
-	//	{
-	//		if (i == j || i == -j)
-	//		{
-	//			newBall = new Sphere(glm::vec3(i * 10, j * 5, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 0, 0, 1), 0.1f, true);
-	//			m_physics->addActor(newBall);
-	//		}
-	//	}
-	//}
-
-	newBall1 = new Sphere(glm::vec3(10, 10, 0), glm::vec3(0, 0, 0), 1000000.0f, 5, glm::vec4(1, 0, 0, 1), 0.1f, false);
+	for (int i = 0; i < 5; i++)
+	{ 
+		for (int j = -5; j < 6; j++)
+		{
+			if (i == j || i == -j)
+			{
+				newBall = new Sphere(glm::vec3(i * 10, j * 5, 0), glm::vec3(0, 0, 0), 10.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
+				m_physics->addActor(newBall);
+			}
+		}
+	}
+	newBall1 = new Sphere(glm::vec3(0, 40, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
 	m_physics->addActor(newBall1);
 
-	newBall2 = new Sphere(glm::vec3(10, -10, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 0, 0, 1), 0.1f, true);
-	m_physics->addActor(newBall2);
+	for (int i = 1; i <10; i++)
+	{
+		newBall2 = new Sphere(glm::vec3(i*6.0f, 40, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
+		m_physics->addActor(newBall2);
+		newSpring = new SpringJoint(newBall1, newBall2, 1.0f, 1.0f);
+		m_physics->addActor(newSpring);
+		newBall1 = newBall2;
+	}
+	//newBall2 = new Sphere(glm::vec3(10*6.0f, 40, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, false);
+	//m_physics->addActor(newBall2);
+	//newSpring = new SpringJoint(newBall1, newBall2, 1.0f, 1.0f);
+	//m_physics->addActor(newSpring);
+	
 
-	newSpring = new SpringJoint(newBall1, newBall2, 10.0f, 0.8f);
-	m_physics->addActor(newSpring);
-
-	whiteBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 1, 1, 1), 0.1f, true);
+	whiteBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 10.0f, 2.0f, glm::vec4(1, 1, 1, 1), 0.1f, true);
 	m_physics->addActor(whiteBall);
 	
-	//newPlane = new Plane(glm::vec2(1, 0), simSize, glm::vec4(1, 0, 0, 1));
-	//m_physics->addActor(newPlane);
-	//newPlane = new Plane(glm::vec2(-1, 0), simSize, glm::vec4(1, 0, 0, 1));
-	//m_physics->addActor(newPlane);
-	//newPlane = new Plane(glm::vec2(0, 1), simSize/aspectRatio, glm::vec4(1, 0, 0, 1));
-	//m_physics->addActor(newPlane);
-	//newPlane = new Plane(glm::vec2(0, -1), simSize/aspectRatio, glm::vec4(1, 0, 0, 1));
-	//m_physics->addActor(newPlane);
+	newBox = new Box(glm::vec3(50/2-2.5, 50 / aspectRatio-5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 50-10.0f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f,false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(-50 / 2 + 2.5, 50 / aspectRatio - 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 50 - 10.0f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(50 / 2 - 2.5, -50 / aspectRatio + 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 50 - 10.0f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(-50 / 2 + 2.5, -50 / aspectRatio +5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 50 - 10.0f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(50 - 2.5f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f, 2.0f, 2*50 / aspectRatio - 20.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	m_physics->addActor(newBox);
+	newBox = new Box(glm::vec3(-50 + 2.5f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f, 2.0f, 2*50 / aspectRatio - 20.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	m_physics->addActor(newBox);
+	
+	newPlane = new Plane(glm::vec2(1, 0), simSize, glm::vec4(1, 0, 0, 1));
+	m_physics->addActor(newPlane);
+	newPlane = new Plane(glm::vec2(-1, 0), simSize, glm::vec4(1, 0, 0, 1));
+	m_physics->addActor(newPlane);
+	newPlane = new Plane(glm::vec2(0, 1), simSize/aspectRatio, glm::vec4(1, 0, 0, 1));
+	m_physics->addActor(newPlane);
+	newPlane = new Plane(glm::vec2(0, -1), simSize/aspectRatio, glm::vec4(1, 0, 0, 1));
+	m_physics->addActor(newPlane);
 
-	newBox = new Box(glm::vec3(simSize/2-2.5, simSize / aspectRatio-5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize-20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f,false);
-	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(-simSize / 2 + 2.5, simSize / aspectRatio - 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize - 20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
-	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(simSize / 2 - 2.5, -simSize / aspectRatio + 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize - 20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
-	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(-simSize / 2 + 2.5, -simSize / aspectRatio +5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize - 20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
-	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(simSize - 5.0f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f,  10.0f, 2*simSize / aspectRatio - 40.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
-	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(-simSize + 5.0f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f,  10.0f, 2*simSize / aspectRatio - 40.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
-	m_physics->addActor(newBox);
+	//newBox = new Box(glm::vec3(simSize/2-2.5, simSize / aspectRatio-5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize-20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f,false);
+	//m_physics->addActor(newBox);
+	//newBox = new Box(glm::vec3(-simSize / 2 + 2.5, simSize / aspectRatio - 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize - 20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	//m_physics->addActor(newBox);
+	//newBox = new Box(glm::vec3(simSize / 2 - 2.5, -simSize / aspectRatio + 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize - 20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	//m_physics->addActor(newBox);
+	//newBox = new Box(glm::vec3(-simSize / 2 + 2.5, -simSize / aspectRatio +5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, simSize - 20.0f, 10.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	//m_physics->addActor(newBox);
+	//newBox = new Box(glm::vec3(simSize - 5.0f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f,  10.0f, 2*simSize / aspectRatio - 40.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	//m_physics->addActor(newBox);
+	//newBox = new Box(glm::vec3(-simSize + 5.0f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f,  10.0f, 2*simSize / aspectRatio - 40.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	//m_physics->addActor(newBox);
 }
 
 void Physics::collisionDetectionTute()
