@@ -18,7 +18,7 @@ public:
 	glm::vec3 gravity;
 	float timeStep;
 	std::vector<PhysicsObject*> actors;
-	const unsigned int NUMBERSHAPE = 3;//last object in shapetype enumeration
+	const unsigned int NUMBERSHAPE = 4;//last object in shapetype enumeration
 	void addActor(PhysicsObject* _actor);
 	void removeActor(PhysicsObject* _actor);
 	void update();
@@ -28,13 +28,19 @@ public:
 	bool plane2Plane(PhysicsObject* object1, PhysicsObject* object2);
 	bool plane2Sphere(PhysicsObject* object1, PhysicsObject* object2);
 	bool plane2Box(PhysicsObject* object1, PhysicsObject* object2);
+	bool plane2Joint(PhysicsObject* object1, PhysicsObject* object2);
 	bool sphere2Plane(PhysicsObject* object1, PhysicsObject* object2);
 	bool sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2);
 	bool sphere2Box(PhysicsObject* object1, PhysicsObject* object2);
+	bool sphere2Joint(PhysicsObject* object1, PhysicsObject* object2);
 	bool box2Box(PhysicsObject* object1, PhysicsObject* object2);
-	int box2PlaneHelper(glm::vec2* verts, glm::vec2 normal, float distance);
 	bool box2Plane(PhysicsObject* object1, PhysicsObject* object2);
 	bool box2Sphere(PhysicsObject* object1, PhysicsObject* object2);
+	bool box2Joint(PhysicsObject* object1, PhysicsObject* object2);
+	bool joint2Plane(PhysicsObject* object1, PhysicsObject* object2);
+	bool joint2Sphere(PhysicsObject* object1, PhysicsObject* object2);
+	bool joint2Box(PhysicsObject* object1, PhysicsObject* object2);
+	bool joint2Joint(PhysicsObject* object1, PhysicsObject* object2);
 };
 
 

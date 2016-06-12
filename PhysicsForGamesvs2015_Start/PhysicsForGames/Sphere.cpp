@@ -12,7 +12,7 @@ Sphere::~Sphere()
 {
 }
 
-Sphere::Sphere(glm::vec3 _position, glm::vec3 _velocity, float _mass, float _radius, glm::vec4 _colour, float _linearDrag)
+Sphere::Sphere(glm::vec3 _position, glm::vec3 _velocity, float _mass, float _radius, glm::vec4 _colour, float _linearDrag, bool _dynamic)
 {
 	_shapeID = SPHERE;
 	position = _position.xy;
@@ -21,6 +21,7 @@ Sphere::Sphere(glm::vec3 _position, glm::vec3 _velocity, float _mass, float _rad
 	radius = _radius;
 	colour = _colour;
 	linearDrag = _linearDrag;
+	dynamic = _dynamic;
 }
 
 void Sphere::makeGizmo()

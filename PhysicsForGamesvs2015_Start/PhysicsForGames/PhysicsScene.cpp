@@ -4,9 +4,10 @@ typedef bool(PhysicsScene::*fn)(PhysicsObject*, PhysicsObject*);
 //function pointer array for doing our collisions
 static fn collisionFunctionArray[] = 
 { 
-	&PhysicsScene::plane2Plane,		&PhysicsScene::plane2Sphere,	&PhysicsScene::plane2Box,
-	&PhysicsScene::sphere2Plane,	&PhysicsScene::sphere2Sphere,	&PhysicsScene::sphere2Box,
-	&PhysicsScene::box2Plane,		&PhysicsScene::box2Sphere,		&PhysicsScene::box2Box,
+	&PhysicsScene::plane2Plane,		&PhysicsScene::plane2Sphere,	&PhysicsScene::plane2Box,	&PhysicsScene::plane2Joint,
+	&PhysicsScene::sphere2Plane,	&PhysicsScene::sphere2Sphere,	&PhysicsScene::sphere2Box,	&PhysicsScene::sphere2Joint,
+	&PhysicsScene::box2Plane,		&PhysicsScene::box2Sphere,		&PhysicsScene::box2Box,		&PhysicsScene::box2Joint,
+	&PhysicsScene::joint2Plane,		&PhysicsScene::joint2Sphere,	&PhysicsScene::joint2Box,	&PhysicsScene::joint2Joint,
 };
 
 PhysicsScene::PhysicsScene()
@@ -178,8 +179,17 @@ bool PhysicsScene::sphere2Sphere(PhysicsObject* object1, PhysicsObject* object2)
 			sphere1->applyForceToActor(sphere2, 2.0f * forceVector);
 			//move our spheres out of collision
 			glm::vec2 separationVector = collisionNormal * intersection *0.5f;
-			sphere1->position -= separationVector;
-			sphere2->position += separationVector;
+
+			if (sphere1->dynamic)
+			{
+				sphere1->position -= separationVector;
+			}
+			if (sphere2->dynamic)
+			{
+				sphere2->position += separationVector;
+			}
+		//	sphere1->position -= separationVector;
+			//sphere2->position += separationVector;
 			return true;
 		}
 
@@ -245,27 +255,23 @@ bool PhysicsScene::sphere2Box(PhysicsObject* object1, PhysicsObject* object2)
 			glm::vec2 delta = boxP - sphere->position;
 			float distance = glm::length(delta);
 			float intersection = rr - dmin;
-			//box->position = glm::vec2(0);
+
 			glm::vec2 collisionNormal = glm::normalize(delta);
 			glm::vec2 relativeVelocity = box->velocity - sphere->velocity;
 			glm::vec2 collisionVector = collisionNormal * (glm::dot(relativeVelocity, collisionNormal));
 			glm::vec2 forceVector = collisionVector * 1.0f / (1 / sphere->mass + 1 / box->mass);
+
+			//use newtons third law to apply colision forces to colliding bodies.
+			sphere->applyForceToActor(box, 2.0f * forceVector);
+			//move our spheres out of collision
+			glm::vec2 separationVector = collisionNormal * intersection *0.5f;
+			
 			if (box->dynamic)
 			{
-				//use newtons third law to apply colision forces to colliding bodies.
-				sphere->applyForceToActor(box, 2.0f * forceVector);
-				//move our spheres out of collision
-				glm::vec2 separationVector = collisionNormal * intersection *0.5f;
-				sphere->position -= separationVector;
 				box->position += separationVector;
 			}
-
-			if (!box->dynamic)
+			if (sphere->dynamic)
 			{
-				//use newtons third law to apply colision forces to colliding bodies.
-				sphere->applyForce(2.0f *forceVector);
-				//move our spheres out of collision
-				glm::vec2 separationVector = collisionNormal * intersection;
 				sphere->position -= separationVector;
 			}
 			return true;
@@ -298,4 +304,34 @@ bool PhysicsScene::box2Plane(PhysicsObject* object1, PhysicsObject* object2)
 bool PhysicsScene::box2Sphere(PhysicsObject* object1, PhysicsObject* object2)
 {
 	return sphere2Box(object2, object1);
+}
+
+bool PhysicsScene::plane2Joint(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
+}
+bool PhysicsScene::sphere2Joint(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
+}
+bool PhysicsScene::box2Joint(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
+}
+
+bool PhysicsScene::joint2Plane(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
+}
+bool PhysicsScene::joint2Sphere(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
+}
+bool PhysicsScene::joint2Box(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
+}
+bool PhysicsScene::joint2Joint(PhysicsObject* object1, PhysicsObject* object2)
+{
+	return false;
 }

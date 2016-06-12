@@ -21,18 +21,21 @@ RigidBody::RigidBody(glm::vec3 _position, glm::vec3 _velocity, float _rotation, 
 
 void RigidBody::update(glm::vec3 gravity, float timeStep)
 {
-	applyForce(gravity.xy*mass*timeStep);
-	//velocity += gravity.xy*timeStep;
-	position += velocity*timeStep;
-	if (glm::length(velocity)>0)
+	if (dynamic)
 	{
-		//glm::vec2 dragVelocity = velocity;
-		applyForce(-velocity*linearDrag);
-		//velocity *= linearDrag;
-	}
-	if (glm::length(velocity) < 1)
-	{
-		velocity = glm::vec2(0);
+		applyForce(gravity.xy*mass*timeStep);
+		//velocity += gravity.xy*timeStep;
+		position += velocity*timeStep;
+		if (glm::length(velocity) > 0)
+		{
+			//glm::vec2 dragVelocity = velocity;
+			applyForce(-velocity*linearDrag);
+			//velocity *= linearDrag;
+		}
+		if (glm::length(velocity) < 1)
+		{
+			velocity = glm::vec2(0);
+		}
 	}
 }
 void RigidBody::debug()

@@ -11,6 +11,7 @@
 #include "Plane.h"
 #include "Box.h"
 #include "Sphere.h"
+#include "SpringJoint.h"
 
 
 
@@ -49,6 +50,9 @@ public:
 	void collisionDetectionTuteSetup();
 
 	Sphere *newBall;
+	SpringJoint* newSpring;
+	Sphere *newBall1;
+	Sphere *newBall2;
 	Sphere *whiteBall;
 	Plane *newPlane;
 	Box *newBox;

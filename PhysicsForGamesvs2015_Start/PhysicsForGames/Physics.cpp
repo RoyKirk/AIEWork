@@ -110,13 +110,13 @@ void Physics::projectileMotionSetup()
 		Gizmos::addSphereFilled(glm::vec3(tempPos,0), 1, 6, 6, glm::vec4(1, 0, 1, 1));
 	}
 
-	newBall = new Sphere(intialPos, glm::vec3(cos(initialAngle)*muzzleSpeed, sin(initialAngle)*muzzleSpeed,0) , 20.0f, 1, glm::vec4(1, 0, 0, 1),0.1f);
+	newBall = new Sphere(intialPos, glm::vec3(cos(initialAngle)*muzzleSpeed, sin(initialAngle)*muzzleSpeed,0) , 20.0f, 1, glm::vec4(1, 0, 0, 1),0.1f, true);
 	m_physics->addActor(newBall);
 }
 
 void Physics::rocketEngineSetup()
 {
-	newBall = new Sphere(glm::vec3(0, 1, 0), glm::vec3(0, 0, 0), 200.0f, 1, glm::vec4(1, 0, 0, 1), 0.1f);
+	newBall = new Sphere(glm::vec3(0, 1, 0), glm::vec3(0, 0, 0), 200.0f, 1, glm::vec4(1, 0, 0, 1), 0.1f, true);
 	m_physics->addActor(newBall);
 }
 
@@ -128,7 +128,7 @@ void Physics::rocketEngine()
  		if (newBall->mass > massreduction)
 		{
 			Sphere* newBall2;
-			newBall2 = new Sphere(glm::vec3(newBall->position.x, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.1f);
+			newBall2 = new Sphere(glm::vec3(newBall->position.x, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.1f,true);
 			m_physics->addActor(newBall2);
 			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(0, 100));
@@ -142,7 +142,7 @@ void Physics::rocketEngine()
 		if (newBall->mass > massreduction)
 		{
 			Sphere* newBall2;
-			newBall2 = new Sphere(glm::vec3(newBall->position.x + 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.1f);
+			newBall2 = new Sphere(glm::vec3(newBall->position.x + 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.1f, true);
 			m_physics->addActor(newBall2);
 			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(-50, 0));
@@ -155,7 +155,7 @@ void Physics::rocketEngine()
 		if (newBall->mass > massreduction)
 		{
 			Sphere* newBall2;
-			newBall2 = new Sphere(glm::vec3(newBall->position.x - 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.1f);
+			newBall2 = new Sphere(glm::vec3(newBall->position.x - 1, newBall->position.y - 1, 0), glm::vec3(0, 0, 0), massreduction, 0.1, glm::vec4(0, 1, 0, 1), 0.1f, true);
 			m_physics->addActor(newBall2);
 			newBall->applyForceToActor(newBall2, glm::vec2(0, 10));
 			newBall->applyForce(glm::vec2(50, 0));
@@ -171,18 +171,28 @@ void Physics::rocketEngine()
 
 void Physics::collisionDetectionTuteSetup()
 {
-	for (int i = 0; i < 5; i++)
-	{ 
-		for (int j = -5; j < 6; j++)
-		{
-			if (i == j || i == -j)
-			{
-				newBall = new Sphere(glm::vec3(i * 10, j * 5, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 0, 0, 1), 0.1f);
-				m_physics->addActor(newBall);
-			}
-		}
-	}
-	whiteBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 1, 1, 1), 0.1f);
+	//for (int i = 0; i < 5; i++)
+	//{ 
+	//	for (int j = -5; j < 6; j++)
+	//	{
+	//		if (i == j || i == -j)
+	//		{
+	//			newBall = new Sphere(glm::vec3(i * 10, j * 5, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 0, 0, 1), 0.1f, true);
+	//			m_physics->addActor(newBall);
+	//		}
+	//	}
+	//}
+
+	newBall1 = new Sphere(glm::vec3(10, 10, 0), glm::vec3(0, 0, 0), 1000000.0f, 5, glm::vec4(1, 0, 0, 1), 0.1f, false);
+	m_physics->addActor(newBall1);
+
+	newBall2 = new Sphere(glm::vec3(10, -10, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 0, 0, 1), 0.1f, true);
+	m_physics->addActor(newBall2);
+
+	newSpring = new SpringJoint(newBall1, newBall2, 10.0f, 0.8f);
+	m_physics->addActor(newSpring);
+
+	whiteBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 10.0f, 5, glm::vec4(1, 1, 1, 1), 0.1f, true);
 	m_physics->addActor(whiteBall);
 	
 	//newPlane = new Plane(glm::vec2(1, 0), simSize, glm::vec4(1, 0, 0, 1));
