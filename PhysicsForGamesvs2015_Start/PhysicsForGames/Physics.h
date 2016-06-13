@@ -32,7 +32,7 @@ public:
 	float timer;
 	float const timerLimit = 1.0f;
 
-	float const MAX_SHOT_POWER = 10.0f;
+	float const MAX_SHOT_POWER = 12.0f;
 
 	glm::vec2 direction;
 	float selectedPower;
