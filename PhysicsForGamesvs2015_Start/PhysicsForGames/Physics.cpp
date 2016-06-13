@@ -177,42 +177,89 @@ void Physics::collisionDetectionTuteSetup()
 		{
 			if (i == j || i == -j)
 			{
-				newBall = new Sphere(glm::vec3(i * 10, j * 5, 0), glm::vec3(0, 0, 0), 10.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
+				newBall = new Sphere(glm::vec3(20+i * 4, j * 2, 0), glm::vec3(0, 0, 0), 10.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
 				m_physics->addActor(newBall);
 			}
 		}
 	}
-	newBall1 = new Sphere(glm::vec3(0, 40, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = -2; j < 3; j++)
+		{
+			if (i == j || i == -j)
+			{
+				newBall = new Sphere(glm::vec3(20 + 8+i * 4, j * 2, 0), glm::vec3(0, 0, 0), 10.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
+				m_physics->addActor(newBall);
+			}
+		}
+	}
+
+	newBall = new Sphere(glm::vec3(20 + 16, 0, 0), glm::vec3(0, 0, 0), 10.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
+	m_physics->addActor(newBall);
+	////top rope
+	//newBall1 = new Sphere(glm::vec3(-simSize + 5.0f, simSize / aspectRatio - 5.0f, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, false);
+	//m_physics->addActor(newBall1);
+
+	//for (int i = 1; i <32; i++)
+	//{
+	//	newBall2 = new Sphere(glm::vec3(-simSize + 5.0f + i*6.0f, simSize / aspectRatio - 5.0f, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
+	//	m_physics->addActor(newBall2);
+	//	newSpring = new SpringJoint(newBall1, newBall2, 10.0f, 1.0f);
+	//	m_physics->addActor(newSpring);
+	//	newBall1 = newBall2;
+	//}
+	//newBall2 = new Sphere(glm::vec3(-simSize + 5.0f + 32 * 6.0f, simSize / aspectRatio - 5.0f, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, false);
+	//m_physics->addActor(newBall2);
+	//newSpring = new SpringJoint(newBall1, newBall2, 10.0f, 1.0f);
+	//m_physics->addActor(newSpring);
+
+	////bottom rope
+	//newBall1 = new Sphere(glm::vec3(-simSize+5.0f, -simSize /aspectRatio + 5.0f, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, false);
+	//m_physics->addActor(newBall1);
+
+	//for (int i = 1; i <32; i++)
+	//{
+	//	newBall2 = new Sphere(glm::vec3(-simSize + 5.0f + i*6.0f, -simSize / aspectRatio + 5.0f, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
+	//	m_physics->addActor(newBall2);
+	//	newSpring = new SpringJoint(newBall1, newBall2, 10.0f, 1.0f);
+	//	m_physics->addActor(newSpring);
+	//	newBall1 = newBall2;
+	//}
+	//newBall2 = new Sphere(glm::vec3(-simSize + 5.0f + 32*6.0f, -simSize / aspectRatio + 5.0f, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, false);
+	//m_physics->addActor(newBall2);
+	//newSpring = new SpringJoint(newBall1, newBall2, 10.0f, 1.0f);
+	//m_physics->addActor(newSpring);
+	
+	newBall1 = new Sphere(glm::vec3(-60.0f, -60.0f / aspectRatio, 0), glm::vec3(0, 0, 0), 100000.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, false);
 	m_physics->addActor(newBall1);
 
-	for (int i = 1; i <10; i++)
+	for (int i = 1; i <11; i++)
 	{
-		newBall2 = new Sphere(glm::vec3(i*6.0f, 40, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
+		newBall2 = new Sphere(glm::vec3(-60.0f, -60.0f / aspectRatio + i*6.0f, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, true);
 		m_physics->addActor(newBall2);
-		newSpring = new SpringJoint(newBall1, newBall2, 1.0f, 1.0f);
+		newSpring = new SpringJoint(newBall1, newBall2, 10.0f, 1.0f);
 		m_physics->addActor(newSpring);
 		newBall1 = newBall2;
 	}
-	//newBall2 = new Sphere(glm::vec3(10*6.0f, 40, 0), glm::vec3(0, 0, 0), 1.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, false);
-	//m_physics->addActor(newBall2);
-	//newSpring = new SpringJoint(newBall1, newBall2, 1.0f, 1.0f);
-	//m_physics->addActor(newSpring);
-	
+	newBall2 = new Sphere(glm::vec3( - 60.0f, -60.0f / aspectRatio + 11*6.0f, 0), glm::vec3(0, 0, 0), 100000.0f, 2.0f, glm::vec4(1, 0, 0, 1), 0.1f, false);
+	m_physics->addActor(newBall2);
+	newSpring = new SpringJoint(newBall1, newBall2, 10.0f, 1.0f);
+	m_physics->addActor(newSpring);
 
 	whiteBall = new Sphere(glm::vec3(-40, 0, 0), glm::vec3(0, 0, 0), 10.0f, 2.0f, glm::vec4(1, 1, 1, 1), 0.1f, true);
 	m_physics->addActor(whiteBall);
 	
-	newBox = new Box(glm::vec3(50/2-2.5, 50 / aspectRatio-5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 50-10.0f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f,false);
+	newBox = new Box(glm::vec3(80/2-2.5, 80 / aspectRatio-5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 80-12.5f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f,false);
 	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(-50 / 2 + 2.5, 50 / aspectRatio - 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 50 - 10.0f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	newBox = new Box(glm::vec3(-80 / 2 + 2.5, 80 / aspectRatio - 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 80 - 12.5f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
 	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(50 / 2 - 2.5, -50 / aspectRatio + 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 50 - 10.0f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	newBox = new Box(glm::vec3(80 / 2 - 2.5, -80 / aspectRatio + 5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 80 - 12.5f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
 	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(-50 / 2 + 2.5, -50 / aspectRatio +5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 50 - 10.0f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	newBox = new Box(glm::vec3(-80 / 2 + 2.5, -80 / aspectRatio +5.0f, 0), glm::vec3(0, 0, 0), 100000000.0f, 80 - 12.5f, 2.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
 	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(50 - 2.5f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f, 2.0f, 2*50 / aspectRatio - 20.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	newBox = new Box(glm::vec3(80 - 2.5f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f, 2.0f, 2*80 / aspectRatio - 20.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
 	m_physics->addActor(newBox);
-	newBox = new Box(glm::vec3(-50 + 2.5f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f, 2.0f, 2*50 / aspectRatio - 20.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
+	newBox = new Box(glm::vec3(-80 + 2.5f, 0, 0), glm::vec3(0, 0, 0), 100000000.0f, 2.0f, 2*80 / aspectRatio - 20.0f, 0, glm::mat4(), glm::vec4(1, 1, 1, 1), 0.1f, false);
 	m_physics->addActor(newBox);
 	
 	newPlane = new Plane(glm::vec2(1, 0), simSize, glm::vec4(1, 0, 0, 1));
