@@ -94,6 +94,7 @@ public:
 	
 	std::vector<PxRigidDynamic*> box_list;
 
+
 	PxFoundation* g_PhysicsFoundation;
 	PxPhysics* g_Physics;
 	PxScene* g_PhysicsScene;
@@ -118,6 +119,20 @@ public:
 	{
 		_aligned_free(ptr);
 	}
+};
+
+class MyControllerHitReport : public PxUserControllerHitReport
+{
+	//overload the onShapeHit function
+	virtual void onShapeHit(const PxControllerShapeHit & hit);
+	//other collision functions which we must overload
+	//these handle collision with other controllers and hitting obstacles
+	virtual void onControllerHit(const PxControllerHit &hit) {};
+	//Called when current controller hits another controller. More...
+	virtual void onObstacleHit(const PxControllerObstacleHit &hit) {};
+	//Called when current controller hits a user-defined obstacle
+	MyControllerHitReport() : PxUserControllerHitReport() {};
+
 };
 
 #endif //CAM_PROJ_H_
