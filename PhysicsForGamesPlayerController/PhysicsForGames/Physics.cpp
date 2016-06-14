@@ -53,6 +53,8 @@ bool Physics::startup()
 
 	m_renderer = new Renderer();
 	
+	startingPosition = PxExtendedVec3(0, 0, 0);
+
 	SetUpPhysX();
 	SetUpVisualDebugger(); 
 	SetUpTutorial1();
@@ -97,7 +99,7 @@ bool Physics::update()
         Gizmos::addLine(vec3(-10, -0.01, -10 + i), vec3(10, -0.01, -10 + i),
             i == 10 ? white : black);
     }
-	Gizmos::addAABBFilled(glm::vec3(0, -50, 0), glm::vec3(500, 0, 500),glm::vec4(0.3,0.3,0.8,1));
+	//Gizmos::addAABBFilled(glm::vec3(0, 0, 0), glm::vec3(500, 0, 500),glm::vec4(0.3,0.3,0.8,1));
 
     m_camera.update(1.0f / 60.0f);
 
@@ -112,6 +114,40 @@ bool Physics::update()
 		shootTimer = 0;
 		Shoot();
 	}
+
+	bool onGround; //set to true if we ar on the ground
+	float movementSpeed = 10.0f; //forward and back movement speed
+	float rotationSpeed = 1.0f; //turn speed
+	//check if we have a contact normal. If y is gretaer than 0.3 we assume this is solid ground
+	if (myHitReport->getPlayerContactNormal().y > 0.3f)
+	{
+		_characterYVelocity = -0.1f;
+		onGround = true;
+	}
+	else
+	{
+		_characterYVelocity += _playerGravity * m_delta_time;
+		onGround = false;
+	}
+	myHitReport->clearPlayerContactNormal();
+	const PxVec3 up(0, 1, 0);
+	//scan the keys and set up our intended velocity based on a global transform
+	PxVec3 velocity(0, _characterYVelocity, 0);
+	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		velocity.x -= movementSpeed*m_delta_time;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		velocity.x += movementSpeed*m_delta_time;
+	}
+
+	float minDistance = 0.001f;
+	PxControllerFilters filter;
+	//make controls relative to player facing
+	PxQuat rotation(_characterRotation, PxVec3(0, 1, 0));
+	//move the controller
+	gPlayerController->move(rotation.rotate(velocity), minDistance, m_delta_time, filter);
 
     return true;
 }
@@ -245,6 +281,26 @@ void Physics::SetUpPhysX()
 	sceneDesc.filterShader = &physx::PxDefaultSimulationFilterShader;
 	sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(1);
 	g_PhysicsScene = g_Physics->createScene(sceneDesc);
+
+	
+	myHitReport = new MyControllerHitReport();
+	gCharacterManager = PxCreateControllerManager(*g_PhysicsScene);
+	//describe our controller...
+	PxCapsuleControllerDesc desc;
+	desc.height = 1.6f;
+	desc.radius = 0.4f;
+	desc.position.set(0, 0, 0);
+	desc.material = g_PhysicsMaterial;
+	desc.reportCallback = myHitReport;//connect it to our collision detection routine
+	desc.density = 10;
+	//create the layer controller
+	gPlayerController = gCharacterManager->createController(desc);
+	gPlayerController->setPosition(startingPosition);
+	//setup some variables to control our player with
+	_characterYVelocity = 0; //intialise character velocity
+	_characterRotation = 0; //and rotation
+	_playerGravity = -0.5f;//set up the player gravity
+	myHitReport->clearPlayerContactNormal();//initialize the contact normal (what we are in contact with)
 }
 
 void Physics::UpdatePhysX(float a_deltaTime)
@@ -301,12 +357,6 @@ void Physics::SetUpTutorial1()
 			}
 		}
 	}
-	float densityS = 5000;
-	PxSphereGeometry sphere(10);
-	PxTransform transformS(PxVec3(0, 5, 0));
-	PxRigidStatic* dynamicActorS = PxCreateStatic(*g_Physics, transformS, sphere, *g_PhysicsMaterial);
-	//add it to the physx scene
-	g_PhysicsScene->addActor(*dynamicActorS);
 }
 
 void Physics::Shoot()
@@ -389,3 +439,20 @@ PxArticulation* Physics::makeRagdoll(PxPhysics* g_Physics, RagdollNode** nodeArr
 	}
 	return articulation;
 }
+
+void MyControllerHitReport::onShapeHit(const PxControllerShapeHit &hit)
+{
+	//gets a reference to a structure which tells us what has been hit and where
+	//get the actor from the shape we hit
+	PxRigidActor* actor = hit.shape->getActor();
+	//get the normal of the thing we hit and store it so the player controller can respond correctly
+	_playerContactNormal = hit.worldNormal;
+	//try to cast to a dynaimc actor
+	PxRigidDynamic* myActor = actor->is<PxRigidDynamic>();
+	if (myActor)
+	{
+		//this is where we can apply forces to things we hit
+		myActor->addForce(_playerContactNormal*50.0f, PxForceMode::eIMPULSE, true);
+	}
+}
+

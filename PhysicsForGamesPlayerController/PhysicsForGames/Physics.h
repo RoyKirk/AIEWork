@@ -16,6 +16,23 @@
 
 using namespace physx;
 
+class MyControllerHitReport : public PxUserControllerHitReport
+{
+public:
+	//overload the onShapeHit function
+	virtual void onShapeHit(const PxControllerShapeHit &hit);
+	//other collision functions which we must overload
+	//these handle collision with other controllers and hitting obstacles
+	virtual void onControllerHit(const PxControllersHit &hit) {};
+	//Called when current controller hits another controller. More...
+	virtual void onObstacleHit(const PxControllerObstacleHit &hit) {};
+	//Called when current controller hits a user-defined obstacle
+	MyControllerHitReport() :PxUserControllerHitReport() {};
+	PxVec3 getPlayerContactNormal() { return _playerContactNormal; };
+	void clearPlayerContactNormal() { _playerContactNormal = PxVec3(0, 0, 0); };
+	PxVec3 _playerContactNormal;
+};
+
 //Parts which make up the ragdoll
 enum RagDollParts
 {
@@ -91,9 +108,21 @@ public:
 	float muzzleSpeed;
 	float shootTimer;
 	float shootTimeOut;
+
+
+	float _characterYVelocity = 0;
+	float _characterRotation = 0;
+	float _playerGravity = -0.5f;
 	
 	std::vector<PxRigidDynamic*> box_list;
 
+	MyControllerHitReport* myHitReport;
+	
+	PxControllerManager* gCharacterManager;
+	
+	PxController* gPlayerController;
+
+	PxExtendedVec3 startingPosition;
 
 	PxFoundation* g_PhysicsFoundation;
 	PxPhysics* g_Physics;
@@ -121,18 +150,6 @@ public:
 	}
 };
 
-class MyControllerHitReport : public PxUserControllerHitReport
-{
-	//overload the onShapeHit function
-	virtual void onShapeHit(const PxControllerShapeHit & hit);
-	//other collision functions which we must overload
-	//these handle collision with other controllers and hitting obstacles
-	virtual void onControllerHit(const PxControllerHit &hit) {};
-	//Called when current controller hits another controller. More...
-	virtual void onObstacleHit(const PxControllerObstacleHit &hit) {};
-	//Called when current controller hits a user-defined obstacle
-	MyControllerHitReport() : PxUserControllerHitReport() {};
 
-};
 
 #endif //CAM_PROJ_H_
