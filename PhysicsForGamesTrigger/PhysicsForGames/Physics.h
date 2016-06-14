@@ -11,10 +11,21 @@
 #include <PxScene.h>
 #include <pvd/PxVisualDebugger.h>
 #include <vector>
+#include <iostream>
 
 
 
 using namespace physx;
+
+struct FilterGroup
+{
+	enum Enum
+	{
+		ePLAYER = (1 << 0),
+		ePLATFORM = (1 << 1),
+		eGROUND = (1 << 2)
+	};
+};
 
 //Parts which make up the ragdoll
 enum RagDollParts
@@ -82,6 +93,8 @@ public:
 	void SetUpVisualDebugger();
 	void SetUpTutorial1();
 
+	void setShapeAsTrigger(PxRigidActor* actorIn);
+
 
 	void Shoot();
 	PxArticulation* makeRagdoll(PxPhysics* g_Physics, RagdollNode** nodeArray, PxTransform worldPos, float scaleFactor, PxMaterial* ragdollMaterial);
@@ -91,6 +104,7 @@ public:
 	float muzzleSpeed;
 	float shootTimer;
 	float shootTimeOut;
+
 	
 	std::vector<PxRigidDynamic*> box_list;
 
@@ -119,5 +133,16 @@ public:
 		_aligned_free(ptr);
 	}
 };
+
+
+class MyCollisionCallBack : public PxSimulationEventCallback
+{
+	virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
+	virtual void onTrigger(PxTriggerPair* pairs, PxU32 nbPairs);
+	virtual void onConstraintBreak(PxConstraintInfo*, PxU32) {};
+	virtual void onWake(PxActor**, PxU32) {};
+	virtual void onSleep(PxActor**, PxU32) {};
+};
+
 
 #endif //CAM_PROJ_H_

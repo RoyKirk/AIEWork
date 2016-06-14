@@ -287,68 +287,27 @@ void Physics::SetUpTutorial1()
 	//Add a box
 	float density = 5;
 	PxBoxGeometry box(1, 1, 1);
-	PxTransform transform(PxVec3(1, 0, 0));
-	PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
+	for (int i = 0; i < 2; i++)
+	{
+		for (int j = 20; j < 100; j++)
+		{
+			for (int k = 0; k < 2; k++)
+			{
+				PxTransform transform(PxVec3(2*i, 2*j+1, 2*k));
+				PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
+				//add it to the physx scene
+				g_PhysicsScene->addActor(*dynamicActor);
+				//dynamicActor->putToSleep();
+			}
+		}
+	}
+	float densityS = 5000;
+	PxSphereGeometry sphere(10);
+	PxTransform transformS(PxVec3(0, 5, 0));
+	PxRigidStatic* dynamicActorS = PxCreateStatic(*g_Physics, transformS, sphere, *g_PhysicsMaterial);
 	//add it to the physx scene
-	g_PhysicsScene->addActor(*dynamicActor);
-
-	PxTransform transform2(PxVec3(5, 0, 0));
-	PxRigidDynamic* dynamicActor2 = PxCreateDynamic(*g_Physics, transform2, box, *g_PhysicsMaterial, density);
-	//add it to the physx scene
-	g_PhysicsScene->addActor(*dynamicActor2);
-
-
-	PxTransform transform3(PxVec3(0, 0,5));
-	PxSphericalJoint* pJoint = PxSphericalJointCreate(*g_Physics,dynamicActor,transform3,dynamicActor2, transform3);
-	pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, true);
-
-	//for (int i = 0; i < 2; i++)
-	//{
-	//	PxTransform transform(PxVec3(2 * i, 2 * i, 2 * i));
-	//	PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
-	//	box_list.push_back(dynamicActor);
-	//	//add it to the physx scene
-	//	g_PhysicsScene->addActor(*dynamicActor);
-	//}
-	//for (int i = 0; i < 2; i++)
-	//{
-	//	if (i != i-1)
-	//	{
-	//		box_list[i];
-	//	}
-	//}
+	g_PhysicsScene->addActor(*dynamicActorS);
 }
-//void Physics::SetUpTutorial1()
-//{
-//	//Add a plane
-//	PxTransform pose = PxTransform(PxVec3(0.0f, 0, 0.0f), PxQuat(PxHalfPi*1.0f, PxVec3(0.0f, 0.0f, 1.0f)));
-//	PxRigidStatic* plane = PxCreateStatic(*g_Physics, pose, PxPlaneGeometry(), *g_PhysicsMaterial);
-//	//Add it to the physx scene
-//	g_PhysicsScene->addActor(*plane);
-//	//Add a box
-//	float density = 5;
-//	PxBoxGeometry box(1, 1, 1);
-//	for (int i = 0; i < 2; i++)
-//	{
-//		for (int j = 20; j < 100; j++)
-//		{
-//			for (int k = 0; k < 2; k++)
-//			{
-//				PxTransform transform(PxVec3(2*i, 2*j+1, 2*k));
-//				PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
-//				//add it to the physx scene
-//				g_PhysicsScene->addActor(*dynamicActor);
-//				//dynamicActor->putToSleep();
-//			}
-//		}
-//	}
-//	float densityS = 5000;
-//	PxSphereGeometry sphere(10);
-//	PxTransform transformS(PxVec3(0, 5, 0));
-//	PxRigidStatic* dynamicActorS = PxCreateStatic(*g_Physics, transformS, sphere, *g_PhysicsMaterial);
-//	//add it to the physx scene
-//	g_PhysicsScene->addActor(*dynamicActorS);
-//}
 
 void Physics::Shoot()
 {

@@ -15,6 +15,11 @@ const PxVec3 X_AXIS = PxVec3(1, 0, 0);
 const PxVec3 Y_AXIS = PxVec3(0, 1, 0);
 const PxVec3 Z_AXIS = PxVec3(0, 0, 1);
 
+
+void setupFiltering(PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask);
+PxFilterFlags myFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize);
+
+
 RagdollNode* ragdollData[] =
 {
 	new RagdollNode(PxQuat(PxPi / 2.0f,Z_AXIS), NO_PARENT,1,3,1,1,"lower spine",0.01f,0.3f),
@@ -97,7 +102,7 @@ bool Physics::update()
         Gizmos::addLine(vec3(-10, -0.01, -10 + i), vec3(10, -0.01, -10 + i),
             i == 10 ? white : black);
     }
-	Gizmos::addAABBFilled(glm::vec3(0, -50, 0), glm::vec3(500, 0, 500),glm::vec4(0.3,0.3,0.8,1));
+	Gizmos::addAABBFilled(glm::vec3(0, 0, 0), glm::vec3(500, 0, 500),glm::vec4(0.3,0.3,0.8,1));
 
     m_camera.update(1.0f / 60.0f);
 
@@ -242,9 +247,12 @@ void Physics::SetUpPhysX()
 	g_PhysicsMaterial = g_Physics->createMaterial(0.5f, 0.5f, 0.5f);
 	PxSceneDesc sceneDesc(g_Physics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0, -10.0f, 0);
-	sceneDesc.filterShader = &physx::PxDefaultSimulationFilterShader;
+	//&physx::PxDefaultSimulationFilterShader;
+	sceneDesc.filterShader = &myFilterShader;
 	sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(1);
 	g_PhysicsScene = g_Physics->createScene(sceneDesc);
+	PxSimulationEventCallback* myCollisionCallBack = new MyCollisionCallBack;
+	g_PhysicsScene->setSimulationEventCallback(myCollisionCallBack);
 }
 
 void Physics::UpdatePhysX(float a_deltaTime)
@@ -285,70 +293,16 @@ void Physics::SetUpTutorial1()
 	//Add it to the physx scene
 	g_PhysicsScene->addActor(*plane);
 	//Add a box
-	float density = 5;
-	PxBoxGeometry box(1, 1, 1);
-	PxTransform transform(PxVec3(1, 0, 0));
-	PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
+	float density = 5000;
+	PxBoxGeometry box(5,5,5);
+	PxTransform transformS(PxVec3(0, 5, 0));
+	PxRigidStatic* StaticActor = PxCreateStatic(*g_Physics, transformS, box, *g_PhysicsMaterial);
+	StaticActor->setName("TriggerBox");
+	setupFiltering(StaticActor, FilterGroup::eGROUND, FilterGroup::ePLAYER);
+	setShapeAsTrigger(StaticActor);
 	//add it to the physx scene
-	g_PhysicsScene->addActor(*dynamicActor);
-
-	PxTransform transform2(PxVec3(5, 0, 0));
-	PxRigidDynamic* dynamicActor2 = PxCreateDynamic(*g_Physics, transform2, box, *g_PhysicsMaterial, density);
-	//add it to the physx scene
-	g_PhysicsScene->addActor(*dynamicActor2);
-
-
-	PxTransform transform3(PxVec3(0, 0,5));
-	PxSphericalJoint* pJoint = PxSphericalJointCreate(*g_Physics,dynamicActor,transform3,dynamicActor2, transform3);
-	pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, true);
-
-	//for (int i = 0; i < 2; i++)
-	//{
-	//	PxTransform transform(PxVec3(2 * i, 2 * i, 2 * i));
-	//	PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
-	//	box_list.push_back(dynamicActor);
-	//	//add it to the physx scene
-	//	g_PhysicsScene->addActor(*dynamicActor);
-	//}
-	//for (int i = 0; i < 2; i++)
-	//{
-	//	if (i != i-1)
-	//	{
-	//		box_list[i];
-	//	}
-	//}
+	g_PhysicsScene->addActor(*StaticActor);
 }
-//void Physics::SetUpTutorial1()
-//{
-//	//Add a plane
-//	PxTransform pose = PxTransform(PxVec3(0.0f, 0, 0.0f), PxQuat(PxHalfPi*1.0f, PxVec3(0.0f, 0.0f, 1.0f)));
-//	PxRigidStatic* plane = PxCreateStatic(*g_Physics, pose, PxPlaneGeometry(), *g_PhysicsMaterial);
-//	//Add it to the physx scene
-//	g_PhysicsScene->addActor(*plane);
-//	//Add a box
-//	float density = 5;
-//	PxBoxGeometry box(1, 1, 1);
-//	for (int i = 0; i < 2; i++)
-//	{
-//		for (int j = 20; j < 100; j++)
-//		{
-//			for (int k = 0; k < 2; k++)
-//			{
-//				PxTransform transform(PxVec3(2*i, 2*j+1, 2*k));
-//				PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
-//				//add it to the physx scene
-//				g_PhysicsScene->addActor(*dynamicActor);
-//				//dynamicActor->putToSleep();
-//			}
-//		}
-//	}
-//	float densityS = 5000;
-//	PxSphereGeometry sphere(10);
-//	PxTransform transformS(PxVec3(0, 5, 0));
-//	PxRigidStatic* dynamicActorS = PxCreateStatic(*g_Physics, transformS, sphere, *g_PhysicsMaterial);
-//	//add it to the physx scene
-//	g_PhysicsScene->addActor(*dynamicActorS);
-//}
 
 void Physics::Shoot()
 {
@@ -356,6 +310,8 @@ void Physics::Shoot()
 	PxSphereGeometry sphere(1);
 	PxTransform transformS(PxVec3(m_camera.world[3].x, m_camera.world[3].y, m_camera.world[3].z));
 	PxRigidDynamic* dynamicActorS = PxCreateDynamic(*g_Physics, transformS, sphere, *g_PhysicsMaterial, densityS);
+	dynamicActorS->setName("Bullet");
+	setupFiltering(dynamicActorS, FilterGroup::ePLAYER, FilterGroup::eGROUND);
 	//add it to the physx scene
 	g_PhysicsScene->addActor(*dynamicActorS);
 	dynamicActorS->addForce(PxVec3(-m_camera.world[2].x, -m_camera.world[2].y, -m_camera.world[2].z)*muzzleSpeed, PxForceMode::eIMPULSE, true);
@@ -429,4 +385,87 @@ PxArticulation* Physics::makeRagdoll(PxPhysics* g_Physics, RagdollNode** nodeArr
 		currentNode++;
 	}
 	return articulation;
+}
+
+void MyCollisionCallBack::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+{
+	for (PxU32 i = 0; i < nbPairs; i++)
+	{
+		const PxContactPair& cp = pairs[i];
+		//only interested in touches found and lost
+		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
+		{
+			std::cout << "Collision Detected between: ";
+			std::cout << pairHeader.actors[0]->getName();
+			std::cout << " and ";
+			std::cout << pairHeader.actors[1]->getName() << std::endl;
+		}
+	}
+}
+
+void MyCollisionCallBack::onTrigger(PxTriggerPair* pairs, PxU32 nbPairs)
+{
+	for (PxU32 i = 0; i < nbPairs; i++)
+	{
+		PxTriggerPair* pair = pairs + i;
+		PxActor* triggerActor = pair->triggerActor;
+		PxActor* otherActor = pair->otherActor;
+		std::cout << otherActor->getName();
+		std::cout << " Entered Trigger ";
+		std::cout << triggerActor->getName() << std::endl;
+	}
+}
+
+PxFilterFlags myFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0,
+	PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+	PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+{
+	//let tirggers through
+	if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+	{
+		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+		return PxFilterFlag::eDEFAULT;
+	}
+	//generate contacts for all that were not filtered above
+	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+	// trigger the contact callback for pairs (A,B) where
+	// the filtermask of A contains the ID of B and vice versa.
+	if ((filterData0.word0 & filterData1.word1) &&
+		(filterData1.word0 & filterData0.word1))
+	{
+		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST;
+	}
+
+	return PxFilterFlag::eDEFAULT;
+}
+
+void  setupFiltering(PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask)
+{
+	PxFilterData filterData;
+	filterData.word0 = filterGroup; //word0 = own ID
+	filterData.word1 = filterMask; //word1 = ID mask to filter pairs that trigger a contact callback
+	const PxU32 numShapes = actor->getNbShapes();
+	PxShape** shapes = (PxShape**)_aligned_malloc(sizeof(PxShape*)*numShapes, 16);
+	actor->getShapes(shapes, numShapes);
+	for (PxU32 i = 0; i < numShapes; i++)
+	{
+		PxShape* shape = shapes[i];
+		shape->setSimulationFilterData(filterData);
+	}
+	_aligned_free(shapes);
+}
+
+void Physics::setShapeAsTrigger(PxRigidActor* actorIn)
+{
+	PxRigidStatic* staticActor = actorIn->is<PxRigidStatic>();
+	assert(staticActor);
+
+	const PxU32 numShapes = staticActor->getNbShapes();
+	PxShape** shapes = (PxShape**)_aligned_malloc(sizeof(PxShape*)*numShapes, 16);
+	staticActor->getShapes(shapes, numShapes);
+	for (PxU32 i = 0; i < numShapes; i++)
+	{
+		shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+		shapes[i]->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+	}
 }
