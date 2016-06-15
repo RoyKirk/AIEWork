@@ -325,7 +325,7 @@ void Physics::SetUpTutorial1()
 
 	}
 
-	float density = 5000;
+	float density = 50;
 	PxBoxGeometry boxes(1, 1, 1);
 	for (int i = 0; i < 2; i++)
 	{
