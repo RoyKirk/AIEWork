@@ -109,6 +109,7 @@ public:
 	float shootTimer;
 	float shootTimeOut;
 
+	void updatePlayerController(float delta);
 
 	float _characterYVelocity = 0;
 	float _characterRotation = 0;

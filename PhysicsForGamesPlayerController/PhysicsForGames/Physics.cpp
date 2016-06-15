@@ -115,39 +115,7 @@ bool Physics::update()
 		Shoot();
 	}
 
-	bool onGround; //set to true if we ar on the ground
-	float movementSpeed = 10.0f; //forward and back movement speed
-	float rotationSpeed = 1.0f; //turn speed
-	//check if we have a contact normal. If y is gretaer than 0.3 we assume this is solid ground
-	if (myHitReport->getPlayerContactNormal().y > 0.3f)
-	{
-		_characterYVelocity = -0.1f;
-		onGround = true;
-	}
-	else
-	{
-		_characterYVelocity += _playerGravity * m_delta_time;
-		onGround = false;
-	}
-	myHitReport->clearPlayerContactNormal();
-	const PxVec3 up(0, 1, 0);
-	//scan the keys and set up our intended velocity based on a global transform
-	PxVec3 velocity(0, _characterYVelocity, 0);
-	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
-	{
-		velocity.x -= movementSpeed*m_delta_time;
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		velocity.x += movementSpeed*m_delta_time;
-	}
-
-	float minDistance = 0.001f;
-	PxControllerFilters filter;
-	//make controls relative to player facing
-	PxQuat rotation(_characterRotation, PxVec3(0, 1, 0));
-	//move the controller
-	gPlayerController->move(rotation.rotate(velocity), minDistance, m_delta_time, filter);
+	updatePlayerController(m_delta_time);
 
     return true;
 }
@@ -191,7 +159,7 @@ void AddWidget(PxShape* shape, PxRigidActor* actor, vec4 geo_color)
     {
         PxCapsuleGeometry geo;
         shape->getCapsuleGeometry(geo);
-        Gizmos::addCapsule(actor_position, geo.halfHeight * 2, geo.radius, 16, 16, geo_color, &rot);
+        Gizmos::addCapsule(actor_position, geo.halfHeight/2, geo.radius, 16, 16, geo_color, &rot);
     } break;
     case (PxGeometryType::eSPHERE) :
     {
@@ -288,11 +256,11 @@ void Physics::SetUpPhysX()
 	//describe our controller...
 	PxCapsuleControllerDesc desc;
 	desc.height = 1.6f;
-	desc.radius = 0.4f;
+	desc.radius = 1.4f;
 	desc.position.set(0, 0, 0);
 	desc.material = g_PhysicsMaterial;
 	desc.reportCallback = myHitReport;//connect it to our collision detection routine
-	desc.density = 10;
+	desc.density = 10000;
 	//create the layer controller
 	gPlayerController = gCharacterManager->createController(desc);
 	gPlayerController->setPosition(startingPosition);
@@ -343,19 +311,14 @@ void Physics::SetUpTutorial1()
 	//Add a box
 	float density = 5;
 	PxBoxGeometry box(1, 1, 1);
-	for (int i = 0; i < 2; i++)
+	for (int i = 1; i < 50; i++)
 	{
-		for (int j = 20; j < 100; j++)
-		{
-			for (int k = 0; k < 2; k++)
-			{
-				PxTransform transform(PxVec3(2*i, 2*j+1, 2*k));
-				PxRigidDynamic* dynamicActor = PxCreateDynamic(*g_Physics, transform, box, *g_PhysicsMaterial, density);
-				//add it to the physx scene
-				g_PhysicsScene->addActor(*dynamicActor);
-				//dynamicActor->putToSleep();
-			}
-		}
+
+			PxTransform transform(PxVec3(0, 3 * i + 0.5, 3 * i));
+			PxRigidStatic* dynamicActor = PxCreateStatic(*g_Physics, transform, box, *g_PhysicsMaterial);
+			//add it to the physx scene
+			g_PhysicsScene->addActor(*dynamicActor);
+		
 	}
 }
 
@@ -452,7 +415,97 @@ void MyControllerHitReport::onShapeHit(const PxControllerShapeHit &hit)
 	if (myActor)
 	{
 		//this is where we can apply forces to things we hit
-		myActor->addForce(_playerContactNormal*50.0f, PxForceMode::eIMPULSE, true);
+		myActor->addForce(_playerContactNormal*-50.0f, PxForceMode::eFORCE, true);
 	}
 }
 
+//bool onGround; //set to true if we ar on the ground
+//float movementSpeed = 10.0f; //forward and back movement speed
+//float rotationSpeed = 1.0f; //turn speed
+//							//check if we have a contact normal. If y is gretaer than 0.3 we assume this is solid ground
+//if (myHitReport->getPlayerContactNormal().y > 0.3f)
+//{
+//	_characterYVelocity = -0.1f;
+//	onGround = true;
+//}
+//else
+//{
+//	_characterYVelocity += _playerGravity * m_delta_time;
+//	onGround = false;
+//}
+//myHitReport->clearPlayerContactNormal();
+//const PxVec3 up(0, 1, 0);
+////scan the keys and set up our intended velocity based on a global transform
+//PxVec3 velocity(0, _characterYVelocity, 0);
+//if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
+//{
+//	velocity.x -= movementSpeed*m_delta_time;
+//}
+//if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+//{
+//	velocity.x += movementSpeed*m_delta_time;
+//}
+//
+//float minDistance = 0.001f;
+//PxControllerFilters filter;
+////make controls relative to player facing
+//PxQuat rotation(_characterRotation, PxVec3(0, 1, 0));
+////move the controller
+//gPlayerController->move(rotation.rotate(velocity), minDistance, m_delta_time, filter);
+
+void Physics::updatePlayerController(float delta)
+{
+	bool onGround;
+	float movementSpeed = 10.0f;
+	float rotationSpeed = 1.0f;
+	//check if we have a contact normal.  If y is greate than .3 we assume this is solid ground.
+	if (myHitReport->getPlayerContactNormal().y > 0.3f)
+	{
+		_characterYVelocity = -0.1f;
+		onGround = true;
+	}
+	else
+	{
+		_characterYVelocity += _playerGravity * delta;
+		onGround = false;
+	}
+	GLFWwindow* curr_window = glfwGetCurrentContext();
+	if (onGround && (glfwGetKey(curr_window, GLFW_KEY_ENTER) == GLFW_PRESS))
+	{
+		_characterYVelocity = 0.4f;
+		onGround = false;
+	}
+	myHitReport->clearPlayerContactNormal();
+	const PxVec3 up(0, 1, 0);
+	PxVec3 velocity(0, _characterYVelocity, 0);
+
+	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		velocity.x += movementSpeed * delta;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		velocity.x -= movementSpeed * delta;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		velocity.z -= movementSpeed * delta;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		velocity.z += movementSpeed * delta;
+	}
+	float minDistance = 0.001f;
+	PxControllerFilters filter;
+
+	//a simple following third person camera...  For a real camera we'd want the camera to have a bit of lag so it doesn't jump about quite so much	
+	float boomLength = 7; //how far away the camera is from the player
+	glm::vec3 cameraZVector = m_camera.world[2].xyz; //get a vector which points in the direction the camera is pointing
+	_characterRotation = atan2(cameraZVector.z, -cameraZVector.x); //get the rotation angle
+	PxQuat rotation(_characterRotation, PxVec3(0, 1, 0)); //create a quaternion which rotates around the Y axis by the camera rotation
+	PxExtendedVec3 playerPosition = gPlayerController->getPosition(); //get the position of the player controller from PhyX
+	glm::vec3 cameraPos = vec3(playerPosition.x, playerPosition.y, playerPosition.z) + (cameraZVector)* boomLength; //calculate the position of the trailing camera
+	cameraPos.y += 1; //lift the camera up a bit so it's looking down slightly at the player rather than at ground level
+	m_camera.world[3].xyz = cameraPos; //position camera at correct place
+	gPlayerController->move(rotation.rotate(velocity), minDistance, delta, filter); //tell physx to move the player controller
+}
