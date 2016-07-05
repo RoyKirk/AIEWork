@@ -21,16 +21,16 @@ public class managerscript : MonoBehaviour {
     {
         if (FLOAT)
         {
-            Instantiate(blockPrefabFloat, transform.position + transform.forward * startDistance, new Quaternion(0,0,0,0));
+            Instantiate(blockPrefabFloat, transform.position + transform.forward * startDistance, new Quaternion(0, 0, 0, 0));
         }
         if (!FLOAT)
         {
             Instantiate(blockPrefabArmour, transform.position + transform.forward * startDistance, new Quaternion(0, 0, 0, 0));
         }
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    void Update ()
     {
 	    if(blockdestroyed)
         {
@@ -71,49 +71,13 @@ public class managerscript : MonoBehaviour {
                         startConstruction = false;
                     }
 
-                    //this needs to change from xyz to up right forward so it is independent of rotation
                     block.transform.rotation = hit.collider.transform.rotation;
-                    Vector3 direction = hit.collider.transform.position - hit.point;
-                    direction.Normalize();
+                    block.transform.position = hit.collider.transform.position + hit.normal.normalized*placementOffset;
 
-                    if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y) && Mathf.Abs(direction.x) > Mathf.Abs(direction.z))
-                    {
-                        if (direction.x > 0)
-                        {
-                            block.transform.position = new Vector3(hit.collider.transform.position.x - placementOffset, hit.collider.transform.position.y, hit.collider.transform.position.z);
-                        }
-                        else
-                        {
-                            block.transform.position = new Vector3(hit.collider.transform.position.x + placementOffset, hit.collider.transform.position.y, hit.collider.transform.position.z);
-                        }
-                    }
-                    else if (Mathf.Abs(direction.y) > Mathf.Abs(direction.x) && Mathf.Abs(direction.y) > Mathf.Abs(direction.z))
-                    {
-                        if (direction.y > 0)
-                        {
-                            block.transform.position = new Vector3(hit.collider.transform.position.x, hit.collider.transform.position.y - placementOffset, hit.collider.transform.position.z);
-                        }
-                        else
-                        {
-                            block.transform.position = new Vector3(hit.collider.transform.position.x, hit.collider.transform.position.y + placementOffset, hit.collider.transform.position.z);
-                        }
-                    }
-                    else if (Mathf.Abs(direction.z) > Mathf.Abs(direction.y) && Mathf.Abs(direction.z) > Mathf.Abs(direction.x))
-                    {
-                        if (direction.z > 0)
-                        {
-                            block.transform.position = new Vector3(hit.collider.transform.position.x, hit.collider.transform.position.y, hit.collider.transform.position.z - placementOffset);
-                        }
-                        else
-                        {
-                            block.transform.position = new Vector3(hit.collider.transform.position.x, hit.collider.transform.position.y, hit.collider.transform.position.z + placementOffset);
-                        }
-                    }
-                    // block.transform.position = hit.point;
                 }
             }
 
-            if (Input.GetMouseButtonUp(0) && block)
+            if (Input.GetMouseButtonUp(0) && block && block.GetComponent<PlacementBlockScript>().placeable)
             {
                 if (FLOAT)
                 {

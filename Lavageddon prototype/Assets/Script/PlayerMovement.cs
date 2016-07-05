@@ -18,13 +18,13 @@ public class PlayerMovement : MonoBehaviour {
     {
         //RaycastHit hit;
 
-        //if (Physics.Raycast(transform.position, new Vector3(0,-1,0), out hit, frictionCast))
+        //if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
         //{
         //    Debug.DrawLine(transform.position, hit.point);
 
         //    if (hit.collider.tag == "Block")
         //    {
-        //        transform.position = hit.collider.transform.position+new Vector3(0,10,0);
+        //        transform.parent = hit.collider.transform;
         //    }
         //}
 
@@ -51,7 +51,7 @@ public class PlayerMovement : MonoBehaviour {
 
         if (Input.GetKey(KeyCode.W))
         {
-            transform.position += new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0,0) * movementSpeed;
+            transform.position += new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
         }
         if (Input.GetKey(KeyCode.A))
         {
@@ -59,7 +59,7 @@ public class PlayerMovement : MonoBehaviour {
         }
         if (Input.GetKey(KeyCode.S))
         {
-            transform.position -= new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, 0) * movementSpeed;
+            transform.position -= new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
         }
         if (Input.GetKey(KeyCode.D))
         {
