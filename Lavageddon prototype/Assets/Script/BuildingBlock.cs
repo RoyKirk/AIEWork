@@ -2,11 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class buildingblock : MonoBehaviour {
+public class BuildingBlock : MonoBehaviour {
 
 
     public float blockCast;
-
+    
     // Use this for initialization
     void Start ()
     {
@@ -16,7 +16,7 @@ public class buildingblock : MonoBehaviour {
         if (Physics.Raycast(transform.position, transform.up, out hit, blockCast))
         {
             //Debug.DrawLine(transform.position, hit.point);
-            Debug.DrawLine(transform.position, hit.point, Color.red, 200);
+            
             if (hit.collider.tag == "Block")
             {
                 FixedJoint temp = gameObject.AddComponent<FixedJoint>();
@@ -84,14 +84,20 @@ public class buildingblock : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
+        if(Input.GetKeyUp(KeyCode.KeypadEnter))
+        {
+            GetComponent<WhirlpoolCurrent>().enabled = true;
+            GetComponent<FloatFixed>().enabled = true;
+        }
 
-        ////destruction
-        //if (Input.GetKeyUp(KeyCode.Space))
-        //{
-        //    //FixedJoint joint = gameObject.GetComponent(typeof(FixedJoint)) as FixedJoint;
-        //    GameObject.Find("Main Camera").GetComponent<managerscript>().blockdestroyed = true;
-        //    Destroy(gameObject);
+    }
 
-        //}
+    void OnDestroy()
+    {
+        //destruction
+        if (GameObject.Find("Main Camera"))
+        {
+            GameObject.Find("Main Camera").GetComponent<managerscript>().blockdestroyed = true;
+        }
     }
 }

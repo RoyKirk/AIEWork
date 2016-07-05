@@ -61,6 +61,10 @@ public class CameraMovement : MonoBehaviour {
         {
             transform.position -= transform.up.normalized * movementSpeed;
         }
+        if (Input.GetKeyUp(KeyCode.KeypadEnter))
+        {
+            GetComponent<PlayerMovement>().enabled = true;
+        }
     }
 
     void Start()
@@ -69,4 +73,5 @@ public class CameraMovement : MonoBehaviour {
         if (GetComponent<Rigidbody>())
             GetComponent<Rigidbody>().freezeRotation = true;
     }
+
 }
