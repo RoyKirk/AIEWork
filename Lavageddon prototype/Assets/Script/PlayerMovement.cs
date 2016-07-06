@@ -16,17 +16,25 @@ public class PlayerMovement : MonoBehaviour {
     float rotationY = 0F;
     void Update()
     {
-        //RaycastHit hit;
+        RaycastHit hit;
 
-        //if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
-        //{
-        //    Debug.DrawLine(transform.position, hit.point);
+        if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
+        {
+            Debug.DrawLine(transform.position, hit.point);
 
-        //    if (hit.collider.tag == "Block")
-        //    {
-        //        transform.parent = hit.collider.transform;
-        //    }
-        //}
+            if (hit.collider.tag == "Block")
+            {
+                //Vector3 direction = new Vector3(0, 0, 0);
+                //direction = hit.collider.transform.position - transform.position;
+                //direction.y = 0;
+                //transform.position += direction;
+                //GetComponent<Rigidbody>().AddForce(direction*100);
+                transform.parent = hit.collider.transform;
+            }
+        }
+
+        
+        
 
         if (axes == RotationAxes.MouseXAndY)
         {
