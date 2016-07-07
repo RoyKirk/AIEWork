@@ -80,12 +80,14 @@ public class BuildingBlock : MonoBehaviour {
         }
 
         GetComponent<BoxCollider>().enabled = true;
+        GetComponent<Rigidbody>().isKinematic = true;
     }
 
     // Update is called once per frame
     void Update() {
         if(Input.GetKeyUp(KeyCode.KeypadEnter))
         {
+            GetComponent<Rigidbody>().isKinematic = false;
             GetComponent<WhirlpoolCurrent>().enabled = true;
             GetComponent<FloatFixed>().enabled = true;
         }

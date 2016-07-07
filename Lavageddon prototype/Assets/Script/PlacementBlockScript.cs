@@ -14,4 +14,9 @@ public class PlacementBlockScript : MonoBehaviour {
     {
         placeable = false;
     }
+
+    void OnTriggerStay(Collider other)
+    {
+        placeable = false;
+    }
 }

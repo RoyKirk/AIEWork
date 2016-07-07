@@ -32,9 +32,13 @@ public class PlayerMovement : MonoBehaviour {
                 transform.parent = hit.collider.transform;
             }
         }
+        else
+        {
+            transform.parent = null;
+        }
 
-        
-        
+
+
 
         if (axes == RotationAxes.MouseXAndY)
         {
@@ -83,6 +87,8 @@ public class PlayerMovement : MonoBehaviour {
         {
             GetComponent<Rigidbody>().useGravity = true;
             GetComponent<Rigidbody>().freezeRotation = true;
+            GetComponent<Rigidbody>().isKinematic = false;
         }
+
     }
 }
