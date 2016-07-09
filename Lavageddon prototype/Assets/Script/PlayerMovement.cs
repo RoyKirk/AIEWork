@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour {
     public float minimumY = -60F;
     public float maximumY = 60F;
     public float frictionCast;
+    public float jumpForce = 10.0f;
     float rotationY = 0F;
     void Update()
     {
@@ -21,6 +22,10 @@ public class PlayerMovement : MonoBehaviour {
         if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
         {
             Debug.DrawLine(transform.position, hit.point);
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                GetComponent<Rigidbody>().AddForce(0, jumpForce, 0);
+            }
 
             if (hit.collider.tag == "Block")
             {

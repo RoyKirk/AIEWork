@@ -1,7 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
 public class managerscript : MonoBehaviour {
+
+    public enum BlockType
+    {
+        FLOAT,
+        ARMOUR,
+    };
 
     public bool blockdestroyed = false;
     public float blockOffset;
@@ -13,17 +20,17 @@ public class managerscript : MonoBehaviour {
     public float placementReach;
     public float placementOffset;
     public bool constructionMode;
-    public bool FLOAT;
+    public BlockType blockType = BlockType.FLOAT;
     bool startConstruction = true;
     public float startDistance = 10;
     // Use this for initialization
     void Start ()
     {
-        if (FLOAT)
+        if (blockType == BlockType.FLOAT)
         {
             Instantiate(blockPrefabFloat, transform.position + transform.forward * startDistance, new Quaternion(0, 0, 0, 0));
         }
-        if (!FLOAT)
+        if (blockType == BlockType.ARMOUR)
         {
             Instantiate(blockPrefabArmour, transform.position + transform.forward * startDistance, new Quaternion(0, 0, 0, 0));
         }

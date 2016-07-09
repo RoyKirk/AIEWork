@@ -94,12 +94,5 @@ public class BuildingBlock : MonoBehaviour {
 
     }
 
-    void OnDestroy()
-    {
-        //destruction
-        if (GameObject.Find("Main Camera"))
-        {
-            GameObject.Find("Main Camera").GetComponent<managerscript>().blockdestroyed = true;
-        }
-    }
+
 }
