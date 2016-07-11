@@ -9,7 +9,7 @@ public class managerscript : MonoBehaviour {
         FLOAT,
         ARMOUR,
     };
-
+    int numberOfBlockTypes = 2;
     public bool blockdestroyed = false;
     public float blockOffset;
     public GameObject blockPlacePrefabFloat;
@@ -67,11 +67,11 @@ public class managerscript : MonoBehaviour {
                 {
                     if (startConstruction)
                     {
-                        if (FLOAT)
+                        if (blockType == BlockType.FLOAT)
                         {
                             block = (GameObject)Instantiate(blockPlacePrefabFloat, hit.collider.transform.position, hit.collider.transform.rotation);
                         }
-                        if (!FLOAT)
+                        if (blockType == BlockType.ARMOUR)
                         {
                             block = (GameObject)Instantiate(blockPlacePrefabArmour, hit.collider.transform.position, hit.collider.transform.rotation);
                         }
@@ -86,11 +86,11 @@ public class managerscript : MonoBehaviour {
 
             if (Input.GetMouseButtonUp(0) && block && block.GetComponent<PlacementBlockScript>().placeable)
             {
-                if (FLOAT)
+                if (blockType == BlockType.FLOAT)
                 {
                     Instantiate(blockPrefabFloat, block.transform.position, block.transform.rotation);
                 }
-                if (!FLOAT)
+                if (blockType == BlockType.ARMOUR)
                 {
                     Instantiate(blockPrefabArmour, block.transform.position, block.transform.rotation);
                 }
@@ -98,13 +98,17 @@ public class managerscript : MonoBehaviour {
 
             if (Input.GetKeyUp(KeyCode.Space) && block)
             {
-                FLOAT = !FLOAT;
+                blockType++;
+                if((int)blockType == numberOfBlockTypes)
+                {
+                    blockType = (BlockType)0;
+                }
                 Destroy(block);
-                if (FLOAT)
+                if (blockType == BlockType.FLOAT)
                 {
                     block = (GameObject)Instantiate(blockPlacePrefabFloat, block.transform.position, block.transform.rotation);
                 }
-                if(!FLOAT)
+                if (blockType == BlockType.ARMOUR)
                 {
                     block = (GameObject)Instantiate(blockPlacePrefabArmour, block.transform.position, block.transform.rotation);
                 }

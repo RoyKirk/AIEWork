@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour {
     public float maximumX = 360F;
     public float minimumY = -60F;
     public float maximumY = 60F;
-    public float frictionCast;
+    public float frictionCast = 1.0f;
     public float jumpForce = 10.0f;
     float rotationY = 0F;
     void Update()
@@ -34,7 +34,9 @@ public class PlayerMovement : MonoBehaviour {
                 //direction.y = 0;
                 //transform.position += direction;
                 //GetComponent<Rigidbody>().AddForce(direction*100);
+                Quaternion rotation = transform.rotation;
                 transform.parent = hit.collider.transform;
+                transform.rotation = rotation;
             }
         }
         else
