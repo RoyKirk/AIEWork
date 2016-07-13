@@ -82,9 +82,15 @@ public class managerscript : MonoBehaviour {
                     block.transform.position = hit.collider.transform.position + hit.normal.normalized*placementOffset;
 
                 }
+
+            }
+            else
+            {
+                Destroy(block);
+                startConstruction = true;
             }
 
-            if (Input.GetMouseButtonUp(0) && block && block.GetComponent<PlacementBlockScript>().placeable)
+            if (Input.GetButtonDown("Fire1") && block && block.GetComponent<PlacementBlockScript>().placeable)
             {
                 if (blockType == BlockType.FLOAT)
                 {

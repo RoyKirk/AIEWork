@@ -15,7 +15,8 @@ public class CameraMovement : MonoBehaviour {
     float rotationY = 0F;
     void Update()
     {
-        if(Input.GetMouseButton(1)){
+        if (Input.GetButton("Fire2"))
+        {
             if (axes == RotationAxes.MouseXAndY)
             {
                 float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;
@@ -35,8 +36,31 @@ public class CameraMovement : MonoBehaviour {
                 rotationY = Mathf.Clamp(rotationY, minimumY, maximumY);
 
                 transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
-           }
+            }
         }
+
+        if (axes == RotationAxes.MouseXAndY)
+        {
+            float rotationX = transform.localEulerAngles.y + Input.GetAxis("Joy X");
+
+            rotationY += Input.GetAxis("Joy Y");
+            rotationY = Mathf.Clamp(rotationY, minimumY, maximumY);
+
+            transform.localEulerAngles = new Vector3(-rotationY, rotationX, 0);
+        }
+        else if (axes == RotationAxes.MouseX)
+        {
+            transform.Rotate(0, Input.GetAxis("Joy X"), 0);
+        }
+        else
+        {
+            rotationY += Input.GetAxis("Joy Y");
+            rotationY = Mathf.Clamp(rotationY, minimumY, maximumY);
+
+            transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
+        }
+
+
         if (Input.GetKey(KeyCode.W))
         {
             transform.position += transform.forward.normalized * movementSpeed;
@@ -61,7 +85,7 @@ public class CameraMovement : MonoBehaviour {
         {
             transform.position -= transform.up.normalized * movementSpeed;
         }
-        if (Input.GetKeyUp(KeyCode.KeypadEnter))
+        if (Input.GetButtonDown("Submit"))
         {
             GetComponent<PlayerMovement>().enabled = true;
         }
