@@ -85,7 +85,7 @@ public class BuildingBlock : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if(Input.GetKeyUp(KeyCode.KeypadEnter))
+        if (Input.GetButtonDown("Submit"))
         {
             GetComponent<Rigidbody>().isKinematic = false;
             GetComponent<WhirlpoolCurrent>().enabled = true;

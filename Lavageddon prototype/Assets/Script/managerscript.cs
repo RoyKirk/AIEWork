@@ -19,7 +19,7 @@ public class managerscript : MonoBehaviour {
     GameObject block;
     public float placementReach;
     public float placementOffset;
-    public bool constructionMode;
+    public bool constructionMode = true;
     public BlockType blockType = BlockType.FLOAT;
     bool startConstruction = true;
     public float startDistance = 10;
@@ -50,6 +50,11 @@ public class managerscript : MonoBehaviour {
                 }
             }
             blockdestroyed = false;
+        }
+
+        if(Input.GetButtonDown("Exit"))
+        {
+            Application.Quit();
         }
 
         if (constructionMode)
@@ -84,6 +89,32 @@ public class managerscript : MonoBehaviour {
                 }
 
             }
+            //else if (Physics.Raycast(transform.position, transform.forward, out hit, placementReach))
+            //{
+
+            //    Debug.DrawLine(ray.origin, hit.point);
+
+            //    if (hit.collider.tag == "Block")
+            //    {
+            //        if (startConstruction)
+            //        {
+            //            if (blockType == BlockType.FLOAT)
+            //            {
+            //                block = (GameObject)Instantiate(blockPlacePrefabFloat, hit.collider.transform.position, hit.collider.transform.rotation);
+            //            }
+            //            if (blockType == BlockType.ARMOUR)
+            //            {
+            //                block = (GameObject)Instantiate(blockPlacePrefabArmour, hit.collider.transform.position, hit.collider.transform.rotation);
+            //            }
+            //            startConstruction = false;
+            //        }
+
+            //        block.transform.rotation = hit.collider.transform.rotation;
+            //        block.transform.position = hit.collider.transform.position + hit.normal.normalized * placementOffset;
+
+            //    }
+
+            //}
             else
             {
                 Destroy(block);

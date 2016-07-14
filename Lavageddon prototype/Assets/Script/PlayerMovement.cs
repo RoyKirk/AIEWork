@@ -15,6 +15,8 @@ public class PlayerMovement : MonoBehaviour {
     public float frictionCast = 1.0f;
     public float jumpForce = 10.0f;
     float rotationY = 0F;
+    //public float shootDistance = 1000.0f;
+    public float bulletDamage = 1.0f;
     void Update()
     {
         RaycastHit hit;
@@ -26,7 +28,6 @@ public class PlayerMovement : MonoBehaviour {
             {
                 GetComponent<Rigidbody>().AddForce(0, jumpForce, 0);
             }
-
             if (hit.collider.tag == "Block")
             {
                 //Vector3 direction = new Vector3(0, 0, 0);
@@ -34,9 +35,14 @@ public class PlayerMovement : MonoBehaviour {
                 //direction.y = 0;
                 //transform.position += direction;
                 //GetComponent<Rigidbody>().AddForce(direction*100);
-                Quaternion rotation = transform.rotation;
+
                 transform.parent = hit.collider.transform;
-                transform.rotation = rotation;
+                transform.eulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
+                //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
+
+                //Vector3 eulerTemp = transform.eulerAngles + new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
+                //transform.eulerAngles += new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
+                //transform.eulerAngles = new Vector3(transform.eulerAngles.x, hit.collider.transform.eulerAngles.y, transform.eulerAngles.z);
             }
         }
         else
@@ -44,7 +50,7 @@ public class PlayerMovement : MonoBehaviour {
             transform.parent = null;
         }
 
-
+        //controller look
         if (axes == RotationAxes.MouseXAndY)
         {
             float rotationX = transform.localEulerAngles.y + Input.GetAxis("Joy X");
@@ -65,7 +71,7 @@ public class PlayerMovement : MonoBehaviour {
 
             transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
         }
-
+        //mouse look
         if (axes == RotationAxes.MouseXAndY)
         {
             float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;
@@ -87,26 +93,58 @@ public class PlayerMovement : MonoBehaviour {
             transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
         }
 
-        if (Input.GetKey(KeyCode.W))
+
+        transform.position += Input.GetAxis("Vertical") * new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
+        
+        transform.position += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
+
+
+
+        if (Input.GetButtonDown("Fire1"))
         {
-            transform.position += new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
+            RaycastHit shot;
+            if (Physics.Raycast(transform.position, transform.forward, out shot))
+            {
+                Debug.DrawLine(transform.position, shot.point);
+                if (shot.collider.tag == "Block")
+                {
+                    shot.collider.GetComponent<BlockDamage>().Damage(bulletDamage);
+                }
+            }
         }
-        if (Input.GetKey(KeyCode.A))
-        {
-            transform.position -= transform.right.normalized * movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            transform.position -= new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            transform.position += transform.right.normalized * movementSpeed;
-        }
+
     }
+
+    //void LateUpdate()
+    //{
+    //    RaycastHit hit;
+
+    //    if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
+    //    {
+    //        Debug.DrawLine(transform.position, hit.point);
+    //        if (hit.collider.tag == "Block")
+    //        {
+    //            //Vector3 direction = new Vector3(0, 0, 0);
+    //            //direction = hit.collider.transform.position - transform.position;
+    //            //direction.y = 0;
+    //            //transform.position += direction;
+    //            //GetComponent<Rigidbody>().AddForce(direction*100);
+
+    //            transform.eulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
+    //            //transform.parent = hit.collider.transform;
+    //            //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
+
+    //            //Vector3 eulerTemp = transform.eulerAngles + new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
+    //            //transform.eulerAngles += new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
+    //            //transform.eulerAngles = new Vector3(transform.eulerAngles.x, hit.collider.transform.eulerAngles.y, transform.eulerAngles.z);
+    //        }
+    //    }
+        
+    //}
 
     void Start()
     {
+        Cursor.visible = false;
         GetComponent<CameraMovement>().enabled = false;
         // Make the rigid body not change rotation
         if (GetComponent<Rigidbody>())

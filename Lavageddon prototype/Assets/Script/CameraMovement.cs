@@ -19,12 +19,18 @@ public class CameraMovement : MonoBehaviour {
         {
             if (axes == RotationAxes.MouseXAndY)
             {
-                float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;
+                if (Input.GetAxis("Mouse Y") != 0 || Input.GetAxis("Mouse X") != 0)
+                {
+                    Cursor.visible = true;
+                    Cursor.lockState = CursorLockMode.None;
 
-                rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
-                rotationY = Mathf.Clamp(rotationY, minimumY, maximumY);
+                    float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;
 
-                transform.localEulerAngles = new Vector3(-rotationY, rotationX, 0);
+                    rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+                    rotationY = Mathf.Clamp(rotationY, minimumY, maximumY);
+
+                    transform.localEulerAngles = new Vector3(-rotationY, rotationX, 0);
+                }
             }
             else if (axes == RotationAxes.MouseX)
             {
@@ -39,14 +45,22 @@ public class CameraMovement : MonoBehaviour {
             }
         }
 
+
+
         if (axes == RotationAxes.MouseXAndY)
         {
-            float rotationX = transform.localEulerAngles.y + Input.GetAxis("Joy X");
+            if (Input.GetAxis("Joy Y") != 0 || Input.GetAxis("Joy X") != 0)
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
 
-            rotationY += Input.GetAxis("Joy Y");
-            rotationY = Mathf.Clamp(rotationY, minimumY, maximumY);
+                float rotationX = transform.localEulerAngles.y + Input.GetAxis("Joy X");
 
-            transform.localEulerAngles = new Vector3(-rotationY, rotationX, 0);
+                rotationY += Input.GetAxis("Joy Y");
+                rotationY = Mathf.Clamp(rotationY, minimumY, maximumY);
+
+                transform.localEulerAngles = new Vector3(-rotationY, rotationX, 0);
+            }
         }
         else if (axes == RotationAxes.MouseX)
         {
@@ -61,30 +75,12 @@ public class CameraMovement : MonoBehaviour {
         }
 
 
-        if (Input.GetKey(KeyCode.W))
-        {
-            transform.position += transform.forward.normalized * movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            transform.position -= transform.right.normalized * movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            transform.position -= transform.forward.normalized * movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            transform.position += transform.right.normalized * movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.Q))
-        {
-            transform.position += transform.up.normalized * movementSpeed;
-        }
-        if (Input.GetKey(KeyCode.E))
-        {
-            transform.position -= transform.up.normalized * movementSpeed;
-        }
+        transform.position += Input.GetAxis("Vertical") * transform.forward.normalized * movementSpeed;
+
+        transform.position += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
+
+        transform.position += Input.GetAxis("UpDown") * transform.up.normalized * movementSpeed;
+
         if (Input.GetButtonDown("Submit"))
         {
             GetComponent<PlayerMovement>().enabled = true;
@@ -93,6 +89,7 @@ public class CameraMovement : MonoBehaviour {
 
     void Start()
     {
+        Cursor.visible = true;
         // Make the rigid body not change rotation
         if (GetComponent<Rigidbody>())
         {
