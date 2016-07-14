@@ -89,6 +89,7 @@ public class managerscript : MonoBehaviour {
                 }
 
             }
+            ////controller without cursor set
             //else if (Physics.Raycast(transform.position, transform.forward, out hit, placementReach))
             //{
 

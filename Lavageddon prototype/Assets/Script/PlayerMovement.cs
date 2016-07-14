@@ -24,7 +24,7 @@ public class PlayerMovement : MonoBehaviour {
         if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
         {
             Debug.DrawLine(transform.position, hit.point);
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetButtonDown("Jump"))
             {
                 GetComponent<Rigidbody>().AddForce(0, jumpForce, 0);
             }
