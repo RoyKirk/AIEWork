@@ -11,14 +11,13 @@ public class managerscript : MonoBehaviour {
     };
     int numberOfBlockTypes = 2;
     public bool blockdestroyed = false;
-    public float blockOffset;
     public GameObject blockPlacePrefabFloat;
     public GameObject blockPlacePrefabArmour;
     public GameObject blockPrefabFloat;
     public GameObject blockPrefabArmour;
     GameObject block;
-    public float placementReach;
-    public float placementOffset;
+    public float placementReach = 1000f;
+    public float placementOffset = 1.2f;
     public bool constructionMode = true;
     public BlockType blockType = BlockType.FLOAT;
     bool startConstruction = true;

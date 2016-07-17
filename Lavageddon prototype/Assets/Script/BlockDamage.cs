@@ -31,10 +31,9 @@ public class BlockDamage : MonoBehaviour {
     void OnDestroy()
     {
         //destruction
-        if (GameObject.Find("Player"))
+        if (GameObject.Find("Main Camera"))
         {
-            GameObject.Find("Player").GetComponent<ManagerScriptMouse>().blockdestroyed = true;
-            GameObject.Find("Player").GetComponent<ManagerScriptController>().blockdestroyed = true;
+            GameObject.Find("Main Camera").GetComponent<managerscript>().blockdestroyed = true;
         }
     }
 }

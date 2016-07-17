@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour {
     public float minimumY = -60F;
     public float maximumY = 60F;
     public float frictionCast = 1.0f;
-    public float jumpForce = 10.0f;
+    public float jumpForce = 1000.0f;
     float rotationY = 0F;
     //public float shootDistance = 1000.0f;
     public float bulletDamage = 1.0f;
