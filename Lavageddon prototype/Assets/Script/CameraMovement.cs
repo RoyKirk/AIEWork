@@ -15,8 +15,8 @@ public class CameraMovement : MonoBehaviour {
     float rotationY = 0F;
     void Update()
     {
-        if (Input.GetButton("MoveCamera"))
-        {
+        //if (Input.GetButton("MoveCamera"))
+        //{
             if (axes == RotationAxes.MouseXAndY)
             {
                 if (Input.GetAxis("Mouse Y") != 0 || Input.GetAxis("Mouse X") != 0)
@@ -43,7 +43,7 @@ public class CameraMovement : MonoBehaviour {
 
                 transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
             }
-        }
+        //}
 
 
 

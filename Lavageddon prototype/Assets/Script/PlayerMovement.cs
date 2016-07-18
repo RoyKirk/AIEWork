@@ -37,20 +37,26 @@ public class PlayerMovement : MonoBehaviour {
                 //transform.position += direction;
                 //GetComponent<Rigidbody>().AddForce(direction*100);
 
-               
-                //transform.localPosition = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
-
                 transform.parent = hit.collider.transform;
+                //Vector3 temp = Vector3.MoveTowards(transform.position,hit.collider.transform.position, 0.1f);
+                //transform.position = new Vector3(temp.x, transform.position.y, temp.z);
+                //velocity = (current - previous) / Time.deltaTime;
+
+
+                //transform.position += hit.collider.GetComponent<Rigidbody>().velocity;
+                //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
+                //transform.eulerAngles = new Vector3(hit.collider.transform.eulerAngles.x, transform.eulerAngles.y, hit.collider.transform.eulerAngles.z);
+                //transform.localPosition = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
 
                 //transform.position = hit.collider.transform.position;
                 //Vector3 moveDelta = hit.GetComponent<PlatformSpeed>().moveDelta;
 
                 //this.transform.position += (Vector3)moveDelta;
 
-                //transform.localEulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
+                //transform.eulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
 
 
-                //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
+                //transform.localPosition = new Vector3(hit.collider.transform.position.x, transform.localPosition.y, hit.collider.transform.position.z);
 
                 //Vector3 eulerTemp = transform.eulerAngles + new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
                 //transform.eulerAngles += new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
@@ -104,13 +110,11 @@ public class PlayerMovement : MonoBehaviour {
 
             transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
         }
-
+        
 
         transform.position += Input.GetAxis("Vertical") * new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
         
         transform.position += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
-
-
 
         if (Input.GetButtonDown("Fire"))
         {
@@ -127,12 +131,13 @@ public class PlayerMovement : MonoBehaviour {
 
     }
 
-    //void LateUpdate()
-    //{
-        //if (transform.parent)
-        //{
-        //    transform.eulerAngles -= new Vector3(transform.parent.transform.eulerAngles.x, 0, transform.parent.transform.eulerAngles.z);
-        //}
+    void LateUpdate()
+    {
+        if (transform.parent)
+        {
+            transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
+            //transform.localEulerAngles -= new Vector3(transform.parent.transform.eulerAngles.x, transform.parent.transform.eulerAngles.y, transform.parent.transform.eulerAngles.z);
+        }
 
         //    RaycastHit hit;
 
@@ -157,9 +162,9 @@ public class PlayerMovement : MonoBehaviour {
         //        }
         //    }
 
-    //}
+    }
 
-    void Start()
+        void Start()
     {
         Cursor.visible = false;
         GetComponent<CameraMovement>().enabled = false;

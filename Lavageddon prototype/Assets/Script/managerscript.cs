@@ -65,13 +65,15 @@ public class managerscript : MonoBehaviour {
         if (constructionMode)
         {
 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, placementReach))
+            //if (Physics.Raycast(ray, out hit, placementReach))
+            if (Physics.Raycast(transform.position, transform.forward, out hit, placementReach))
             {
 
-                Debug.DrawLine(ray.origin, hit.point);
+                //Debug.DrawLine(ray.origin, hit.point);
+                Debug.DrawLine(transform.position, hit.point);
 
                 if (hit.collider.tag == "Block")
                 {
@@ -92,6 +94,13 @@ public class managerscript : MonoBehaviour {
                     block.transform.position = hit.collider.transform.position + hit.normal.normalized*placementOffset;
 
                 }
+                else if (hit.collider.tag != "Block" && hit.collider.tag != "PlaceBlock")
+                {
+                    Destroy(block);
+                    startConstruction = true;
+                }
+
+
 
             }
             ////controller without cursor set

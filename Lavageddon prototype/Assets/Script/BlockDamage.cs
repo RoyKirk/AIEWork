@@ -24,6 +24,7 @@ public class BlockDamage : MonoBehaviour {
         HitPoints -= damage;
         if(HitPoints<=0)
         {
+            transform.DetachChildren();
             Destroy(gameObject);
         }
     }
