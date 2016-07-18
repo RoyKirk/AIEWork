@@ -15,7 +15,7 @@ public class CameraMovement : MonoBehaviour {
     float rotationY = 0F;
     void Update()
     {
-        if (Input.GetButton("Fire2"))
+        if (Input.GetButton("MoveCamera"))
         {
             if (axes == RotationAxes.MouseXAndY)
             {
@@ -79,9 +79,11 @@ public class CameraMovement : MonoBehaviour {
 
         transform.position += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
 
-        transform.position += Input.GetAxis("UpDown") * transform.up.normalized * movementSpeed;
+        //transform.position += Input.GetAxis("UpDown") * transform.up.normalized * movementSpeed;
 
-        if (Input.GetButtonDown("Submit"))
+        transform.position += Input.GetAxis("UpDown") * new Vector3(0,1,0) * movementSpeed;
+
+        if (Input.GetButtonDown("StartGame"))
         {
             GetComponent<PlayerMovement>().enabled = true;
         }

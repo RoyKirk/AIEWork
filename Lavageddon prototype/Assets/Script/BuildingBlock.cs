@@ -85,7 +85,7 @@ public class BuildingBlock : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if (Input.GetButtonDown("Submit"))
+        if (Input.GetButtonDown("StartGame"))
         {
             GetComponent<Rigidbody>().isKinematic = false;
             GetComponent<WhirlpoolCurrent>().enabled = true;

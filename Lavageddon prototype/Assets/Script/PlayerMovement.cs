@@ -19,6 +19,7 @@ public class PlayerMovement : MonoBehaviour {
     public float bulletDamage = 1.0f;
     void Update()
     {
+
         RaycastHit hit;
 
         if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
@@ -36,8 +37,19 @@ public class PlayerMovement : MonoBehaviour {
                 //transform.position += direction;
                 //GetComponent<Rigidbody>().AddForce(direction*100);
 
+               
+                //transform.localPosition = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
+
                 transform.parent = hit.collider.transform;
-                transform.eulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
+
+                //transform.position = hit.collider.transform.position;
+                //Vector3 moveDelta = hit.GetComponent<PlatformSpeed>().moveDelta;
+
+                //this.transform.position += (Vector3)moveDelta;
+
+                //transform.localEulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
+
+
                 //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
 
                 //Vector3 eulerTemp = transform.eulerAngles + new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
@@ -100,7 +112,7 @@ public class PlayerMovement : MonoBehaviour {
 
 
 
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire"))
         {
             RaycastHit shot;
             if (Physics.Raycast(transform.position, transform.forward, out shot))
@@ -117,29 +129,34 @@ public class PlayerMovement : MonoBehaviour {
 
     //void LateUpdate()
     //{
-    //    RaycastHit hit;
+        //if (transform.parent)
+        //{
+        //    transform.eulerAngles -= new Vector3(transform.parent.transform.eulerAngles.x, 0, transform.parent.transform.eulerAngles.z);
+        //}
 
-    //    if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
-    //    {
-    //        Debug.DrawLine(transform.position, hit.point);
-    //        if (hit.collider.tag == "Block")
-    //        {
-    //            //Vector3 direction = new Vector3(0, 0, 0);
-    //            //direction = hit.collider.transform.position - transform.position;
-    //            //direction.y = 0;
-    //            //transform.position += direction;
-    //            //GetComponent<Rigidbody>().AddForce(direction*100);
+        //    RaycastHit hit;
 
-    //            transform.eulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
-    //            //transform.parent = hit.collider.transform;
-    //            //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
+        //    if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
+        //    {
+        //        Debug.DrawLine(transform.position, hit.point);
+        //        if (hit.collider.tag == "Block")
+        //        {
+        //            //Vector3 direction = new Vector3(0, 0, 0);
+        //            //direction = hit.collider.transform.position - transform.position;
+        //            //direction.y = 0;
+        //            //transform.position += direction;
+        //            //GetComponent<Rigidbody>().AddForce(direction*100);
 
-    //            //Vector3 eulerTemp = transform.eulerAngles + new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
-    //            //transform.eulerAngles += new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
-    //            //transform.eulerAngles = new Vector3(transform.eulerAngles.x, hit.collider.transform.eulerAngles.y, transform.eulerAngles.z);
-    //        }
-    //    }
-        
+        //            transform.eulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
+        //            //transform.parent = hit.collider.transform;
+        //            //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
+
+        //            //Vector3 eulerTemp = transform.eulerAngles + new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
+        //            //transform.eulerAngles += new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
+        //            //transform.eulerAngles = new Vector3(transform.eulerAngles.x, hit.collider.transform.eulerAngles.y, transform.eulerAngles.z);
+        //        }
+        //    }
+
     //}
 
     void Start()

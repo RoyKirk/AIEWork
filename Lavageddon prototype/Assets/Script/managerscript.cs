@@ -53,7 +53,13 @@ public class managerscript : MonoBehaviour {
 
         if(Input.GetButtonDown("Exit"))
         {
-            Application.Quit();
+            #if UNITY_EDITOR
+                        UnityEditor.EditorApplication.isPlaying = false;
+            #elif UNITY_WEBPLAYER
+                     Application.OpenURL(webplayerQuitURL);
+            #else
+                     Application.Quit();
+            #endif
         }
 
         if (constructionMode)
@@ -121,7 +127,7 @@ public class managerscript : MonoBehaviour {
                 startConstruction = true;
             }
 
-            if (Input.GetButtonDown("Fire1") && block && block.GetComponent<PlacementBlockScript>().placeable)
+            if (Input.GetButtonDown("Fire") && block && block.GetComponent<PlacementBlockScript>().placeable)
             {
                 if (blockType == BlockType.FLOAT)
                 {
@@ -133,14 +139,63 @@ public class managerscript : MonoBehaviour {
                 }
             }
 
-            if (Input.GetKeyUp(KeyCode.Space) && block)
+            if (Input.GetButtonDown("SwitchBlock") && block)
             {
-                blockType++;
+                if (Input.GetAxis("SwitchBlock") > 0)
+                {
+                    blockType++;
+                }
+                if (Input.GetAxis("SwitchBlock") < 0)
+                {
+                    blockType--;
+                }
+
                 if((int)blockType == numberOfBlockTypes)
                 {
                     blockType = (BlockType)0;
                 }
+                else if((int)blockType < 0)
+                {
+                    blockType = (BlockType)(numberOfBlockTypes -1);
+                }
+
+
                 Destroy(block);
+
+
+                if (blockType == BlockType.FLOAT)
+                {
+                    block = (GameObject)Instantiate(blockPlacePrefabFloat, block.transform.position, block.transform.rotation);
+                }
+                if (blockType == BlockType.ARMOUR)
+                {
+                    block = (GameObject)Instantiate(blockPlacePrefabArmour, block.transform.position, block.transform.rotation);
+                }
+            }
+            else if (!Input.GetButton("SwitchBlock") && !Input.GetButtonDown("SwitchBlock") && Input.GetAxis("SwitchBlock") != 0)
+            {
+                if (Input.GetAxis("SwitchBlock") > 0)
+                {
+                    blockType++;
+                }
+                if (Input.GetAxis("SwitchBlock") < 0)
+                {
+                    blockType--;
+                }
+
+                if ((int)blockType == numberOfBlockTypes)
+                {
+                    blockType = (BlockType)0;
+                }
+                else if ((int)blockType < 0)
+                {
+                    blockType = (BlockType)(numberOfBlockTypes - 1);
+                }
+
+
+                Destroy(block);
+
+
                 if (blockType == BlockType.FLOAT)
                 {
                     block = (GameObject)Instantiate(blockPlacePrefabFloat, block.transform.position, block.transform.rotation);
