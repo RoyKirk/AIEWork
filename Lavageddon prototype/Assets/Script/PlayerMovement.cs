@@ -135,7 +135,7 @@ public class PlayerMovement : MonoBehaviour {
     {
         if (transform.parent)
         {
-            transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
+            transform.eulerAngles -= new Vector3(transform.parent.transform.eulerAngles.x, transform.parent.transform.eulerAngles.y, transform.parent.transform.eulerAngles.z);
             //transform.localEulerAngles -= new Vector3(transform.parent.transform.eulerAngles.x, transform.parent.transform.eulerAngles.y, transform.parent.transform.eulerAngles.z);
         }
 
