@@ -29,52 +29,6 @@ public class PlayerMovement : MonoBehaviour {
             {
                 GetComponent<Rigidbody>().AddForce(0, jumpForce, 0);
             }
-            if (hit.collider.tag == "Block")
-            {
-                //Vector3 temp = Vector3.MoveTowards(transform.position, hit.collider.transform.position, 0.08f);
-                //transform.position = new Vector3(temp.x, transform.position.y, temp.z);
-
-                //Vector3 direction = new Vector3(0, 0, 0);
-                //direction = hit.collider.transform.position - transform.position;
-                //direction.y = 0;
-                //transform.position += direction;
-                //GetComponent<Rigidbody>().AddForce(direction*100);
-
-                transform.parent = hit.collider.transform;
-                //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
-                //velocity = (current - previous) / Time.deltaTime;
-
-
-                //Vector3 posDif = hit.collider.transform.position - transform.position;
-                //posDif = hit.collider.transform.position + posDif;
-                //transform.position = new Vector3(posDif.x, transform.position.y, posDif.z);
-
-
-
-
-                //transform.position += hit.collider.GetComponent<Rigidbody>().velocity;
-                //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
-                //transform.eulerAngles = new Vector3(hit.collider.transform.eulerAngles.x, transform.eulerAngles.y, hit.collider.transform.eulerAngles.z);
-                //transform.localPosition = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
-
-                //transform.position = hit.collider.transform.position;
-                //Vector3 moveDelta = hit.GetComponent<PlatformSpeed>().moveDelta;
-
-                //this.transform.position += (Vector3)moveDelta;
-
-                //transform.eulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
-
-
-                //transform.localPosition = new Vector3(hit.collider.transform.position.x, transform.localPosition.y, hit.collider.transform.position.z);
-
-                //Vector3 eulerTemp = transform.eulerAngles + new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
-                //transform.eulerAngles += new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
-                //transform.eulerAngles = new Vector3(transform.eulerAngles.x, hit.collider.transform.eulerAngles.y, transform.eulerAngles.z);
-            }
-        }
-        else
-        {
-            transform.parent = null;
         }
 
         //controller look
@@ -121,9 +75,9 @@ public class PlayerMovement : MonoBehaviour {
         }
         
 
-        transform.localPosition += Input.GetAxis("Vertical") * new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
+        transform.position += Input.GetAxis("Vertical") * new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
         
-        transform.localPosition += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
+        transform.position += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
 
         if (Input.GetButtonDown("Fire"))
         {
@@ -145,23 +99,23 @@ public class PlayerMovement : MonoBehaviour {
 
     void LateUpdate()
     {
-        transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
-        //if (transform.parent)
-        //{
-        //transform.eulerAngles -= new Vector3(transform.eulerAngles.x, 0, transform.eulerAngles.z);
-        //transform.localEulerAngles = new Vector3(0, 0, 0);
-        //}
+        RaycastHit hit;
 
-        //RaycastHit hit;
-
-        //if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
-        //{
-        //    Debug.DrawLine(transform.position, hit.point);
-        //    if (hit.collider.tag == "Block")
-        //    {
-        //        GetComponent<Rigidbody>().velocity = hit.collider.GetComponent<Rigidbody>().velocity;
-        //    }
-        //}
+        if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
+        {
+            Debug.DrawLine(transform.position, hit.point);
+            if (hit.collider.tag == "Block")
+            {
+                transform.parent = hit.collider.transform;
+                //GetComponent<Rigidbody>().velocity = hit.collider.GetComponent<Rigidbody>().velocity;
+            }
+        }
+        else
+        {
+            transform.parent = null;
+            //GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, 0);
+        }
+        GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, 0);
     }
 
     void Start()

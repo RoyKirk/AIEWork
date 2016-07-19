@@ -79,6 +79,7 @@
     <Compile Include="Assets\Script\FiringScript.cs" />
     <Compile Include="Assets\Script\FloatFixed.cs" />
     <Compile Include="Assets\Script\PlacementBlockScript.cs" />
+    <Compile Include="Assets\Script\PlatformScript.cs" />
     <Compile Include="Assets\Script\PlayerMovement.cs" />
     <Compile Include="Assets\Script\ProjectileScript.cs" />
     <Compile Include="Assets\Script\WhirlpoolCurrent.cs" />
