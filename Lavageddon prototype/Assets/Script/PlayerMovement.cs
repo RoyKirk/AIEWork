@@ -24,6 +24,7 @@ public class PlayerMovement : MonoBehaviour {
 
         if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
         {
+
             Debug.DrawLine(transform.position, hit.point);
             if (Input.GetButtonDown("Jump"))
             {
@@ -31,15 +32,19 @@ public class PlayerMovement : MonoBehaviour {
             }
             if (hit.collider.tag == "Block")
             {
+                //Vector3 temp = Vector3.MoveTowards(transform.position, hit.collider.transform.position, 0.08f);
+                //transform.position = new Vector3(temp.x, transform.position.y, temp.z);
+
                 //Vector3 direction = new Vector3(0, 0, 0);
                 //direction = hit.collider.transform.position - transform.position;
                 //direction.y = 0;
                 //transform.position += direction;
                 //GetComponent<Rigidbody>().AddForce(direction*100);
 
+
+
                 transform.parent = hit.collider.transform;
-                //Vector3 temp = Vector3.MoveTowards(transform.position,hit.collider.transform.position, 0.1f);
-                //transform.position = new Vector3(temp.x, transform.position.y, temp.z);
+                
                 //velocity = (current - previous) / Time.deltaTime;
 
 
@@ -124,7 +129,9 @@ public class PlayerMovement : MonoBehaviour {
                 Debug.DrawLine(transform.position, shot.point);
                 if (shot.collider.tag == "Block")
                 {
+
                     shot.collider.GetComponent<BlockDamage>().Damage(bulletDamage);
+
                 }
             }
         }
@@ -135,8 +142,8 @@ public class PlayerMovement : MonoBehaviour {
     {
         if (transform.parent)
         {
-            transform.eulerAngles -= new Vector3(transform.parent.transform.eulerAngles.x, transform.parent.transform.eulerAngles.y, transform.parent.transform.eulerAngles.z);
-            //transform.localEulerAngles -= new Vector3(transform.parent.transform.eulerAngles.x, transform.parent.transform.eulerAngles.y, transform.parent.transform.eulerAngles.z);
+            //transform.eulerAngles -= new Vector3(transform.eulerAngles.x, 0, transform.eulerAngles.z);
+            transform.localEulerAngles = new Vector3(0, 0, 0);
         }
 
         //    RaycastHit hit;
@@ -164,9 +171,9 @@ public class PlayerMovement : MonoBehaviour {
 
     }
 
-        void Start()
+    void Start()
     {
-        Cursor.visible = false;
+        //Cursor.visible = false;
         GetComponent<CameraMovement>().enabled = false;
         // Make the rigid body not change rotation
         if (GetComponent<Rigidbody>())

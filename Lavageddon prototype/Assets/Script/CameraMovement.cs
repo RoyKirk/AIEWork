@@ -21,8 +21,8 @@ public class CameraMovement : MonoBehaviour {
             {
                 if (Input.GetAxis("Mouse Y") != 0 || Input.GetAxis("Mouse X") != 0)
                 {
-                    Cursor.visible = true;
-                    Cursor.lockState = CursorLockMode.None;
+                    //Cursor.visible = true;
+                    //Cursor.lockState = CursorLockMode.None;
 
                     float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;
 
@@ -51,8 +51,8 @@ public class CameraMovement : MonoBehaviour {
         {
             if (Input.GetAxis("Joy Y") != 0 || Input.GetAxis("Joy X") != 0)
             {
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
+                //Cursor.visible = false;
+                //Cursor.lockState = CursorLockMode.Locked;
 
                 float rotationX = transform.localEulerAngles.y + Input.GetAxis("Joy X");
 
@@ -91,7 +91,7 @@ public class CameraMovement : MonoBehaviour {
 
     void Start()
     {
-        Cursor.visible = true;
+        Cursor.visible = false;
         // Make the rigid body not change rotation
         if (GetComponent<Rigidbody>())
         {

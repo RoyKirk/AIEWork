@@ -6,7 +6,7 @@ public class BlockDamage : MonoBehaviour {
 
 
     public float HitPoints = 1;
-
+    public bool keystone = false;
 
 
 	// Use this for initialization
