@@ -75,9 +75,12 @@
     <Compile Include="Assets\Script\BlockDamage.cs" />
     <Compile Include="Assets\Script\BuildingBlock.cs" />
     <Compile Include="Assets\Script\CameraMovement.cs" />
+    <Compile Include="Assets\Script\ExplosionScript.cs" />
+    <Compile Include="Assets\Script\FiringScript.cs" />
     <Compile Include="Assets\Script\FloatFixed.cs" />
     <Compile Include="Assets\Script\PlacementBlockScript.cs" />
     <Compile Include="Assets\Script\PlayerMovement.cs" />
+    <Compile Include="Assets\Script\ProjectileScript.cs" />
     <Compile Include="Assets\Script\WhirlpoolCurrent.cs" />
     <Compile Include="Assets\Script\WhirlpoolOffest.cs" />
     <Compile Include="Assets\Script\managerscript.cs" />

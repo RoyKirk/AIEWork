@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 
@@ -22,6 +23,9 @@ public class managerscript : MonoBehaviour {
     public BlockType blockType = BlockType.FLOAT;
     bool startConstruction = true;
     public float startDistance = 10;
+    public int maxNumberOfBlocks = 25;
+    public int numberOfBlocks = 0;
+    public Text numberText;
     // Use this for initialization
     void Start ()
     {
@@ -40,6 +44,8 @@ public class managerscript : MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
+        numberText.text = "No. of Blocks = " + (maxNumberOfBlocks - numberOfBlocks);
+
 	    if(blockdestroyed)
         {
             FixedJoint[] joints = FindObjectsOfType(typeof(FixedJoint)) as FixedJoint[];
@@ -138,7 +144,8 @@ public class managerscript : MonoBehaviour {
                 startConstruction = true;
             }
 
-            if (Input.GetButtonDown("PlaceBlock") && block && block.GetComponent<PlacementBlockScript>().placeable)
+
+            if (Input.GetButtonDown("PlaceBlock") && block && block.GetComponent<PlacementBlockScript>().placeable && numberOfBlocks<maxNumberOfBlocks)
             {
                 if (blockType == BlockType.FLOAT)
                 {
@@ -148,6 +155,7 @@ public class managerscript : MonoBehaviour {
                 {
                     Instantiate(blockPrefabArmour, block.transform.position, block.transform.rotation);
                 }
+                numberOfBlocks++;
             }
 
             if (Input.GetButtonDown("DestroyBlock"))
@@ -161,6 +169,7 @@ public class managerscript : MonoBehaviour {
                         if (!shot.collider.GetComponent<BlockDamage>().keystone)
                         {
                             shot.collider.GetComponent<BlockDamage>().Damage(shot.collider.GetComponent<BlockDamage>().HitPoints);
+                            numberOfBlocks--;
                         }
                     }
                 }

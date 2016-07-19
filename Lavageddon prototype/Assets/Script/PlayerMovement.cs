@@ -16,7 +16,6 @@ public class PlayerMovement : MonoBehaviour {
     public float jumpForce = 1000.0f;
     float rotationY = 0F;
     //public float shootDistance = 1000.0f;
-    public float bulletDamage = 1.0f;
     void Update()
     {
 
@@ -41,11 +40,16 @@ public class PlayerMovement : MonoBehaviour {
                 //transform.position += direction;
                 //GetComponent<Rigidbody>().AddForce(direction*100);
 
-
-
                 transform.parent = hit.collider.transform;
-                
+                //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
                 //velocity = (current - previous) / Time.deltaTime;
+
+
+                //Vector3 posDif = hit.collider.transform.position - transform.position;
+                //posDif = hit.collider.transform.position + posDif;
+                //transform.position = new Vector3(posDif.x, transform.position.y, posDif.z);
+
+
 
 
                 //transform.position += hit.collider.GetComponent<Rigidbody>().velocity;
@@ -117,58 +121,47 @@ public class PlayerMovement : MonoBehaviour {
         }
         
 
-        transform.position += Input.GetAxis("Vertical") * new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
+        transform.localPosition += Input.GetAxis("Vertical") * new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
         
-        transform.position += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
+        transform.localPosition += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
 
         if (Input.GetButtonDown("Fire"))
         {
-            RaycastHit shot;
-            if (Physics.Raycast(transform.position, transform.forward, out shot))
-            {
-                Debug.DrawLine(transform.position, shot.point);
-                if (shot.collider.tag == "Block")
-                {
+            GetComponent<FiringScript>().Fire();
+            //RaycastHit shot;
+            //if (Physics.Raycast(transform.position, transform.forward, out shot))
+            //{
+            //    Debug.DrawLine(transform.position, shot.point);
+            //    if (shot.collider.tag == "Block")
+            //    {
 
-                    shot.collider.GetComponent<BlockDamage>().Damage(bulletDamage);
+            //        shot.collider.GetComponent<BlockDamage>().Damage(bulletDamage);
 
-                }
-            }
+            //    }
+            //}
         }
 
     }
 
     void LateUpdate()
     {
-        if (transform.parent)
-        {
-            //transform.eulerAngles -= new Vector3(transform.eulerAngles.x, 0, transform.eulerAngles.z);
-            transform.localEulerAngles = new Vector3(0, 0, 0);
-        }
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
+        //if (transform.parent)
+        //{
+        //transform.eulerAngles -= new Vector3(transform.eulerAngles.x, 0, transform.eulerAngles.z);
+        //transform.localEulerAngles = new Vector3(0, 0, 0);
+        //}
 
-        //    RaycastHit hit;
+        //RaycastHit hit;
 
-        //    if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
+        //if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
+        //{
+        //    Debug.DrawLine(transform.position, hit.point);
+        //    if (hit.collider.tag == "Block")
         //    {
-        //        Debug.DrawLine(transform.position, hit.point);
-        //        if (hit.collider.tag == "Block")
-        //        {
-        //            //Vector3 direction = new Vector3(0, 0, 0);
-        //            //direction = hit.collider.transform.position - transform.position;
-        //            //direction.y = 0;
-        //            //transform.position += direction;
-        //            //GetComponent<Rigidbody>().AddForce(direction*100);
-
-        //            transform.eulerAngles -= new Vector3(hit.collider.transform.eulerAngles.x, 0, hit.collider.transform.eulerAngles.z);
-        //            //transform.parent = hit.collider.transform;
-        //            //transform.position = new Vector3(hit.collider.transform.position.x, transform.position.y, hit.collider.transform.position.z);
-
-        //            //Vector3 eulerTemp = transform.eulerAngles + new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
-        //            //transform.eulerAngles += new Vector3(0, hit.collider.transform.eulerAngles.y, 0);
-        //            //transform.eulerAngles = new Vector3(transform.eulerAngles.x, hit.collider.transform.eulerAngles.y, transform.eulerAngles.z);
-        //        }
+        //        GetComponent<Rigidbody>().velocity = hit.collider.GetComponent<Rigidbody>().velocity;
         //    }
-
+        //}
     }
 
     void Start()
