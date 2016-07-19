@@ -18,6 +18,8 @@ public class PlayerMovement : MonoBehaviour {
 
     Transform platform;
 
+    Vector3 localPos;
+
     //public float shootDistance = 1000.0f;
     void Update()
     {
@@ -31,10 +33,6 @@ public class PlayerMovement : MonoBehaviour {
             if (Input.GetButtonDown("Jump"))
             {
                 GetComponent<Rigidbody>().AddForce(0, jumpForce, 0);
-            }
-            if (hit.collider.tag == "Block")
-            {
-                platform = hit.collider.transform;
             }
         }
 
@@ -82,9 +80,9 @@ public class PlayerMovement : MonoBehaviour {
         }
         
 
-        transform.position += Input.GetAxis("Vertical") * new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
+        localPos += Input.GetAxis("Vertical") * new Vector3(transform.forward.normalized.x + transform.up.normalized.x, 0, transform.forward.normalized.z + transform.up.normalized.z) * movementSpeed;
         
-        transform.position += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
+        localPos += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
 
         if (Input.GetButtonDown("Fire"))
         {
@@ -113,15 +111,31 @@ public class PlayerMovement : MonoBehaviour {
             Debug.DrawLine(transform.position, hit.point);
             if (hit.collider.tag == "Block")
             {
-                Vector3 posDif = hit.collider.transform.position - platform.position;
-                transform.position -= posDif;
-
+                if (hit.collider.transform != platform)
+                {
+                    platform = hit.collider.transform;
+                    localPos = hit.collider.transform.position - localPos;
+                }
+               // transform.position -= posDif;
 
                 //Vector3 posDif = hit.collider.transform.position - transform.position;
                 //posDif = new Vector3(posDif.x, posDif.y, posDif.z);
                 //transform.position = hit.collider.transform.position - posDif;
             }
         }
+        else
+        {
+            if (platform)
+            {
+                localPos = platform.position - localPos;
+                platform = null;
+            }
+        }
+
+
+        transform.position = localPos;
+
+
     }
 
     void Start()
@@ -135,6 +149,8 @@ public class PlayerMovement : MonoBehaviour {
             GetComponent<Rigidbody>().freezeRotation = true;
             GetComponent<Rigidbody>().isKinematic = false;
         }
+        localPos = transform.position;
+        platform = null;
 
     }
 }
