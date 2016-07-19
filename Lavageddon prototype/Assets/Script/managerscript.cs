@@ -23,7 +23,7 @@ public class managerscript : MonoBehaviour {
     public BlockType blockType = BlockType.FLOAT;
     bool startConstruction = true;
     public float startDistance = 10;
-    public int maxNumberOfBlocks = 25;
+    public int maxNumberOfBlocks = 24;
     public int numberOfBlocks = 0;
     public Text numberText;
     // Use this for initialization

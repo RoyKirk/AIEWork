@@ -15,6 +15,9 @@ public class PlayerMovement : MonoBehaviour {
     public float frictionCast = 1.0f;
     public float jumpForce = 1000.0f;
     float rotationY = 0F;
+
+    Transform platform;
+
     //public float shootDistance = 1000.0f;
     void Update()
     {
@@ -28,6 +31,10 @@ public class PlayerMovement : MonoBehaviour {
             if (Input.GetButtonDown("Jump"))
             {
                 GetComponent<Rigidbody>().AddForce(0, jumpForce, 0);
+            }
+            if (hit.collider.tag == "Block")
+            {
+                platform = hit.collider.transform;
             }
         }
 
@@ -106,16 +113,15 @@ public class PlayerMovement : MonoBehaviour {
             Debug.DrawLine(transform.position, hit.point);
             if (hit.collider.tag == "Block")
             {
-                transform.parent = hit.collider.transform;
-                //GetComponent<Rigidbody>().velocity = hit.collider.GetComponent<Rigidbody>().velocity;
+                Vector3 posDif = hit.collider.transform.position - platform.position;
+                transform.position -= posDif;
+
+
+                //Vector3 posDif = hit.collider.transform.position - transform.position;
+                //posDif = new Vector3(posDif.x, posDif.y, posDif.z);
+                //transform.position = hit.collider.transform.position - posDif;
             }
         }
-        else
-        {
-            transform.parent = null;
-            //GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, 0);
-        }
-        GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, 0);
     }
 
     void Start()
