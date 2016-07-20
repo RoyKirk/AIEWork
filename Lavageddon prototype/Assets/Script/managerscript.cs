@@ -73,76 +73,7 @@ public class managerscript : MonoBehaviour {
         if (constructionMode)
         {
 
-            //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
 
-            //if (Physics.Raycast(ray, out hit, placementReach))
-            if (Physics.Raycast(transform.position, transform.forward, out hit, placementReach))
-            {
-
-                //Debug.DrawLine(ray.origin, hit.point);
-                Debug.DrawLine(transform.position, hit.point);
-
-                if (hit.collider.tag == "Block")
-                {
-                    if (startConstruction)
-                    {
-                        if (blockType == BlockType.FLOAT)
-                        {
-                            block = (GameObject)Instantiate(blockPlacePrefabFloat, hit.collider.transform.position, hit.collider.transform.rotation);
-                        }
-                        if (blockType == BlockType.ARMOUR)
-                        {
-                            block = (GameObject)Instantiate(blockPlacePrefabArmour, hit.collider.transform.position, hit.collider.transform.rotation);
-                        }
-                        startConstruction = false;
-                    }
-
-                    block.transform.rotation = hit.collider.transform.rotation;
-                    block.transform.position = hit.collider.transform.position + hit.normal.normalized*placementOffset;
-
-                }
-                else if (hit.collider.tag != "Block" && hit.collider.tag != "PlaceBlock")
-                {
-                    Destroy(block);
-                    startConstruction = true;
-                }
-
-
-
-            }
-            ////controller without cursor set
-            //else if (Physics.Raycast(transform.position, transform.forward, out hit, placementReach))
-            //{
-
-            //    Debug.DrawLine(ray.origin, hit.point);
-
-            //    if (hit.collider.tag == "Block")
-            //    {
-            //        if (startConstruction)
-            //        {
-            //            if (blockType == BlockType.FLOAT)
-            //            {
-            //                block = (GameObject)Instantiate(blockPlacePrefabFloat, hit.collider.transform.position, hit.collider.transform.rotation);
-            //            }
-            //            if (blockType == BlockType.ARMOUR)
-            //            {
-            //                block = (GameObject)Instantiate(blockPlacePrefabArmour, hit.collider.transform.position, hit.collider.transform.rotation);
-            //            }
-            //            startConstruction = false;
-            //        }
-
-            //        block.transform.rotation = hit.collider.transform.rotation;
-            //        block.transform.position = hit.collider.transform.position + hit.normal.normalized * placementOffset;
-
-            //    }
-
-            //}
-            else
-            {
-                Destroy(block);
-                startConstruction = true;
-            }
 
 
             if (Input.GetButtonDown("PlaceBlock") && block && block.GetComponent<PlacementBlockScript>().placeable && numberOfBlocks<maxNumberOfBlocks)
@@ -245,6 +176,50 @@ public class managerscript : MonoBehaviour {
                         block = (GameObject)Instantiate(blockPlacePrefabArmour, block.transform.position, block.transform.rotation);
                     }
                 }
+
+            }
+            //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            //if (Physics.Raycast(ray, out hit, placementReach))
+            if (Physics.Raycast(transform.position, transform.forward, out hit, placementReach))
+            {
+
+                //Debug.DrawLine(ray.origin, hit.point);
+                Debug.DrawLine(transform.position, hit.point);
+
+                if (hit.collider.tag == "Block")
+                {
+                    if (startConstruction)
+                    {
+                        if (blockType == BlockType.FLOAT)
+                        {
+                            block = (GameObject)Instantiate(blockPlacePrefabFloat, hit.collider.transform.position, hit.collider.transform.rotation);
+                        }
+                        if (blockType == BlockType.ARMOUR)
+                        {
+                            block = (GameObject)Instantiate(blockPlacePrefabArmour, hit.collider.transform.position, hit.collider.transform.rotation);
+                        }
+                        startConstruction = false;
+                    }
+
+                    block.transform.rotation = hit.collider.transform.rotation;
+                    block.transform.position = hit.collider.transform.position + hit.normal.normalized * placementOffset;
+
+                }
+                else if (hit.collider.tag != "Block" && hit.collider.tag != "PlaceBlock")
+                {
+                    Destroy(block);
+                    startConstruction = true;
+                }
+
+
+
+            }
+            else
+            {
+                Destroy(block);
+                startConstruction = true;
             }
         }
         else
