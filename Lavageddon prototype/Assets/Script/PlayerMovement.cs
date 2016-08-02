@@ -1,8 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour {
 
+    public enum Weapon
+    {
+        BOMB,
+        LASER,
+    };
+    int numberOfWeapons = 2;
+    public Weapon weapon = Weapon.BOMB;
+    public int laserDamage = 1;
     public float movementSpeed;
     public enum RotationAxes { MouseXAndY = 0, MouseX = 1, MouseY = 2 }
     public RotationAxes axes = RotationAxes.MouseXAndY;
@@ -16,12 +24,13 @@ public class PlayerMovement : MonoBehaviour {
     public float jumpForce = 1000.0f;
     float rotationY = 0F;
 
-    Vector3 localPos;
-    Transform platform;
-    public float thrust = 100.0f;
-    public Rigidbody rb;
-    Vector3 posDif;
-    bool asd = true;
+    public Color c1 = Color.yellow;
+    public Color c2 = Color.red;
+    int lengthOfLineRenderer = 10;
+
+    public float laserMinTime = 0.02f;
+    float laserTimer = 0.0f;
+
 
     //public float shootDistance = 1000.0f;
     void Update()
@@ -91,22 +100,143 @@ public class PlayerMovement : MonoBehaviour {
 
         transform.position += Input.GetAxis("Horizontal") * transform.right.normalized * movementSpeed;
 
-        if (Input.GetButtonDown("Fire"))
+        laserTimer += Time.deltaTime;
+
+        if (laserTimer >= laserMinTime)
         {
-            GetComponent<FiringScript>().Fire();
-            //RaycastHit shot;
-            //if (Physics.Raycast(transform.position, transform.forward, out shot))
-            //{
-            //    Debug.DrawLine(transform.position, shot.point);
-            //    if (shot.collider.tag == "Block")
-            //    {
-
-            //        shot.collider.GetComponent<BlockDamage>().Damage(bulletDamage);
-
-            //    }
-            //}
+            LineRenderer lineRenderer = GetComponent<LineRenderer>();
+            lineRenderer.enabled = false;
         }
 
+        if (laserTimer < laserMinTime)
+        {
+            LineRenderer lineRenderer = GetComponent<LineRenderer>();
+            int i = 0;
+            while (i < lengthOfLineRenderer)
+            {
+                //Vector3 pos = (transform.position + transform.right.normalized*(lengthOfLineRenderer-i+1)/20) + (transform.forward.normalized * i - transform.right.normalized / (lengthOfLineRenderer - i + 1) / 20);
+                //Vector3 pos = transform.position + transform.forward.normalized * i;
+                Vector3 pos = (transform.position - transform.up.normalized * (lengthOfLineRenderer - i + 1) / 20) + (transform.forward.normalized * i + transform.up.normalized / (lengthOfLineRenderer - i + 1) / 20);
+                lineRenderer.SetPosition(i, pos);
+                i++;
+            }
+        }
+
+        if (Input.GetButtonDown("Fire"))
+        {
+
+            if (weapon == Weapon.BOMB)
+            {
+                GetComponent<FiringScript>().Fire();
+            }
+            if (weapon == Weapon.LASER && laserTimer >= laserMinTime)
+            {
+                laserTimer = 0.0f;
+                LineRenderer lineRenderer = GetComponent<LineRenderer>();
+                lineRenderer.enabled = true;
+                int i = 0;
+                while (i < lengthOfLineRenderer)
+                {
+                    //Vector3 pos = (transform.position + transform.right.normalized*(lengthOfLineRenderer-i+1)/20) + (transform.forward.normalized * i - transform.right.normalized / (lengthOfLineRenderer - i + 1) / 20);
+                    //Vector3 pos = transform.position + transform.forward.normalized * i;
+                    Vector3 pos = (transform.position - transform.up.normalized * (lengthOfLineRenderer - i + 1) / 20) + (transform.forward.normalized * i + transform.up.normalized / (lengthOfLineRenderer - i + 1) / 20);
+                   
+                    lineRenderer.SetPosition(i, pos);
+                    i++;
+                }
+                //laser.enabled = true;
+                //int i = 0;
+                //while (i < lengthOfLineRenderer)
+                //{
+                //    //Vector3 pos = new Vector3(i * 0.5F, Mathf.Sin(i + t), 0);
+                //    Vector3 pos = transform.position + transform.forward.normalized * i;
+                //    i++;
+                //}
+                //laser.SetPosition(0, transform.position);
+                //laser.SetPosition(1, transform.position + transform.forward.normalized * laserLength);
+                RaycastHit shot;
+                if (Physics.Raycast(transform.position, transform.forward, out shot))
+                {
+                    Debug.DrawLine(transform.position, shot.point, Color.red);
+                    if (shot.collider.tag == "Block")
+                    {
+
+                        shot.collider.GetComponent<BlockDamage>().Damage(laserDamage);
+
+                    }
+                }
+            }
+        }
+
+        if (Input.GetButtonDown("SwitchWeapon"))
+        {
+            if (Input.GetAxis("SwitchWeapon") > 0)
+            {
+                weapon++;
+            }
+            if (Input.GetAxis("SwitchWeapon") < 0)
+            {
+                weapon--;
+            }
+
+            if ((int)weapon == numberOfWeapons)
+            {
+                weapon = (Weapon)0;
+            }
+            else if ((int)weapon < 0)
+            {
+                weapon = (Weapon)(numberOfWeapons - 1);
+            }
+
+        }
+        else if (!Input.GetButton("SwitchWeapon") && !Input.GetButtonDown("SwitchWeapon") && Input.GetAxis("SwitchWeapon") != 0)
+        {
+            if (Input.GetAxis("SwitchWeapon") > 0)
+            {
+                weapon++;
+            }
+            if (Input.GetAxis("SwitchWeapon") < 0)
+            {
+                weapon--;
+            }
+
+            if ((int)weapon == numberOfWeapons)
+            {
+                weapon = (Weapon)0;
+            }
+            else if ((int)weapon < 0)
+            {
+                weapon = (Weapon)(numberOfWeapons - 1);
+            }
+        }
+        if (Input.GetButtonDown("StartGame"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+        }
+
+    }
+
+    void LateUpdate()
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, frictionCast))
+        {
+            if (hit.collider.tag == "Block")
+            {
+                Vector3 vel = hit.collider.GetComponent<Rigidbody>().velocity;
+                GetComponent<Rigidbody>().velocity = new Vector3(vel.x, GetComponent<Rigidbody>().velocity.y, vel.z);
+            }
+            else
+            {
+                GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, 0);
+            }
+        }
+        else
+        {
+            GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, 0);
+        }
     }
 
     void Start()
@@ -121,8 +251,14 @@ public class PlayerMovement : MonoBehaviour {
             GetComponent<Rigidbody>().freezeRotation = true;
             GetComponent<Rigidbody>().isKinematic = false;
         }
-        platform = null;
-        rb = GetComponent<Rigidbody>();
 
+        LineRenderer lineRenderer = gameObject.AddComponent<LineRenderer>();
+        //LineRenderer lineRenderer = gameObject.GetComponent<LineRenderer>();
+        //lineRenderer.enabled = true;
+        lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
+        lineRenderer.SetColors(c1, c2);
+        lineRenderer.SetWidth(0.2F, 0.2F);
+        lineRenderer.SetVertexCount(lengthOfLineRenderer);
+        lineRenderer.enabled = false;
     }
 }

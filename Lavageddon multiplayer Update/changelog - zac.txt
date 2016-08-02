@@ -1,0 +1,9 @@
+7/18 - 	Networking Prototype working well, construction stage working with multiple clients. laggy on non master-client server when placing blocks.
+	Physics simulation working, without too much jerkyness (in most cases), Always start simulation on master client.
+	
+	things that need doing / notes:
+		try and fix the lag when RPC master to make blocks.
+		add a gun with projectiles that dmg blocks (look in PlayerMovement).
+		(Roy) is working on players moving with rafts.
+		need to test if players can see and update eachother smoothly.
+		sometimes the rafts get weird in the simulation stage, (look into the temp placement block interfeiring?)

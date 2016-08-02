@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 
 public class managerscript : MonoBehaviour {
@@ -26,6 +27,8 @@ public class managerscript : MonoBehaviour {
     public int maxNumberOfBlocks = 24;
     public int numberOfBlocks = 0;
     public Text numberText;
+
+    //List<GameObject> boat = new List<GameObject>();
     // Use this for initialization
     void Start ()
     {

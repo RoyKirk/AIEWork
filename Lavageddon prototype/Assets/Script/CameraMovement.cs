@@ -85,7 +85,6 @@ public class CameraMovement : MonoBehaviour {
 
         if (Input.GetButtonDown("StartGame"))
         {
-            GameObject.Find("Main Camera").GetComponent<managerscript>().constructionMode = false;
             GetComponent<PlayerMovement>().enabled = true;
         }
     }

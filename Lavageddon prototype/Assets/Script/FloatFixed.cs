@@ -23,7 +23,7 @@ public class FloatFixed : MonoBehaviour
     void Start()
     {
         GetComponent<BuildingBlock>().enabled = false;
-        
+        GameObject.Find("Main Camera").GetComponent<managerscript>().constructionMode = false;
         rb = GetComponent<Rigidbody>();
         rb.useGravity = true;
         localScale = this.transform.localScale / 2;

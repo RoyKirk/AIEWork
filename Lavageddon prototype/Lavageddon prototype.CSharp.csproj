@@ -82,10 +82,10 @@
     <Compile Include="Assets\Script\PlatformScript.cs" />
     <Compile Include="Assets\Script\PlayerMovement.cs" />
     <Compile Include="Assets\Script\ProjectileScript.cs" />
+    <Compile Include="Assets\Script\SwitchMode.cs" />
     <Compile Include="Assets\Script\WhirlpoolCurrent.cs" />
     <Compile Include="Assets\Script\WhirlpoolOffest.cs" />
     <Compile Include="Assets\Script\managerscript.cs" />
-    <Compile Include="Assets\SwitchMode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
